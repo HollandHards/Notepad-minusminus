@@ -22,6 +22,7 @@ const tabBar = document.getElementById('tabBar');
 const mainToolbar = document.getElementById('mainToolbar');
 const brandButton = document.getElementById('brandButton');
 const historyMenu = document.getElementById('historyMenu');
+const appName = document.getElementById('appName');
 
 // Buttons
 const btnOpen = document.getElementById('btnOpen');
@@ -55,6 +56,7 @@ const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     }
 });
 
+// Load Theme Config
 if (localStorage.getItem('theme') === 'light') {
     document.body.classList.add('light-mode');
     cm.setOption('theme', 'default');
@@ -117,6 +119,7 @@ function renderTabs() {
 }
 
 function switchToTab(id) {
+    // Save state of current tab
     if (activeFileId) {
         const oldFile = openFiles.find(f => f.id === activeFileId);
         if (oldFile) {
@@ -131,6 +134,8 @@ function switchToTab(id) {
     const newFile = openFiles.find(f => f.id === id);
 
     if (newFile) {
+        // Load new tab state
+        // This triggers 'change' event with origin 'setValue'
         cm.setValue(newFile.content); 
         cm.setOption('mode', newFile.mode);
         cm.setHistory(newFile.history || { done: [], undone: [] });
@@ -162,14 +167,11 @@ function closeTab(id) {
 }
 
 // --- 6. EVENT LISTENERS ---
-
-// UNIFIED BRAND BUTTON LOGIC
+// Brand Button: Mobile Toggle or Desktop New Tab
 brandButton.addEventListener('click', (e) => {
-    // If we are on mobile (screen width < 768px), toggle menu
     if (window.innerWidth <= 768) {
         mainToolbar.classList.toggle('mobile-open');
     } else {
-        // If on Desktop, create New Tab
         createNewTab();
     }
 });
@@ -210,8 +212,9 @@ btnSaveAs.addEventListener('click', async () => {
     } catch (e) {}
 });
 
-// --- 7. EDITOR EVENTS ---
-const updateStats = () => {
+// --- 7. EDITOR EVENTS (FIXED) ---
+// We now accept the changeObj argument from CodeMirror
+const updateStats = (cmInstance, changeObj) => {
     const text = cm.getValue();
     const lines = cm.lineCount();
     const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
@@ -219,18 +222,28 @@ const updateStats = () => {
     
     const file = openFiles.find(f => f.id === activeFileId);
     if (file) {
-        if (!file.isDirty) { file.isDirty = true; renderTabs(); }
+        // CRITICAL FIX: Only mark dirty if the change is NOT from 'setValue' (programmatic loading)
+        if (changeObj && changeObj.origin !== 'setValue') {
+            if (!file.isDirty) { 
+                file.isDirty = true; 
+                renderTabs(); 
+            }
+        }
+        
         file.content = text; 
         localStorage.setItem('autosave_content', text); 
     }
 };
-cm.on('change', updateStats);
+
+// Bind the change event with the change object
+cm.on('change', (instance, changeObj) => updateStats(instance, changeObj));
+
 cm.on('cursorActivity', () => {
     const pos = cm.getCursor();
     cursorPosDisplay.textContent = `Ln ${pos.line + 1}, Col ${pos.ch + 1}`;
 });
 
-// --- 8. CLIPBOARD ---
+// --- 8. CLIPBOARD & SEARCH & UI ---
 function addToHistory(text) {
     if (!text || !text.trim()) return;
     clipboardHistory = [text, ...clipboardHistory.filter(t => t !== text)].slice(0, 5);
@@ -257,7 +270,8 @@ btnPaste.addEventListener('click', async () => {
 btnHistory.addEventListener('click', (e) => { e.stopPropagation(); renderHistoryMenu(); historyMenu.classList.toggle('show'); });
 document.addEventListener('click', (e) => { if (!historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show'); });
 
-// --- 9. MISC ---
+let lastSearchQuery = '';
+let searchCursor = null;
 const triggerSearch = (e) => { if (e.key === 'Enter') { e.preventDefault(); btnAction.click(); } };
 findInput.addEventListener('keydown', triggerSearch);
 replaceInput.addEventListener('keydown', triggerSearch);
@@ -266,6 +280,7 @@ btnAction.addEventListener('click', () => {
     const findText = findInput.value;
     const replaceText = replaceInput.value;
     if (!findText) return;
+
     if (replaceText === "") {
         if (findText !== lastSearchQuery || !searchCursor) { lastSearchQuery = findText; searchCursor = cm.getSearchCursor(findText, cm.getCursor(), {caseFold: true}); }
         if (searchCursor.findNext()) { cm.setSelection(searchCursor.from(), searchCursor.to()); cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100); cm.focus(); }
