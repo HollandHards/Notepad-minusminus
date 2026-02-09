@@ -18,6 +18,8 @@
     --dropdown-hover: #3c4043;
     --gutter-bg: #202124;
     --folder-color: #6e7681;
+    --active-line-bg: #323639; /* Subtle highlight for current line */
+    --match-highlight: #44475a; /* Highlight other occurrences */
 }
 
 body.light-mode {
@@ -39,6 +41,8 @@ body.light-mode {
     --dropdown-hover: #f1f3f4;
     --gutter-bg: #f7f7f7;
     --folder-color: #999;
+    --active-line-bg: #e8f0fe;
+    --match-highlight: #d2e3fc;
 }
 
 /* --- GLOBAL --- */
@@ -51,7 +55,7 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 ::-webkit-scrollbar-corner { background: var(--scroll-track); }
 
-/* --- CODEMIRROR --- */
+/* --- CODEMIRROR OVERRIDES --- */
 .CodeMirror { flex-grow: 1; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; }
 .CodeMirror-gutters { background-color: var(--gutter-bg) !important; border-right: 1px solid var(--border-color) !important; }
 .CodeMirror-linenumber { color: var(--text-muted) !important; }
@@ -59,23 +63,24 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .CodeMirror-foldmarker { color: var(--accent); text-shadow: none; font-family: arial; line-height: .3; cursor: pointer; }
 .CodeMirror-foldgutter-open, .CodeMirror-foldgutter-folded { cursor: pointer; }
 
-/* --- TOOLBAR (FIXED) --- */
-.toolbar { 
-    background-color: var(--toolbar-bg); 
-    height: 50px; 
-    padding: 0 15px; 
-    display: flex; 
-    align-items: center; 
-    gap: 15px; 
-    border-bottom: 1px solid var(--border-color); 
-    white-space: nowrap; 
-    position: relative; 
-    /* CHANGED: overflow visible allows menus to popup over the tabs */
-    overflow: visible; 
-    /* CHANGED: z-index higher than tab-bar */
-    z-index: 1000; 
-}
+/* NEW: Active Line & Match Highlight */
+.CodeMirror-activeline-background { background: var(--active-line-bg) !important; }
+.cm-matchhighlight { background-color: var(--match-highlight); }
 
+/* NEW: Auto-Complete Hints Styling */
+.CodeMirror-hints {
+    background: var(--dropdown-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+    border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.CodeMirror-hint { color: var(--text-color) !important; padding: 2px 6px !important; border-radius: 2px; }
+.CodeMirror-hint-active { background: var(--accent) !important; color: var(--bg-color) !important; }
+
+
+/* --- TOOLBAR --- */
+.toolbar { background-color: var(--toolbar-bg); height: 50px; padding: 0 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); white-space: nowrap; position: relative; overflow: visible; z-index: 1000; }
 .brand-section { display: flex; align-items: center; margin-right: 5px; cursor: pointer; user-select: none; }
 .brand-section img { width: 24px; height: 24px; margin-right: 8px; }
 .app-name { font-weight: bold; color: var(--accent); font-size: 1.1rem; transition: color 0.2s; }
@@ -83,18 +88,7 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .group-file, .group-clipboard, .group-zoom, .group-search { display: flex; gap: 5px; align-items: center; }
 
 /* --- TAB BAR --- */
-.tab-bar-container { 
-    display: flex; 
-    background-color: var(--bg-color); 
-    border-bottom: 1px solid var(--border-color); 
-    padding-top: 5px; 
-    padding-left: 5px; 
-    height: 35px; 
-    box-sizing: border-box;
-    /* CHANGED: z-index lower than toolbar */
-    position: relative;
-    z-index: 500; 
-}
+.tab-bar-container { display: flex; background-color: var(--bg-color); border-bottom: 1px solid var(--border-color); padding-top: 5px; padding-left: 5px; height: 35px; box-sizing: border-box; position: relative; z-index: 500; }
 .tab-bar { display: flex; overflow-x: auto; flex-grow: 1; scrollbar-width: none; }
 .tab-bar::-webkit-scrollbar { display: none; }
 .tab { display: flex; align-items: center; background-color: var(--tab-bg); color: var(--text-muted); padding: 0 10px; margin-right: 2px; border-top-left-radius: 6px; border-top-right-radius: 6px; border: 1px solid transparent; cursor: pointer; font-size: 0.85rem; max-width: 150px; min-width: 80px; user-select: none; }
@@ -119,22 +113,7 @@ button.active { background: var(--accent); color: var(--bg-color); border-color:
 .paste-wrapper { position: relative; display: flex; }
 #btnPaste { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; }
 #btnHistory { border-top-left-radius: 0; border-bottom-left-radius: 0; padding-left: 5px; padding-right: 5px; }
-/* Menu Styling */
-.history-menu { 
-    display: none; 
-    position: absolute; 
-    top: 100%; 
-    left: 0; 
-    background: var(--dropdown-bg); 
-    border: 1px solid var(--border-color); 
-    border-radius: 4px; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
-    min-width: 200px; 
-    max-width: 300px; 
-    z-index: 2000; /* Highest z-index */
-    flex-direction: column; 
-    margin-top: 5px; 
-}
+.history-menu { display: none; position: absolute; top: 100%; left: 0; background: var(--dropdown-bg); border: 1px solid var(--border-color); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); min-width: 200px; max-width: 300px; z-index: 2000; flex-direction: column; margin-top: 5px; }
 .history-menu.show { display: flex; }
 .history-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-color); }
 .history-item:hover { background: var(--dropdown-hover); }
