@@ -25,7 +25,7 @@ body {
     width: 100%; height: 100%;
     background: rgba(138, 180, 248, 0.9);
     color: #202124;
-    z-index: 2000; /* Higher than CodeMirror */
+    z-index: 2000;
     justify-content: center;
     align-items: center;
     font-size: 2rem;
@@ -39,12 +39,21 @@ body {
     background-color: #292a2d;
     padding: 10px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #3c4043;
 }
 
-.app-name { font-weight: bold; color: #8ab4f8; font-size: 1.2rem; }
+.app-name { font-weight: bold; color: #8ab4f8; font-size: 1.2rem; margin-right: 15px; }
+
+.lang-select {
+    padding: 5px;
+    background: #3c4043;
+    color: white;
+    border: 1px solid #5f6368;
+    border-radius: 4px;
+    margin-right: auto; /* Pushes buttons to right */
+}
+
 .buttons { display: flex; gap: 5px; }
 
 button {
