@@ -50,14 +50,7 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 /* --- TOOLBAR --- */
 .toolbar { background-color: var(--toolbar-bg); height: 50px; padding: 0 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); overflow-x: auto; white-space: nowrap; position: relative; z-index: 100; }
 
-/* UPDATED: Brand Section is now fully clickable */
-.brand-section { 
-    display: flex; 
-    align-items: center; 
-    margin-right: 5px; 
-    cursor: pointer; /* Changed from default to pointer */
-    user-select: none;
-}
+.brand-section { display: flex; align-items: center; margin-right: 5px; cursor: pointer; user-select: none; }
 .brand-section img { width: 24px; height: 24px; margin-right: 8px; }
 .app-name { font-weight: bold; color: var(--accent); font-size: 1.1rem; transition: color 0.2s; }
 .brand-section:hover .app-name { color: var(--text-color); }
@@ -68,11 +61,64 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .tab-bar-container { display: flex; background-color: var(--bg-color); border-bottom: 1px solid var(--border-color); padding-top: 5px; padding-left: 5px; height: 35px; box-sizing: border-box; }
 .tab-bar { display: flex; overflow-x: auto; flex-grow: 1; scrollbar-width: none; }
 .tab-bar::-webkit-scrollbar { display: none; }
-.tab { display: flex; align-items: center; background-color: var(--tab-bg); color: var(--text-muted); padding: 0 10px; margin-right: 2px; border-top-left-radius: 6px; border-top-right-radius: 6px; border: 1px solid transparent; cursor: pointer; font-size: 0.85rem; max-width: 150px; min-width: 80px; user-select: none; }
-.tab.active { background-color: var(--tab-active); color: var(--text-color); border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-top: 2px solid var(--accent); font-weight: bold; }
-.tab-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-right: 8px; }
-.tab-close { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; opacity: 0.6; }
+
+.tab { 
+    display: flex; 
+    align-items: center; 
+    background-color: var(--tab-bg); 
+    color: var(--text-muted); 
+    padding: 0 10px; 
+    margin-right: 2px; 
+    border-top-left-radius: 6px; 
+    border-top-right-radius: 6px; 
+    border: 1px solid transparent; 
+    cursor: pointer; 
+    font-size: 0.85rem; 
+    max-width: 150px; 
+    min-width: 80px; 
+    user-select: none; 
+}
+
+.tab.active { 
+    background-color: var(--tab-active); 
+    color: var(--text-color); 
+    border-left: 1px solid var(--border-color); 
+    border-right: 1px solid var(--border-color); 
+    border-top: 2px solid var(--accent); 
+    font-weight: bold; 
+}
+
+.tab-name { 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    margin-right: 4px;
+    flex-shrink: 1; /* Allow name to shrink */
+}
+
+/* NEW: Dirty Indicator (Asterisk) */
+.tab-dirty {
+    color: var(--accent);
+    font-weight: bold;
+    margin-right: 6px;
+    font-size: 1.2rem;
+    line-height: 1;
+    flex-shrink: 0; /* Prevent shrinking so it stays visible */
+}
+
+.tab-close { 
+    width: 16px; 
+    height: 16px; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 0.7rem; 
+    opacity: 0.6; 
+    flex-shrink: 0; /* Prevent close button shrinking */
+}
 .tab-close:hover { background-color: rgba(255, 0, 0, 0.2); color: #ff5f5f; opacity: 1; }
+
 .tab-plus { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 0 10px; }
 .tab-plus:hover { color: var(--accent); background: transparent; }
 
