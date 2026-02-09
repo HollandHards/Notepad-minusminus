@@ -41,6 +41,11 @@ const toolDup = document.getElementById('toolDup');
 const toolUpper = document.getElementById('toolUpper');
 const toolLower = document.getElementById('toolLower');
 
+// Help Elements
+const btnHelp = document.getElementById('btnHelp');
+const helpModal = document.getElementById('helpModal');
+const closeModal = document.getElementById('closeModal');
+
 const findInput = document.getElementById('findInput');
 const replaceInput = document.getElementById('replaceInput');
 
@@ -52,10 +57,8 @@ const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     lineWrapping: true,
     matchBrackets: true,
     indentUnit: 4,
-    // NEW: Folding
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-    // NEW: Smart Editing & Visuals
     autoCloseBrackets: true,
     autoCloseTags: true,
     styleActiveLine: true,
@@ -63,7 +66,7 @@ const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     hintOptions: { completeSingle: false },
     extraKeys: {
         "Tab": (cm) => cm.somethingSelected() ? cm.indentSelection("add") : cm.replaceSelection("    ", "end"),
-        "Ctrl-Space": "autocomplete", // Trigger Autocomplete
+        "Ctrl-Space": "autocomplete",
         "Ctrl-G": () => jumpToLine(),
         "Ctrl-D": () => duplicateLine(),
         "Ctrl-Shift-Up": () => moveLineUp(),
@@ -276,6 +279,12 @@ window.addEventListener('dragenter', (e) => { e.preventDefault(); dropZone.class
 dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); if (e.clientX === 0 && e.clientY === 0) { dropZone.classList.remove('active'); dropZone.style.display = 'none'; } });
 dropZone.addEventListener('dragover', (e) => { e.preventDefault(); });
 dropZone.addEventListener('drop', async (e) => { e.preventDefault(); dropZone.classList.remove('active'); dropZone.style.display = 'none'; const items = e.dataTransfer.items; if (items && items[0].kind === 'file') { const h = await items[0].getAsFileSystemHandle(); if (h.kind === 'file') { const f = await h.getFile(); const c = await f.text(); createNewTab(f.name, c, h); } } });
+
+// HELP MODAL LOGIC
+btnHelp.addEventListener('click', (e) => { e.preventDefault(); helpModal.classList.add('show'); });
+closeModal.addEventListener('click', () => helpModal.classList.remove('show'));
+helpModal.addEventListener('click', (e) => { if(e.target === helpModal) helpModal.classList.remove('show'); });
+
 document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.key === 's') { e.preventDefault(); btnSave.click(); }
     if (e.ctrlKey && e.key === 'o') { e.preventDefault(); btnOpen.click(); }
