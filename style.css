@@ -37,7 +37,7 @@ body.light-mode {
     --dropdown-hover: #f1f3f4;
 }
 
-/* --- GLOBAL STYLES --- */
+/* --- GLOBAL --- */
 body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); overflow: hidden; transition: background-color 0.3s; }
 
 /* --- SCROLLBARS --- */
@@ -49,20 +49,18 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 
 /* --- TOOLBAR --- */
 .toolbar { background-color: var(--toolbar-bg); height: 50px; padding: 0 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); overflow-x: auto; white-space: nowrap; position: relative; z-index: 100; }
-.brand-section { display: flex; align-items: center; margin-right: 5px; cursor: default; }
-.brand-section img { width: 24px; height: 24px; margin-right: 8px; }
 
-/* UPDATED: App Name Styling for Interactivity */
-.app-name { 
-    font-weight: bold; 
-    color: var(--accent); 
-    font-size: 1.1rem; 
-    cursor: pointer; /* Pointer to indicate clickable */
-    transition: color 0.2s;
+/* UPDATED: Brand Section is now fully clickable */
+.brand-section { 
+    display: flex; 
+    align-items: center; 
+    margin-right: 5px; 
+    cursor: pointer; /* Changed from default to pointer */
+    user-select: none;
 }
-.app-name:hover {
-    color: var(--text-color); /* Hover effect */
-}
+.brand-section img { width: 24px; height: 24px; margin-right: 8px; }
+.app-name { font-weight: bold; color: var(--accent); font-size: 1.1rem; transition: color 0.2s; }
+.brand-section:hover .app-name { color: var(--text-color); }
 
 .group-file, .group-clipboard, .group-zoom, .group-search { display: flex; gap: 5px; align-items: center; }
 
@@ -78,7 +76,7 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .tab-plus { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 0 10px; }
 .tab-plus:hover { color: var(--accent); background: transparent; }
 
-/* --- BUTTONS & INPUTS --- */
+/* --- BUTTONS --- */
 button { background: var(--btn-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; flex-shrink: 0; transition: background 0.2s; }
 button:hover { background: var(--btn-hover); }
 button.active { background: var(--accent); color: var(--bg-color); border-color: var(--accent); font-weight: bold; }
