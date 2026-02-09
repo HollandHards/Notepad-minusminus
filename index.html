@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notepad-minusminus</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div id="dropZone" class="drop-overlay">
+        📂 Drop file here to open
+    </div>
+
+    <div class="toolbar">
+        <div class="app-name">Notepad--</div>
+        <div class="buttons">
+            <button id="btnOpen" title="Open File (Ctrl+O)">📂 Open</button>
+            <button id="btnSave" title="Save Changes (Ctrl+S)">💾 Save</button>
+            <button id="btnExport" title="Save As New File">📤 Export</button>
+            <button id="btnClose" title="Close File">❌ Close</button>
+        </div>
+    </div>
+
+    <div class="search-bar">
+        <input type="text" id="findInput" placeholder="Find...">
+        <input type="text" id="replaceInput" placeholder="Replace with...">
+        <button id="btnReplaceAll">Replace All</button>
+    </div>
+    
+    <textarea id="editor" placeholder="Drag a file here or start typing..."></textarea>
+    
+    <div class="status-bar">
+        <span id="fileName">No file open</span>
+        <span id="stats">Lines: 0 | Words: 0</span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
