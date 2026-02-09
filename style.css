@@ -11,7 +11,7 @@ body {
 /* --- CodeMirror Customization --- */
 .CodeMirror {
     flex-grow: 1;
-    height: auto; /* Allow flex to control height */
+    height: auto;
     font-family: 'Courier New', Courier, monospace;
     font-size: 14px;
     line-height: 1.6;
@@ -34,28 +34,88 @@ body {
     box-sizing: border-box;
 }
 
-/* --- Toolbar --- */
+/* --- Toolbar Container --- */
 .toolbar {
     background-color: #292a2d;
-    padding: 10px;
+    padding: 8px 12px;
     display: flex;
     align-items: center;
+    gap: 15px; /* Spacing between groups */
     border-bottom: 1px solid #3c4043;
+    flex-wrap: wrap; /* Allows wrapping on very small screens */
 }
 
-.app-name { font-weight: bold; color: #8ab4f8; font-size: 1.2rem; margin-right: 15px; }
+/* 1. Brand Section */
+.brand-section {
+    display: flex;
+    align-items: center;
+    min-width: 130px;
+}
+.brand-section img {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+}
+.app-name { 
+    font-weight: bold; 
+    color: #8ab4f8; 
+    font-size: 1.1rem; 
+    white-space: nowrap;
+}
 
+/* 2. Search Bar (Now inside toolbar) */
+.search-bar {
+    display: flex;
+    gap: 5px;
+    flex-grow: 1; /* Takes up available middle space */
+    justify-content: center;
+}
+.search-bar input {
+    background: #202124;
+    border: 1px solid #5f6368;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    width: 120px; /* Fixed width to save space */
+    font-size: 0.85rem;
+}
+.search-bar button {
+    padding: 5px 10px;
+    font-weight: bold;
+}
+
+/* 3. Middle Controls (Zoom/Lang) */
+.middle-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
 .lang-select {
-    padding: 5px;
+    padding: 4px;
     background: #3c4043;
     color: white;
     border: 1px solid #5f6368;
     border-radius: 4px;
-    margin-right: auto; /* Pushes buttons to right */
+    font-size: 0.85rem;
+    max-width: 100px;
+}
+.zoom-controls {
+    display: flex;
+    gap: 2px;
+}
+.zoom-controls button {
+    padding: 4px 8px;
+    min-width: 25px;
 }
 
-.buttons { display: flex; gap: 5px; }
+/* 4. Action Buttons */
+.buttons { 
+    display: flex; 
+    gap: 5px; 
+    margin-left: auto; /* Pushes to far right if space allows */
+}
 
+/* General Button Styles */
 button {
     background: #3c4043;
     color: #e8eaed;
@@ -63,36 +123,19 @@ button {
     padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     transition: background 0.2s;
+    white-space: nowrap;
 }
 button:hover { background: #5f6368; }
-
-/* --- Search Bar --- */
-.search-bar {
-    background-color: #35363a;
-    padding: 8px;
-    display: flex;
-    gap: 10px;
-    border-bottom: 1px solid #3c4043;
-}
-.search-bar input {
-    background: #202124;
-    border: 1px solid #5f6368;
-    color: white;
-    padding: 6px;
-    border-radius: 4px;
-    flex-grow: 1;
-    font-family: inherit;
-}
-#btnReplaceAll { background: #8ab4f8; color: #202124; border: none; font-weight: bold; }
+#btnReplaceAll { background: #8ab4f8; color: #202124; border: none; }
 
 /* --- Status Bar --- */
 .status-bar {
     background: #292a2d;
     border-top: 1px solid #3c4043;
     font-size: 0.8rem;
-    padding: 5px 15px;
+    padding: 4px 15px;
     color: #9aa0a6;
     display: flex;
     align-items: center;
