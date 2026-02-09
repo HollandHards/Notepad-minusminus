@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css">
 </head>
 <body>
-    <div id="dropZone" class="drop-overlay"><div class="drop-message">📂 Drop file here to open</div></div>
+    <div id="dropZone" class="drop-overlay"><div class="drop-message">📂 Drop file to open in new tab</div></div>
 
     <div class="toolbar" id="mainToolbar">
         
@@ -27,15 +27,11 @@
         </div>
 
         <div class="group-clipboard">
-            <button id="btnCopy" title="Copy Selection (Ctrl+C)">📄 Copy</button>
-            
+            <button id="btnCopy" title="Ctrl+C">📄 Copy</button>
             <div class="paste-wrapper">
-                <button id="btnPaste" title="Paste from Clipboard (Ctrl+V)">📋 Paste</button>
-                <button id="btnHistory" title="History">▼</button>
-                
-                <div id="historyMenu" class="history-menu">
-                    <div class="history-title">Clipboard History</div>
-                    </div>
+                <button id="btnPaste" title="Ctrl+V">📋 Paste</button>
+                <button id="btnHistory">▼</button>
+                <div id="historyMenu" class="history-menu"><div class="history-title">Clipboard History</div></div>
             </div>
         </div>
 
@@ -64,11 +60,16 @@
             <button id="btnAction">🔎</button>
         </div>
     </div>
+
+    <div class="tab-bar-container">
+        <div class="tab-bar" id="tabBar">
+            </div>
+        <button id="btnNewTab" title="New File" class="tab-plus">+</button>
+    </div>
     
     <textarea id="editor"></textarea>
     
     <div class="status-bar">
-        <span id="fileName">No file open</span>
         <span id="fileMode" style="margin-left: 10px; color: var(--accent);">(Plain Text)</span>
         <div style="flex-grow:1"></div>
         <span id="cursorPos" style="margin-right: 15px;">Ln 1, Col 1</span>
