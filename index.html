@@ -6,6 +6,9 @@
     <title>Notepad-minusminus</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css">
 </head>
 <body>
     <div id="dropZone" class="drop-overlay">
@@ -28,12 +31,21 @@
         <button id="btnReplaceAll">Replace All</button>
     </div>
     
-    <textarea id="editor" placeholder="Drag a file here or start typing..."></textarea>
+    <textarea id="editor"></textarea>
     
     <div class="status-bar">
         <span id="fileName">No file open</span>
-        <span id="stats">Lines: 0 | Words: 0</span>
+        <span id="fileMode" style="margin-left: 10px; color: #8ab4f8;">(Plain Text)</span>
+        <div style="flex-grow:1"></div> <span id="stats">Lines: 0 | Words: 0</span>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
 
     <script src="app.js"></script>
 </body>
