@@ -6,92 +6,72 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #202124;
     color: #e8eaed;
-    overflow: hidden; /* Prevent body scrollbars */
 }
 
-/* --- TOOLBAR (Flexbox Container) --- */
+/* --- TOOLBAR --- */
 .toolbar {
     background-color: #292a2d;
-    height: 50px; /* Fixed height to prevent jumping */
+    height: 50px;
     padding: 0 15px;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Pushes Left/Right to edges */
+    gap: 20px; /* Space between groups */
     border-bottom: 1px solid #3c4043;
-    white-space: nowrap; /* Prevents wrapping */
+    overflow-x: auto; /* Allow scroll on very small screens */
 }
 
-/* 1. Brand (Left) */
+/* 1. Brand */
 .brand-section {
     display: flex;
     align-items: center;
-    min-width: 140px;
+    margin-right: 10px;
 }
 .brand-section img { width: 24px; height: 24px; margin-right: 8px; }
-.app-name { font-weight: bold; color: #8ab4f8; font-size: 1.1rem; }
+.app-name { font-weight: bold; color: #8ab4f8; font-size: 1.1rem; white-space: nowrap; }
 
-/* 2. Center Controls (Search + Zoom) */
-.center-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-grow: 1; /* Takes up all middle space */
-    justify-content: center; /* Centers items in the middle space */
-}
+/* 2. File Buttons */
+.group-file { display: flex; gap: 5px; }
 
-.search-group { display: flex; gap: 5px; }
-.search-group input {
+/* 3. Zoom */
+.group-zoom { display: flex; gap: 5px; align-items: center; }
+
+/* 4. Search */
+.group-search { display: flex; gap: 5px; align-items: center; }
+.group-search input {
     background: #202124;
     border: 1px solid #5f6368;
     color: white;
-    padding: 4px 8px;
+    padding: 5px 8px;
     border-radius: 4px;
-    width: 90px; /* Smaller width to fit on screen */
+    width: 100px;
     font-size: 0.85rem;
 }
 
-.zoom-group { display: flex; gap: 2px; }
-
-/* 3. File Controls (Right) */
-.file-controls {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-/* General UI Elements */
-.lang-select {
-    padding: 4px;
-    background: #3c4043;
-    color: white;
-    border: 1px solid #5f6368;
-    border-radius: 4px;
-    width: 80px;
-}
-
+/* Buttons */
 button {
     background: #3c4043;
     color: #e8eaed;
     border: 1px solid #5f6368;
-    padding: 5px 10px;
+    padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.85rem;
+    white-space: nowrap;
 }
 button:hover { background: #5f6368; }
-#btnReplaceAll { background: #8ab4f8; color: #202124; border: none; }
+#btnAction { background: #8ab4f8; color: #202124; border: none; font-weight: bold; }
 
-/* --- CodeMirror & Overlay --- */
+/* Editor & Status Bar */
 .CodeMirror { flex-grow: 1; font-family: 'Courier New', monospace; font-size: 14px; }
+.status-bar {
+    background: #292a2d; border-top: 1px solid #3c4043; font-size: 0.8rem;
+    padding: 4px 15px; color: #9aa0a6; display: flex; align-items: center;
+}
+
+/* Overlay */
 .drop-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(138, 180, 248, 0.9); color: #202124; z-index: 2000;
     justify-content: center; align-items: center; font-size: 2rem; font-weight: bold;
     border: 5px dashed #ffffff; box-sizing: border-box;
-}
-
-/* --- Status Bar --- */
-.status-bar {
-    background: #292a2d; border-top: 1px solid #3c4043; font-size: 0.8rem;
-    padding: 4px 15px; color: #9aa0a6; display: flex; align-items: center;
 }
