@@ -14,18 +14,15 @@
     <div id="dropZone" class="drop-overlay"><div class="drop-message">📂 Drop file to open in new tab</div></div>
 
     <div class="toolbar" id="mainToolbar">
-        
         <div class="brand-section" id="brandButton" title="New File (Alt+N)">
             <img src="logo.png" alt="Logo">
-            <div class="app-name">Notepad--</div>
+            <div class="app-name" id="appName">Notepad--</div>
         </div>
-        
         <div class="group-file">
             <button id="btnOpen" title="Ctrl+O">📂 Open</button>
             <button id="btnSave" title="Ctrl+S">💾 Save</button>
             <button id="btnSaveAs">💾 Save As</button>
         </div>
-
         <div class="group-clipboard">
             <button id="btnCopy" title="Ctrl+C">📄 Copy</button>
             <div class="paste-wrapper">
@@ -34,7 +31,6 @@
                 <div id="historyMenu" class="history-menu"><div class="history-title">Clipboard History</div></div>
             </div>
         </div>
-
         <select id="languageSelect" class="lang-select">
             <option value="text/plain">Plain Text</option>
             <option value="text/html">HTML</option>
@@ -44,7 +40,6 @@
             <option value="application/json">JSON</option>
             <option value="application/xml">XML</option>
         </select>
-
         <div class="group-zoom">
             <button id="btnZoomOut">-</button>
             <button id="btnZoomIn">+</button>
@@ -53,7 +48,6 @@
             <span class="separator">|</span>
             <button id="btnTheme">☀</button>
         </div>
-
         <div class="group-search">
             <input type="text" id="findInput" placeholder="Find...">
             <input type="text" id="replaceInput" placeholder="Replace...">
@@ -62,8 +56,7 @@
     </div>
 
     <div class="tab-bar-container">
-        <div class="tab-bar" id="tabBar">
-            </div>
+        <div class="tab-bar" id="tabBar"></div>
         <button id="btnNewTab" title="New File (Alt+N)" class="tab-plus">+</button>
     </div>
     
@@ -75,6 +68,8 @@
         <span id="cursorPos" style="margin-right: 15px;">Ln 1, Col 1</span>
         <span id="stats">Lines: 0 | Words: 0</span>
     </div>
+
+    <input type="file" id="fileInput" style="display: none;">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
