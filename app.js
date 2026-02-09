@@ -18,6 +18,7 @@ const btnSaveAs = document.getElementById('btnSaveAs');
 const btnZoomIn = document.getElementById('btnZoomIn');
 const btnZoomOut = document.getElementById('btnZoomOut');
 const btnToggleWrap = document.getElementById('btnToggleWrap');
+const btnTheme = document.getElementById('btnTheme'); // NEW
 const btnAction = document.getElementById('btnAction');
 const findInput = document.getElementById('findInput');
 const replaceInput = document.getElementById('replaceInput');
@@ -25,7 +26,7 @@ const replaceInput = document.getElementById('replaceInput');
 // --- 1. INITIALIZE CODEMIRROR ---
 const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     lineNumbers: true,
-    theme: 'darcula',
+    theme: 'darcula', // Default theme
     mode: 'text/plain',
     lineWrapping: true,
     matchBrackets: true,
@@ -47,6 +48,14 @@ const savedContent = localStorage.getItem('autosave_content');
 if (savedContent) {
     cm.setValue(savedContent);
     fileNameDisplay.textContent = "Restored Session (Unsaved)";
+}
+
+// Restore Theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+    document.body.classList.add('light-mode');
+    cm.setOption('theme', 'default');
+    btnTheme.textContent = '🌙';
 }
 
 // Stats & Cursor Tracking
@@ -75,6 +84,19 @@ btnToggleWrap.addEventListener('click', () => {
     btnToggleWrap.classList.toggle('active');
 });
 
+// NEW: Theme Toggle Logic
+btnTheme.addEventListener('click', () => {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    
+    // Switch CodeMirror Theme
+    cm.setOption('theme', isLight ? 'default' : 'darcula');
+    
+    // Switch Icon & Save
+    btnTheme.textContent = isLight ? '🌙' : '☀';
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+});
+
 function jumpToLine() {
     const line = prompt("Go to line number:");
     if (line && !isNaN(line)) {
@@ -96,7 +118,6 @@ brandButton.addEventListener('click', () => {
         mainToolbar.classList.toggle('mobile-open');
     }
 });
-// Close menu on interactions
 cm.on('focus', () => mainToolbar.classList.remove('mobile-open'));
 document.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => mainToolbar.classList.remove('mobile-open'));
@@ -132,19 +153,17 @@ btnAction.addEventListener('click', () => {
     const replaceText = replaceInput.value;
     if (!findText) return;
 
-    // A. FIND NEXT (Case Insensitive)
+    // A. FIND NEXT
     if (replaceText === "") {
         if (findText !== lastSearchQuery || !searchCursor) {
             lastSearchQuery = findText;
             searchCursor = cm.getSearchCursor(findText, cm.getCursor(), {caseFold: true});
         }
-
         if (searchCursor.findNext()) {
             cm.setSelection(searchCursor.from(), searchCursor.to());
             cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100);
             cm.focus();
         } else {
-            // Loop back
             searchCursor = cm.getSearchCursor(findText, {line: 0, ch: 0}, {caseFold: true});
             if (searchCursor.findNext()) {
                 cm.setSelection(searchCursor.from(), searchCursor.to());
@@ -158,7 +177,6 @@ btnAction.addEventListener('click', () => {
         const content = cm.getValue();
         const regex = new RegExp(escapeRegExp(findText), "gi");
         const newContent = content.replace(regex, replaceText);
-        
         if (content !== newContent) {
             const scrollInfo = cm.getScrollInfo();
             cm.setValue(newContent);
