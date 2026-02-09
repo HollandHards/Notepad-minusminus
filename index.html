@@ -15,38 +15,37 @@
     <div id="dropZone" class="drop-overlay">📂 Drop file here to open</div>
 
     <div class="toolbar">
+        
         <div class="brand-section">
             <img src="logo.png" alt="Logo">
             <div class="app-name">Notepad--</div>
         </div>
         
-        <div class="search-bar">
-            <input type="text" id="findInput" placeholder="Find...">
-            <input type="text" id="replaceInput" placeholder="Replace...">
-            <button id="btnReplaceAll" title="Replace All">⏎</button>
+        <div class="center-controls">
+            <div class="search-group">
+                <input type="text" id="findInput" placeholder="Find">
+                <input type="text" id="replaceInput" placeholder="Replace">
+                <button id="btnReplaceAll" title="Replace All">⏎</button>
+            </div>
+
+            <div class="zoom-group">
+                <button id="btnZoomOut" title="Smaller Text">A-</button>
+                <button id="btnZoomIn" title="Larger Text">A+</button>
+            </div>
         </div>
 
-        <div class="middle-controls">
+        <div class="file-controls">
             <select id="languageSelect" class="lang-select">
-                <option value="text/plain">Plain Text</option>
+                <option value="text/plain">Plain</option>
                 <option value="text/html">HTML</option>
                 <option value="text/css">CSS</option>
                 <option value="text/javascript">JS</option>
                 <option value="application/x-httpd-php">PHP</option>
-                <option value="application/json">JSON</option>
-                <option value="application/xml">XML</option>
             </select>
             
-            <div class="zoom-controls">
-                <button id="btnZoomOut" title="Zoom Out">-</button>
-                <button id="btnZoomIn" title="Zoom In">+</button>
-            </div>
-        </div>
-
-        <div class="buttons">
-            <button id="btnOpen" title="Ctrl+O">📂 Open</button>
-            <button id="btnSave" title="Ctrl+S">💾 Save</button>
-            <button id="btnSaveAs" title="Save Copy As...">💾 As...</button>
+            <button id="btnOpen" title="Ctrl+O">📂</button>
+            <button id="btnSave" title="Ctrl+S">💾</button>
+            <button id="btnSaveAs" title="Save Copy As...">💾 As</button>
         </div>
     </div>
     
@@ -69,9 +68,7 @@
 
     <script src="app.js"></script>
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
     </script>
 </body>
 </html>
