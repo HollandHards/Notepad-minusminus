@@ -11,6 +11,9 @@ let clipboardHistory = [];
 let openFiles = []; 
 let activeFileId = null;
 
+// Feature Detection for Firefox
+const supportsFileSystem = 'showOpenFilePicker' in window;
+
 // --- 2. DOM ELEMENTS ---
 const fileNameDisplay = document.getElementById('fileName');
 const fileModeDisplay = document.getElementById('fileMode');
@@ -23,6 +26,7 @@ const mainToolbar = document.getElementById('mainToolbar');
 const brandButton = document.getElementById('brandButton');
 const historyMenu = document.getElementById('historyMenu');
 const appName = document.getElementById('appName');
+const fileInput = document.getElementById('fileInput'); // Firefox Fallback
 
 // Buttons
 const btnOpen = document.getElementById('btnOpen');
@@ -56,7 +60,6 @@ const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     }
 });
 
-// Load Theme Config
 if (localStorage.getItem('theme') === 'light') {
     document.body.classList.add('light-mode');
     cm.setOption('theme', 'default');
@@ -77,6 +80,19 @@ function detectMode(name) {
 }
 
 function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+// FIREFOX FALLBACK: Download file instead of saving to disk
+function saveFileFallback(filename, content) {
+    const blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
 
 // --- 5. TAB LOGIC ---
 function createNewFileObj(name, content, handle = null) {
@@ -119,7 +135,6 @@ function renderTabs() {
 }
 
 function switchToTab(id) {
-    // Save state of current tab
     if (activeFileId) {
         const oldFile = openFiles.find(f => f.id === activeFileId);
         if (oldFile) {
@@ -134,8 +149,6 @@ function switchToTab(id) {
     const newFile = openFiles.find(f => f.id === id);
 
     if (newFile) {
-        // Load new tab state
-        // This triggers 'change' event with origin 'setValue'
         cm.setValue(newFile.content); 
         cm.setOption('mode', newFile.mode);
         cm.setHistory(newFile.history || { done: [], undone: [] });
@@ -167,7 +180,6 @@ function closeTab(id) {
 }
 
 // --- 6. EVENT LISTENERS ---
-// Brand Button: Mobile Toggle or Desktop New Tab
 brandButton.addEventListener('click', (e) => {
     if (window.innerWidth <= 768) {
         mainToolbar.classList.toggle('mobile-open');
@@ -178,42 +190,95 @@ brandButton.addEventListener('click', (e) => {
 
 btnNewTab.addEventListener('click', () => createNewTab());
 
+// OPEN FILE (Unified)
 btnOpen.addEventListener('click', async () => {
-    try {
-        const [handle] = await window.showOpenFilePicker(pickerOptions);
-        const file = await handle.getFile();
-        const content = await file.text();
-        createNewTab(file.name, content, handle);
-    } catch (e) { console.warn("Open cancelled:", e); }
+    // Chrome/Edge
+    if (supportsFileSystem) {
+        try {
+            const [handle] = await window.showOpenFilePicker(pickerOptions);
+            const file = await handle.getFile();
+            const content = await file.text();
+            createNewTab(file.name, content, handle);
+        } catch (e) { console.warn("Open cancelled:", e); }
+    } 
+    // Firefox/Safari Fallback
+    else {
+        fileInput.click();
+    }
 });
 
+// Helper for Firefox Input
+fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        createNewTab(file.name, e.target.result, null); // Null handle means no direct save
+    };
+    reader.readAsText(file);
+    fileInput.value = ''; // Reset
+});
+
+
+// SAVE FILE (Unified)
 btnSave.addEventListener('click', async () => {
     const file = openFiles.find(f => f.id === activeFileId);
     if (!file) return;
-    if (!file.handle) { btnSaveAs.click(); return; }
+    
+    // If no handle (New file OR Firefox), Redirect to Save As
+    if (!file.handle) { 
+        btnSaveAs.click(); 
+        return; 
+    }
+
+    // Chrome/Edge Direct Save
     try {
         const writable = await file.handle.createWritable();
-        await writable.write(cm.getValue()); await writable.close();
-        file.isDirty = false; renderTabs();
-        const originalText = btnSave.textContent; btnSave.textContent = "✅ Saved"; setTimeout(() => btnSave.textContent = "💾 Save", 1500);
-    } catch (e) { alert("Could not save file."); }
+        await writable.write(cm.getValue()); 
+        await writable.close();
+        file.isDirty = false; 
+        renderTabs();
+        const originalText = btnSave.textContent; 
+        btnSave.textContent = "✅ Saved"; 
+        setTimeout(() => btnSave.textContent = "💾 Save", 1500);
+    } catch (e) { 
+        alert("Could not save file."); 
+    }
 });
 
+// SAVE AS (Unified)
 btnSaveAs.addEventListener('click', async () => {
     const file = openFiles.find(f => f.id === activeFileId);
     if (!file) return;
-    try {
-        const handle = await window.showSaveFilePicker(pickerOptions);
-        const writable = await handle.createWritable();
-        await writable.write(cm.getValue()); await writable.close();
-        const f = await handle.getFile();
-        file.handle = handle; file.name = f.name; file.isDirty = false; file.mode = detectMode(f.name);
-        switchToTab(file.id); 
-    } catch (e) {}
+
+    // Chrome/Edge
+    if (supportsFileSystem) {
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: file.name,
+                ...pickerOptions
+            });
+            const writable = await handle.createWritable();
+            await writable.write(cm.getValue()); 
+            await writable.close();
+            
+            const f = await handle.getFile();
+            file.handle = handle; 
+            file.name = f.name; 
+            file.isDirty = false; 
+            file.mode = detectMode(f.name);
+            switchToTab(file.id); 
+        } catch (e) {}
+    } 
+    // Firefox/Safari Fallback
+    else {
+        saveFileFallback(file.name, cm.getValue());
+        file.isDirty = false;
+        renderTabs();
+    }
 });
 
-// --- 7. EDITOR EVENTS (FIXED) ---
-// We now accept the changeObj argument from CodeMirror
+// --- 7. EDITOR EVENTS ---
 const updateStats = (cmInstance, changeObj) => {
     const text = cm.getValue();
     const lines = cm.lineCount();
@@ -222,28 +287,21 @@ const updateStats = (cmInstance, changeObj) => {
     
     const file = openFiles.find(f => f.id === activeFileId);
     if (file) {
-        // CRITICAL FIX: Only mark dirty if the change is NOT from 'setValue' (programmatic loading)
         if (changeObj && changeObj.origin !== 'setValue') {
-            if (!file.isDirty) { 
-                file.isDirty = true; 
-                renderTabs(); 
-            }
+            if (!file.isDirty) { file.isDirty = true; renderTabs(); }
         }
-        
         file.content = text; 
         localStorage.setItem('autosave_content', text); 
     }
 };
 
-// Bind the change event with the change object
 cm.on('change', (instance, changeObj) => updateStats(instance, changeObj));
-
 cm.on('cursorActivity', () => {
     const pos = cm.getCursor();
     cursorPosDisplay.textContent = `Ln ${pos.line + 1}, Col ${pos.ch + 1}`;
 });
 
-// --- 8. CLIPBOARD & SEARCH & UI ---
+// --- 8. CLIPBOARD & SEARCH ---
 function addToHistory(text) {
     if (!text || !text.trim()) return;
     clipboardHistory = [text, ...clipboardHistory.filter(t => t !== text)].slice(0, 5);
@@ -262,7 +320,7 @@ function renderHistoryMenu() {
 btnCopy.addEventListener('click', () => {
     const sel = cm.getSelection();
     if (sel) { navigator.clipboard.writeText(sel); addToHistory(sel); 
-    const original = btnCopy.textContent; btnCopy.textContent = "✅"; setTimeout(() => btnCopy.textContent = original, 1000); }
+    const original = btnCopy.textContent; btnCopy.textContent = "✅"; setTimeout(() => btnCopy.textContent = "📄 Copy", 1000); }
 });
 btnPaste.addEventListener('click', async () => {
     try { const text = await navigator.clipboard.readText(); cm.replaceSelection(text); addToHistory(text); cm.focus(); } catch (e) {}
