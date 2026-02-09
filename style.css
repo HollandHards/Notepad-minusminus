@@ -15,48 +15,58 @@ body {
     padding: 0 15px;
     display: flex;
     align-items: center;
-    gap: 20px; /* Space between groups */
+    gap: 15px; /* Spacing between groups */
     border-bottom: 1px solid #3c4043;
-    overflow-x: auto; /* Allow scroll on very small screens */
+    overflow-x: auto; /* Allow scrolling if window is too small */
+    white-space: nowrap;
 }
 
 /* 1. Brand */
 .brand-section {
     display: flex;
     align-items: center;
-    margin-right: 10px;
+    margin-right: 5px;
 }
 .brand-section img { width: 24px; height: 24px; margin-right: 8px; }
-.app-name { font-weight: bold; color: #8ab4f8; font-size: 1.1rem; white-space: nowrap; }
+.app-name { font-weight: bold; color: #8ab4f8; font-size: 1.1rem; }
 
-/* 2. File Buttons */
+/* 2. Groups */
 .group-file { display: flex; gap: 5px; }
-
-/* 3. Zoom */
 .group-zoom { display: flex; gap: 5px; align-items: center; }
-
-/* 4. Search */
 .group-search { display: flex; gap: 5px; align-items: center; }
+
+/* 3. Inputs & Selects */
+.lang-select {
+    background: #3c4043;
+    color: white;
+    border: 1px solid #5f6368;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
 .group-search input {
     background: #202124;
     border: 1px solid #5f6368;
     color: white;
     padding: 5px 8px;
     border-radius: 4px;
-    width: 100px;
+    width: 90px;
     font-size: 0.85rem;
 }
 
-/* Buttons */
+/* 4. Buttons */
 button {
     background: #3c4043;
     color: #e8eaed;
     border: 1px solid #5f6368;
-    padding: 6px 12px;
+    padding: 6px 10px; /* Adjusted padding so text fits */
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.85rem;
-    white-space: nowrap;
+    white-space: nowrap; /* Prevents text wrapping */
+    flex-shrink: 0; /* Prevents button from being squished */
 }
 button:hover { background: #5f6368; }
 #btnAction { background: #8ab4f8; color: #202124; border: none; font-weight: bold; }
