@@ -10,9 +10,7 @@ let currentFontSize = 14;
 let clipboardHistory = [];
 let openFiles = []; 
 let activeFileId = null;
-
-// Feature Detection for Firefox
-const supportsFileSystem = 'showOpenFilePicker' in window;
+const supportsFileSystem = 'showOpenFilePicker' in window; // Feature detection
 
 // --- 2. DOM ELEMENTS ---
 const fileNameDisplay = document.getElementById('fileName');
@@ -26,7 +24,7 @@ const mainToolbar = document.getElementById('mainToolbar');
 const brandButton = document.getElementById('brandButton');
 const historyMenu = document.getElementById('historyMenu');
 const appName = document.getElementById('appName');
-const fileInput = document.getElementById('fileInput'); // Firefox Fallback
+const fileInput = document.getElementById('fileInput'); // Firefox fallback
 
 // Buttons
 const btnOpen = document.getElementById('btnOpen');
@@ -81,7 +79,6 @@ function detectMode(name) {
 
 function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
-// FIREFOX FALLBACK: Download file instead of saving to disk
 function saveFileFallback(filename, content) {
     const blob = new Blob([content], {type: "text/plain;charset=utf-8"});
     const url = URL.createObjectURL(blob);
@@ -115,10 +112,13 @@ function renderTabs() {
         const tab = document.createElement('div');
         tab.className = `tab ${file.id === activeFileId ? 'active' : ''}`;
         
+        // 1. Filename
         const nameSpan = document.createElement('span');
         nameSpan.className = 'tab-name';
-        nameSpan.textContent = file.name + (file.isDirty ? '*' : '');
+        nameSpan.textContent = file.name;
+        nameSpan.title = file.name; // Tooltip
         
+        // 2. Close Button
         const closeBtn = document.createElement('div');
         closeBtn.className = 'tab-close';
         closeBtn.textContent = '✕';
@@ -127,6 +127,15 @@ function renderTabs() {
         tab.onclick = () => switchToTab(file.id);
         
         tab.appendChild(nameSpan);
+
+        // 3. NEW: Separate Asterisk Element (does not shrink)
+        if (file.isDirty) {
+            const dirtySpan = document.createElement('span');
+            dirtySpan.className = 'tab-dirty';
+            dirtySpan.textContent = '*';
+            tab.appendChild(dirtySpan);
+        }
+
         tab.appendChild(closeBtn);
         tabBar.appendChild(tab);
         
@@ -190,9 +199,8 @@ brandButton.addEventListener('click', (e) => {
 
 btnNewTab.addEventListener('click', () => createNewTab());
 
-// OPEN FILE (Unified)
+// OPEN
 btnOpen.addEventListener('click', async () => {
-    // Chrome/Edge
     if (supportsFileSystem) {
         try {
             const [handle] = await window.showOpenFilePicker(pickerOptions);
@@ -200,78 +208,51 @@ btnOpen.addEventListener('click', async () => {
             const content = await file.text();
             createNewTab(file.name, content, handle);
         } catch (e) { console.warn("Open cancelled:", e); }
-    } 
-    // Firefox/Safari Fallback
-    else {
+    } else {
         fileInput.click();
     }
 });
 
-// Helper for Firefox Input
 fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => {
-        createNewTab(file.name, e.target.result, null); // Null handle means no direct save
+        createNewTab(file.name, e.target.result, null);
     };
     reader.readAsText(file);
-    fileInput.value = ''; // Reset
+    fileInput.value = '';
 });
 
-
-// SAVE FILE (Unified)
+// SAVE
 btnSave.addEventListener('click', async () => {
     const file = openFiles.find(f => f.id === activeFileId);
     if (!file) return;
-    
-    // If no handle (New file OR Firefox), Redirect to Save As
-    if (!file.handle) { 
-        btnSaveAs.click(); 
-        return; 
-    }
+    if (!file.handle) { btnSaveAs.click(); return; }
 
-    // Chrome/Edge Direct Save
     try {
         const writable = await file.handle.createWritable();
-        await writable.write(cm.getValue()); 
-        await writable.close();
-        file.isDirty = false; 
-        renderTabs();
-        const originalText = btnSave.textContent; 
-        btnSave.textContent = "✅ Saved"; 
-        setTimeout(() => btnSave.textContent = "💾 Save", 1500);
-    } catch (e) { 
-        alert("Could not save file."); 
-    }
+        await writable.write(cm.getValue()); await writable.close();
+        file.isDirty = false; renderTabs();
+        const originalText = btnSave.textContent; btnSave.textContent = "✅ Saved"; setTimeout(() => btnSave.textContent = "💾 Save", 1500);
+    } catch (e) { alert("Could not save file."); }
 });
 
-// SAVE AS (Unified)
+// SAVE AS
 btnSaveAs.addEventListener('click', async () => {
     const file = openFiles.find(f => f.id === activeFileId);
     if (!file) return;
 
-    // Chrome/Edge
     if (supportsFileSystem) {
         try {
-            const handle = await window.showSaveFilePicker({
-                suggestedName: file.name,
-                ...pickerOptions
-            });
+            const handle = await window.showSaveFilePicker({ suggestedName: file.name, ...pickerOptions });
             const writable = await handle.createWritable();
-            await writable.write(cm.getValue()); 
-            await writable.close();
-            
+            await writable.write(cm.getValue()); await writable.close();
             const f = await handle.getFile();
-            file.handle = handle; 
-            file.name = f.name; 
-            file.isDirty = false; 
-            file.mode = detectMode(f.name);
+            file.handle = handle; file.name = f.name; file.isDirty = false; file.mode = detectMode(f.name);
             switchToTab(file.id); 
         } catch (e) {}
-    } 
-    // Firefox/Safari Fallback
-    else {
+    } else {
         saveFileFallback(file.name, cm.getValue());
         file.isDirty = false;
         renderTabs();
@@ -338,7 +319,6 @@ btnAction.addEventListener('click', () => {
     const findText = findInput.value;
     const replaceText = replaceInput.value;
     if (!findText) return;
-
     if (replaceText === "") {
         if (findText !== lastSearchQuery || !searchCursor) { lastSearchQuery = findText; searchCursor = cm.getSearchCursor(findText, cm.getCursor(), {caseFold: true}); }
         if (searchCursor.findNext()) { cm.setSelection(searchCursor.from(), searchCursor.to()); cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100); cm.focus(); }
