@@ -6,8 +6,6 @@ const fileModeDisplay = document.getElementById('fileMode');
 const statsDisplay = document.getElementById('stats');
 const dropZone = document.getElementById('dropZone');
 const languageSelect = document.getElementById('languageSelect');
-
-// Buttons
 const btnOpen = document.getElementById('btnOpen');
 const btnSave = document.getElementById('btnSave');
 const btnExport = document.getElementById('btnExport');
@@ -20,10 +18,11 @@ const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     theme: 'darcula',
     mode: 'text/plain',
     lineWrapping: true,
-    matchBrackets: true
+    matchBrackets: true,
+    indentUnit: 4
 });
 
-// Update stats whenever text changes
+// Update stats on change
 cm.on('change', () => {
     const text = cm.getValue();
     const lines = cm.lineCount();
@@ -37,6 +36,8 @@ cm.on('change', () => {
 languageSelect.addEventListener('change', () => {
     const mode = languageSelect.value;
     cm.setOption('mode', mode);
+    
+    // Force update of label
     const modeName = languageSelect.options[languageSelect.selectedIndex].text;
     fileModeDisplay.textContent = `(${modeName})`;
 });
@@ -44,19 +45,35 @@ languageSelect.addEventListener('change', () => {
 // B. Auto-Detect from Filename
 function setModeByFilename(name) {
     const extension = name.split('.').pop().toLowerCase();
-    let mode = 'text/plain';
+    
+    // Default to Plain Text
+    let mode = 'text/plain'; 
 
-    if (['html', 'htm', 'phtml'].includes(extension)) mode = 'htmlmixed';
-    else if (['css', 'scss', 'less'].includes(extension)) mode = 'css';
-    else if (['js', 'jsx', 'ts'].includes(extension)) mode = 'javascript';
-    else if (extension === 'php') mode = 'application/x-httpd-php';
-    else if (extension === 'json') mode = 'application/json';
-    else if (extension === 'xml') mode = 'xml';
+    // Mapping extensions to MIME types
+    if (['html', 'htm', 'phtml'].includes(extension)) {
+        mode = 'text/html'; // Maps to htmlmixed
+    }
+    else if (['css', 'scss', 'less'].includes(extension)) {
+        mode = 'text/css';
+    }
+    else if (['js', 'jsx', 'ts'].includes(extension)) {
+        mode = 'text/javascript';
+    }
+    else if (extension === 'php') {
+        mode = 'application/x-httpd-php';
+    }
+    else if (extension === 'json') {
+        mode = 'application/json';
+    }
+    else if (['xml', 'svg'].includes(extension)) {
+        mode = 'application/xml';
+    }
 
+    // Apply the mode
     cm.setOption('mode', mode);
     languageSelect.value = mode;
     
-    // Update label safely
+    // Update the visual text
     const option = Array.from(languageSelect.options).find(o => o.value === mode);
     if(option) fileModeDisplay.textContent = `(${option.text})`;
 }
@@ -88,6 +105,7 @@ async function openFile(handle) {
     }
 }
 
+// Button Events
 btnOpen.addEventListener('click', async () => {
     try {
         const [handle] = await window.showOpenFilePicker(pickerOptions);
@@ -131,6 +149,7 @@ btnClose.addEventListener('click', () => {
     fileNameDisplay.textContent = "No file open";
     fileModeDisplay.textContent = "(Plain Text)";
     languageSelect.value = "text/plain";
+    cm.setOption('mode', 'text/plain');
 });
 
 // --- 4. FIND & REPLACE ---
