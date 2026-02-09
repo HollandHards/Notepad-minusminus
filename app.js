@@ -1,8 +1,8 @@
 let fileHandle;
 
 // DOM Elements
-const editor = document.getElementById('editor');
 const fileNameDisplay = document.getElementById('fileName');
+const fileModeDisplay = document.getElementById('fileMode');
 const statsDisplay = document.getElementById('stats');
 const dropZone = document.getElementById('dropZone');
 
@@ -13,23 +13,45 @@ const btnExport = document.getElementById('btnExport');
 const btnClose = document.getElementById('btnClose');
 const btnReplaceAll = document.getElementById('btnReplaceAll');
 
-// 1. STATS UPDATER (Word & Line Count)
-const updateStats = () => {
-    const text = editor.value;
-    const lines = text.split('\n').length;
-    // Regex to split by whitespace and filter out empty strings
+// --- 1. INITIALIZE CODEMIRROR ---
+// This replaces the standard textarea with the syntax highlighter
+const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
+    lineNumbers: true,
+    theme: 'darcula',
+    mode: 'text/plain', // Default mode
+    lineWrapping: true
+});
+
+// Update stats whenever text changes in CodeMirror
+cm.on('change', () => {
+    const text = cm.getValue();
+    const lines = cm.lineCount();
     const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
     statsDisplay.textContent = `Lines: ${lines} | Words: ${words}`;
-};
+});
 
-// Update stats on typing
-editor.addEventListener('input', updateStats);
+// --- 2. LANGUAGE DETECTION ---
+function setModeByFilename(name) {
+    const extension = name.split('.').pop().toLowerCase();
+    let mode = 'text/plain';
+    let modeName = '(Plain Text)';
 
-// 2. FILE OPERATIONS
+    if (extension === 'html') { mode = 'htmlmixed'; modeName = '(HTML)'; }
+    else if (extension === 'js') { mode = 'javascript'; modeName = '(JavaScript)'; }
+    else if (extension === 'css') { mode = 'css'; modeName = '(CSS)'; }
+    else if (extension === 'php') { mode = 'application/x-httpd-php'; modeName = '(PHP)'; }
+    else if (extension === 'json') { mode = 'application/json'; modeName = '(JSON)'; }
+    else if (extension === 'csv') { mode = 'text/plain'; modeName = '(CSV)'; } // CSV stays plain for now
+    
+    cm.setOption('mode', mode);
+    fileModeDisplay.textContent = modeName;
+}
+
+// --- 3. FILE OPERATIONS ---
 const pickerOptions = {
     types: [{
-        description: 'Text Files',
-        accept: { 'text/plain': ['.txt', '.csv', '.php', '.js', '.html', '.md', '.json'] },
+        description: 'Code & Text',
+        accept: { 'text/plain': ['.txt', '.csv', '.php', '.js', '.html', '.css', '.json', '.md'] },
     }],
 };
 
@@ -37,12 +59,20 @@ async function openFile(handle) {
     try {
         const file = await handle.getFile();
         const contents = await file.text();
-        editor.value = contents;
-        fileHandle = handle;
         
+        // Load content into CodeMirror
+        cm.setValue(contents);
+        
+        // Clear history (so you can't undo back to empty)
+        cm.clearHistory();
+        
+        fileHandle = handle;
         document.title = `${file.name} - Notepad--`;
         fileNameDisplay.textContent = file.name;
-        updateStats(); // Update stats immediately
+        
+        // Auto-detect syntax
+        setModeByFilename(file.name);
+        
     } catch (err) {
         console.error("Error opening file", err);
     }
@@ -59,7 +89,8 @@ btnSave.addEventListener('click', async () => {
     if (!fileHandle) return btnExport.click();
     try {
         const writable = await fileHandle.createWritable();
-        await writable.write(editor.value);
+        // Get text from CodeMirror
+        await writable.write(cm.getValue()); 
         await writable.close();
         
         const originalText = btnSave.textContent;
@@ -72,36 +103,50 @@ btnExport.addEventListener('click', async () => {
     try {
         const handle = await window.showSaveFilePicker(pickerOptions);
         fileHandle = handle;
-        // Trigger save logic manually
         const writable = await fileHandle.createWritable();
-        await writable.write(editor.value);
+        await writable.write(cm.getValue());
         await writable.close();
         
         const file = await handle.getFile();
         document.title = `${file.name} - Notepad--`;
         fileNameDisplay.textContent = file.name;
+        setModeByFilename(file.name);
     } catch (err) { /* Cancelled */ }
 });
 
 btnClose.addEventListener('click', () => {
-    if(editor.value.length > 0 && !confirm("Close file? Unsaved changes will be lost.")) return;
-    editor.value = "";
+    if(cm.getValue().length > 0 && !confirm("Close file? Unsaved changes will be lost.")) return;
+    cm.setValue("");
     fileHandle = null;
     document.title = "Notepad-minusminus";
     fileNameDisplay.textContent = "No file open";
-    updateStats();
+    fileModeDisplay.textContent = "(Plain Text)";
+    cm.setOption('mode', 'text/plain');
 });
 
-// 3. FIND & REPLACE
+// --- 4. FIND & REPLACE ---
 btnReplaceAll.addEventListener('click', () => {
     const find = document.getElementById('findInput').value;
     const replace = document.getElementById('replaceInput').value;
     if (!find) return;
-    editor.value = editor.value.split(find).join(replace);
-    updateStats();
+    
+    // CodeMirror doesn't have a simple "Replace All" method without plugins,
+    // so we do it via string manipulation and reload the value.
+    const content = cm.getValue();
+    // Using split/join for global replacement
+    const newContent = content.split(find).join(replace);
+    
+    if (content !== newContent) {
+        // Calculate scroll position to restore it after replace
+        const scrollInfo = cm.getScrollInfo();
+        cm.setValue(newContent);
+        cm.scrollTo(scrollInfo.left, scrollInfo.top);
+    } else {
+        alert("Text not found!");
+    }
 });
 
-// 4. DRAG & DROP
+// --- 5. DRAG & DROP ---
 window.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropZone.style.display = 'flex';
@@ -113,7 +158,7 @@ dropZone.addEventListener('dragleave', () => {
 
 dropZone.addEventListener('drop', async (e) => {
     e.preventDefault();
-    dropZone.style.display = 'none'; // Hide overlay
+    dropZone.style.display = 'none';
     const items = e.dataTransfer.items;
     
     if (items && items[0].kind === 'file') {
@@ -129,7 +174,7 @@ dropZone.addEventListener('drop', async (e) => {
     }
 });
 
-// 5. KEYBOARD SHORTCUTS
+// --- 6. KEYBOARD SHORTCUTS ---
 document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.key === 's') { e.preventDefault(); btnSave.click(); }
     if (e.ctrlKey && e.key === 'o') { e.preventDefault(); btnOpen.click(); }
