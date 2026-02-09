@@ -23,6 +23,7 @@ const tabBar = document.getElementById('tabBar');
 const mainToolbar = document.getElementById('mainToolbar');
 const brandButton = document.getElementById('brandButton');
 const historyMenu = document.getElementById('historyMenu');
+const appName = document.getElementById('appName'); // NEW
 
 // Buttons
 const btnOpen = document.getElementById('btnOpen');
@@ -127,7 +128,6 @@ function renderTabs() {
 }
 
 function switchToTab(id) {
-    // 1. Save state of CURRENT active tab before switching
     if (activeFileId) {
         const oldFile = openFiles.find(f => f.id === activeFileId);
         if (oldFile) {
@@ -138,20 +138,16 @@ function switchToTab(id) {
         }
     }
 
-    // 2. Switch ID
     activeFileId = id;
     const newFile = openFiles.find(f => f.id === id);
 
     if (newFile) {
-        // 3. Load state of NEW tab
-        // Silent update to prevent triggering change events during load
         cm.setValue(newFile.content); 
         cm.setOption('mode', newFile.mode);
         cm.setHistory(newFile.history || { done: [], undone: [] });
         if (newFile.cursor) cm.setCursor(newFile.cursor);
         if (newFile.scrollInfo) cm.scrollTo(newFile.scrollInfo.left, newFile.scrollInfo.top);
         
-        // Update UI
         languageSelect.value = newFile.mode;
         fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`;
         cm.focus();
@@ -167,100 +163,73 @@ function createNewTab(name = "Untitled", content = "", handle = null) {
 }
 
 function closeTab(id) {
-    // If closing the currently active tab
     if (id === activeFileId) {
         const idx = openFiles.findIndex(f => f.id === id);
-        // Try to go to left tab, otherwise right tab
         const nextFile = openFiles[idx - 1] || openFiles[idx + 1];
-        
         if (nextFile) {
             switchToTab(nextFile.id);
         } else {
-            // Closing the last tab? Create a new empty one
             openFiles = [];
             activeFileId = null;
-            createNewTab(); // Recursive but safe here
+            createNewTab(); 
             return; 
         }
     }
-    
-    // Remove from array
     openFiles = openFiles.filter(f => f.id !== id);
     renderTabs();
 }
 
 // --- 6. EVENT LISTENERS (BUTTONS) ---
 
-// New Tab (+)
-btnNewTab.addEventListener('click', () => {
+// NEW: Click App Name to New Tab
+appName.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent toggling the mobile menu
     createNewTab();
 });
 
-// Open File
+btnNewTab.addEventListener('click', () => createNewTab());
+
 btnOpen.addEventListener('click', async () => {
     try {
         const [handle] = await window.showOpenFilePicker(pickerOptions);
         const file = await handle.getFile();
         const content = await file.text();
         createNewTab(file.name, content, handle);
-    } catch (e) {
-        console.warn("Open cancelled or failed:", e);
-    }
+    } catch (e) { console.warn("Open cancelled or failed:", e); }
 });
 
-// Save File
 btnSave.addEventListener('click', async () => {
     const file = openFiles.find(f => f.id === activeFileId);
     if (!file) return;
-
-    // If it's a new file (no handle), triggers Save As
-    if (!file.handle) {
-        btnSaveAs.click();
-        return;
-    }
+    if (!file.handle) { btnSaveAs.click(); return; }
 
     try {
         const writable = await file.handle.createWritable();
         await writable.write(cm.getValue());
         await writable.close();
-        
         file.isDirty = false;
         renderTabs();
-        
-        // Visual Feedback
         const originalText = btnSave.textContent;
         btnSave.textContent = "✅ Saved";
         setTimeout(() => btnSave.textContent = originalText, 1500);
-    } catch (e) {
-        console.error("Save failed:", e);
-        alert("Could not save file.");
-    }
+    } catch (e) { console.error("Save failed:", e); alert("Could not save file."); }
 });
 
-// Save As
 btnSaveAs.addEventListener('click', async () => {
     const file = openFiles.find(f => f.id === activeFileId);
     if (!file) return;
-    
     try {
         const handle = await window.showSaveFilePicker(pickerOptions);
         const writable = await handle.createWritable();
         await writable.write(cm.getValue()); 
         await writable.close();
-        
         const f = await handle.getFile();
-        
-        // Update tab info
         file.handle = handle;
         file.name = f.name;
         file.isDirty = false;
         file.mode = detectMode(f.name);
-        
-        // Refresh UI
         switchToTab(file.id); 
-    } catch (e) {
-        console.warn("Save As cancelled:", e);
-    }
+    } catch (e) { console.warn("Save As cancelled:", e); }
 });
 
 // --- 7. EDITOR EVENTS ---
@@ -270,15 +239,11 @@ const updateStats = () => {
     const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
     statsDisplay.textContent = `Lines: ${lines} | Words: ${words}`;
     
-    // Mark Dirty
     const file = openFiles.find(f => f.id === activeFileId);
     if (file) {
-        if (!file.isDirty) {
-            file.isDirty = true;
-            renderTabs(); 
-        }
-        file.content = text; // Keep content synced in memory
-        localStorage.setItem('autosave_content', text); // Legacy backup
+        if (!file.isDirty) { file.isDirty = true; renderTabs(); }
+        file.content = text; 
+        localStorage.setItem('autosave_content', text); 
     }
 };
 
@@ -291,8 +256,6 @@ cm.on('change', updateStats);
 cm.on('cursorActivity', updateCursorPos);
 
 // --- 8. CLIPBOARD & SEARCH & UI ---
-
-// Clipboard Functions
 function addToHistory(text) {
     if (!text || !text.trim()) return;
     clipboardHistory = [text, ...clipboardHistory.filter(t => t !== text)].slice(0, 5);
@@ -309,56 +272,27 @@ function renderHistoryMenu() {
         item.className = 'history-item';
         item.textContent = text;
         item.title = text;
-        item.onclick = () => { 
-            cm.replaceSelection(text); 
-            historyMenu.classList.remove('show'); 
-            cm.focus(); 
-        };
+        item.onclick = () => { cm.replaceSelection(text); historyMenu.classList.remove('show'); cm.focus(); };
         historyMenu.appendChild(item);
     });
 }
 
 btnCopy.addEventListener('click', () => {
     const sel = cm.getSelection();
-    if (sel) { 
-        navigator.clipboard.writeText(sel); 
-        addToHistory(sel);
-        // Visual feedback
-        const original = btnCopy.textContent;
-        btnCopy.textContent = "✅";
-        setTimeout(() => btnCopy.textContent = original, 1000);
-    }
+    if (sel) { navigator.clipboard.writeText(sel); addToHistory(sel); 
+    const original = btnCopy.textContent; btnCopy.textContent = "✅"; setTimeout(() => btnCopy.textContent = original, 1000); }
 });
 
 btnPaste.addEventListener('click', async () => {
-    try {
-        const text = await navigator.clipboard.readText();
-        cm.replaceSelection(text);
-        addToHistory(text);
-        cm.focus();
-    } catch (e) {}
+    try { const text = await navigator.clipboard.readText(); cm.replaceSelection(text); addToHistory(text); cm.focus(); } catch (e) {}
 });
 
-btnHistory.addEventListener('click', (e) => { 
-    e.stopPropagation(); 
-    renderHistoryMenu(); 
-    historyMenu.classList.toggle('show'); 
-});
+btnHistory.addEventListener('click', (e) => { e.stopPropagation(); renderHistoryMenu(); historyMenu.classList.toggle('show'); });
+document.addEventListener('click', (e) => { if (!historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show'); });
 
-// Close menu on outside click
-document.addEventListener('click', (e) => { 
-    if (!historyMenu.contains(e.target) && e.target !== btnHistory) {
-        historyMenu.classList.remove('show'); 
-    }
-});
-
-// Search Logic
 let lastSearchQuery = '';
 let searchCursor = null;
-
-const triggerSearch = (e) => { 
-    if (e.key === 'Enter') { e.preventDefault(); btnAction.click(); } 
-};
+const triggerSearch = (e) => { if (e.key === 'Enter') { e.preventDefault(); btnAction.click(); } };
 findInput.addEventListener('keydown', triggerSearch);
 replaceInput.addEventListener('keydown', triggerSearch);
 
@@ -388,14 +322,10 @@ btnAction.addEventListener('click', () => {
         const content = cm.getValue();
         const regex = new RegExp(escapeRegExp(findText), "gi");
         const newContent = content.replace(regex, replaceText);
-        if (content !== newContent) {
-            cm.setValue(newContent);
-            alert("Replaced all occurrences.");
-        } else { alert("Text not found!"); }
+        if (content !== newContent) { cm.setValue(newContent); alert("Replaced all occurrences."); } else { alert("Text not found!"); }
     }
 });
 
-// Misc UI
 languageSelect.addEventListener('change', () => {
     const file = openFiles.find(f => f.id === activeFileId);
     if(file) {
@@ -421,33 +351,21 @@ btnTheme.addEventListener('click', () => {
 
 function jumpToLine() {
     const line = prompt("Go to line number:");
-    if (line && !isNaN(line)) {
-        cm.setCursor(parseInt(line) - 1, 0);
-        cm.focus();
-    }
+    if (line && !isNaN(line)) { cm.setCursor(parseInt(line) - 1, 0); cm.focus(); }
 }
 
-const updateFontSize = () => { 
-    document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`; 
-    cm.refresh(); 
-};
+const updateFontSize = () => { document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`; cm.refresh(); };
 btnZoomIn.addEventListener('click', () => { currentFontSize += 2; updateFontSize(); });
 btnZoomOut.addEventListener('click', () => { currentFontSize = Math.max(8, currentFontSize - 2); updateFontSize(); });
 
-// Mobile Menu
-brandButton.addEventListener('click', () => { 
-    if (window.innerWidth <= 768) mainToolbar.classList.toggle('mobile-open'); 
-});
+brandButton.addEventListener('click', () => { if (window.innerWidth <= 768) mainToolbar.classList.toggle('mobile-open'); });
 cm.on('focus', () => mainToolbar.classList.remove('mobile-open'));
 
-// Drag & Drop
 window.addEventListener('dragenter', (e) => { e.preventDefault(); dropZone.classList.add('active'); dropZone.style.display = 'flex'; });
 dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); if (e.clientX === 0 && e.clientY === 0) { dropZone.classList.remove('active'); dropZone.style.display = 'none'; } });
 dropZone.addEventListener('dragover', (e) => { e.preventDefault(); });
 dropZone.addEventListener('drop', async (e) => {
-    e.preventDefault(); 
-    dropZone.classList.remove('active'); 
-    dropZone.style.display = 'none';
+    e.preventDefault(); dropZone.classList.remove('active'); dropZone.style.display = 'none';
     const items = e.dataTransfer.items;
     if (items && items[0].kind === 'file') {
         const h = await items[0].getAsFileSystemHandle();
@@ -459,15 +377,13 @@ dropZone.addEventListener('drop', async (e) => {
     }
 });
 
-// Shortcuts
 document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.key === 's') { e.preventDefault(); btnSave.click(); }
     if (e.ctrlKey && e.key === 'o') { e.preventDefault(); btnOpen.click(); }
     if (e.ctrlKey && e.key === 'g') { e.preventDefault(); jumpToLine(); }
+    // NEW: Shortcut Alt+N for New File
+    if (e.altKey && e.key === 'n') { e.preventDefault(); createNewTab(); }
 });
 
 // --- 9. STARTUP ---
-// Create initial tab
-if (openFiles.length === 0) {
-    createNewTab();
-}
+if (openFiles.length === 0) { createNewTab(); }
