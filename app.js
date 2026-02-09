@@ -10,7 +10,6 @@ let currentFontSize = 14;
 let clipboardHistory = [];
 let openFiles = []; 
 let activeFileId = null;
-let fileHandle = null; // Legacy support
 
 // --- 2. DOM ELEMENTS ---
 const fileNameDisplay = document.getElementById('fileName');
@@ -23,7 +22,6 @@ const tabBar = document.getElementById('tabBar');
 const mainToolbar = document.getElementById('mainToolbar');
 const brandButton = document.getElementById('brandButton');
 const historyMenu = document.getElementById('historyMenu');
-const appName = document.getElementById('appName'); // NEW
 
 // Buttons
 const btnOpen = document.getElementById('btnOpen');
@@ -57,7 +55,6 @@ const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     }
 });
 
-// Load Theme Config Immediately
 if (localStorage.getItem('theme') === 'light') {
     document.body.classList.add('light-mode');
     cm.setOption('theme', 'default');
@@ -77,12 +74,9 @@ function detectMode(name) {
     return 'text/plain';
 }
 
-function escapeRegExp(s) {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 // --- 5. TAB LOGIC ---
-
 function createNewFileObj(name, content, handle = null) {
     return {
         id: Date.now().toString() + Math.random().toString().substr(2),
@@ -110,10 +104,7 @@ function renderTabs() {
         const closeBtn = document.createElement('div');
         closeBtn.className = 'tab-close';
         closeBtn.textContent = '✕';
-        closeBtn.onclick = (e) => { 
-            e.stopPropagation(); 
-            closeTab(file.id); 
-        };
+        closeBtn.onclick = (e) => { e.stopPropagation(); closeTab(file.id); };
         
         tab.onclick = () => switchToTab(file.id);
         
@@ -121,9 +112,7 @@ function renderTabs() {
         tab.appendChild(closeBtn);
         tabBar.appendChild(tab);
         
-        if (file.id === activeFileId) {
-            tab.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+        if (file.id === activeFileId) tab.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 }
 
@@ -152,7 +141,6 @@ function switchToTab(id) {
         fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`;
         cm.focus();
     }
-    
     renderTabs();
 }
 
@@ -166,25 +154,24 @@ function closeTab(id) {
     if (id === activeFileId) {
         const idx = openFiles.findIndex(f => f.id === id);
         const nextFile = openFiles[idx - 1] || openFiles[idx + 1];
-        if (nextFile) {
-            switchToTab(nextFile.id);
-        } else {
-            openFiles = [];
-            activeFileId = null;
-            createNewTab(); 
-            return; 
-        }
+        if (nextFile) switchToTab(nextFile.id);
+        else { openFiles = []; activeFileId = null; createNewTab(); return; }
     }
     openFiles = openFiles.filter(f => f.id !== id);
     renderTabs();
 }
 
-// --- 6. EVENT LISTENERS (BUTTONS) ---
+// --- 6. EVENT LISTENERS ---
 
-// NEW: Click App Name to New Tab
-appName.addEventListener('click', (e) => {
-    e.stopPropagation(); // Prevent toggling the mobile menu
-    createNewTab();
+// UNIFIED BRAND BUTTON LOGIC
+brandButton.addEventListener('click', (e) => {
+    // If we are on mobile (screen width < 768px), toggle menu
+    if (window.innerWidth <= 768) {
+        mainToolbar.classList.toggle('mobile-open');
+    } else {
+        // If on Desktop, create New Tab
+        createNewTab();
+    }
 });
 
 btnNewTab.addEventListener('click', () => createNewTab());
@@ -195,24 +182,19 @@ btnOpen.addEventListener('click', async () => {
         const file = await handle.getFile();
         const content = await file.text();
         createNewTab(file.name, content, handle);
-    } catch (e) { console.warn("Open cancelled or failed:", e); }
+    } catch (e) { console.warn("Open cancelled:", e); }
 });
 
 btnSave.addEventListener('click', async () => {
     const file = openFiles.find(f => f.id === activeFileId);
     if (!file) return;
     if (!file.handle) { btnSaveAs.click(); return; }
-
     try {
         const writable = await file.handle.createWritable();
-        await writable.write(cm.getValue());
-        await writable.close();
-        file.isDirty = false;
-        renderTabs();
-        const originalText = btnSave.textContent;
-        btnSave.textContent = "✅ Saved";
-        setTimeout(() => btnSave.textContent = originalText, 1500);
-    } catch (e) { console.error("Save failed:", e); alert("Could not save file."); }
+        await writable.write(cm.getValue()); await writable.close();
+        file.isDirty = false; renderTabs();
+        const originalText = btnSave.textContent; btnSave.textContent = "✅ Saved"; setTimeout(() => btnSave.textContent = "💾 Save", 1500);
+    } catch (e) { alert("Could not save file."); }
 });
 
 btnSaveAs.addEventListener('click', async () => {
@@ -221,15 +203,11 @@ btnSaveAs.addEventListener('click', async () => {
     try {
         const handle = await window.showSaveFilePicker(pickerOptions);
         const writable = await handle.createWritable();
-        await writable.write(cm.getValue()); 
-        await writable.close();
+        await writable.write(cm.getValue()); await writable.close();
         const f = await handle.getFile();
-        file.handle = handle;
-        file.name = f.name;
-        file.isDirty = false;
-        file.mode = detectMode(f.name);
+        file.handle = handle; file.name = f.name; file.isDirty = false; file.mode = detectMode(f.name);
         switchToTab(file.id); 
-    } catch (e) { console.warn("Save As cancelled:", e); }
+    } catch (e) {}
 });
 
 // --- 7. EDITOR EVENTS ---
@@ -246,52 +224,40 @@ const updateStats = () => {
         localStorage.setItem('autosave_content', text); 
     }
 };
-
-const updateCursorPos = () => {
+cm.on('change', updateStats);
+cm.on('cursorActivity', () => {
     const pos = cm.getCursor();
     cursorPosDisplay.textContent = `Ln ${pos.line + 1}, Col ${pos.ch + 1}`;
-};
+});
 
-cm.on('change', updateStats);
-cm.on('cursorActivity', updateCursorPos);
-
-// --- 8. CLIPBOARD & SEARCH & UI ---
+// --- 8. CLIPBOARD ---
 function addToHistory(text) {
     if (!text || !text.trim()) return;
     clipboardHistory = [text, ...clipboardHistory.filter(t => t !== text)].slice(0, 5);
 }
-
 function renderHistoryMenu() {
     historyMenu.innerHTML = '<div class="history-title">Clipboard History</div>';
-    if (clipboardHistory.length === 0) {
-        historyMenu.innerHTML += '<div style="padding:10px;color:#888;font-size:0.8rem;">(Empty)</div>';
-        return;
-    }
+    if (clipboardHistory.length === 0) { historyMenu.innerHTML += '<div style="padding:10px;color:#888;font-size:0.8rem;">(Empty)</div>'; return; }
     clipboardHistory.forEach(text => {
         const item = document.createElement('div');
         item.className = 'history-item';
         item.textContent = text;
-        item.title = text;
         item.onclick = () => { cm.replaceSelection(text); historyMenu.classList.remove('show'); cm.focus(); };
         historyMenu.appendChild(item);
     });
 }
-
 btnCopy.addEventListener('click', () => {
     const sel = cm.getSelection();
     if (sel) { navigator.clipboard.writeText(sel); addToHistory(sel); 
     const original = btnCopy.textContent; btnCopy.textContent = "✅"; setTimeout(() => btnCopy.textContent = original, 1000); }
 });
-
 btnPaste.addEventListener('click', async () => {
     try { const text = await navigator.clipboard.readText(); cm.replaceSelection(text); addToHistory(text); cm.focus(); } catch (e) {}
 });
-
 btnHistory.addEventListener('click', (e) => { e.stopPropagation(); renderHistoryMenu(); historyMenu.classList.toggle('show'); });
 document.addEventListener('click', (e) => { if (!historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show'); });
 
-let lastSearchQuery = '';
-let searchCursor = null;
+// --- 9. MISC ---
 const triggerSearch = (e) => { if (e.key === 'Enter') { e.preventDefault(); btnAction.click(); } };
 findInput.addEventListener('keydown', triggerSearch);
 replaceInput.addEventListener('keydown', triggerSearch);
@@ -300,24 +266,10 @@ btnAction.addEventListener('click', () => {
     const findText = findInput.value;
     const replaceText = replaceInput.value;
     if (!findText) return;
-
     if (replaceText === "") {
-        if (findText !== lastSearchQuery || !searchCursor) {
-            lastSearchQuery = findText;
-            searchCursor = cm.getSearchCursor(findText, cm.getCursor(), {caseFold: true});
-        }
-        if (searchCursor.findNext()) {
-            cm.setSelection(searchCursor.from(), searchCursor.to());
-            cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100);
-            cm.focus();
-        } else {
-            searchCursor = cm.getSearchCursor(findText, {line: 0, ch: 0}, {caseFold: true});
-            if (searchCursor.findNext()) {
-                cm.setSelection(searchCursor.from(), searchCursor.to());
-                cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100);
-                cm.focus();
-            } else { alert("Text not found!"); }
-        }
+        if (findText !== lastSearchQuery || !searchCursor) { lastSearchQuery = findText; searchCursor = cm.getSearchCursor(findText, cm.getCursor(), {caseFold: true}); }
+        if (searchCursor.findNext()) { cm.setSelection(searchCursor.from(), searchCursor.to()); cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100); cm.focus(); }
+        else { searchCursor = cm.getSearchCursor(findText, {line: 0, ch: 0}, {caseFold: true}); if (searchCursor.findNext()) { cm.setSelection(searchCursor.from(), searchCursor.to()); cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100); cm.focus(); } else { alert("Text not found!"); } }
     } else {
         const content = cm.getValue();
         const regex = new RegExp(escapeRegExp(findText), "gi");
@@ -328,19 +280,9 @@ btnAction.addEventListener('click', () => {
 
 languageSelect.addEventListener('change', () => {
     const file = openFiles.find(f => f.id === activeFileId);
-    if(file) {
-        file.mode = languageSelect.value;
-        cm.setOption('mode', file.mode);
-        fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`;
-    }
+    if(file) { file.mode = languageSelect.value; cm.setOption('mode', file.mode); fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`; }
 });
-
-btnToggleWrap.addEventListener('click', () => {
-    const current = cm.getOption('lineWrapping');
-    cm.setOption('lineWrapping', !current);
-    btnToggleWrap.classList.toggle('active');
-});
-
+btnToggleWrap.addEventListener('click', () => { const c = cm.getOption('lineWrapping'); cm.setOption('lineWrapping', !c); btnToggleWrap.classList.toggle('active'); });
 btnTheme.addEventListener('click', () => {
     document.body.classList.toggle('light-mode');
     const isLight = document.body.classList.contains('light-mode');
@@ -348,19 +290,11 @@ btnTheme.addEventListener('click', () => {
     btnTheme.textContent = isLight ? '🌙' : '☀';
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
 });
-
-function jumpToLine() {
-    const line = prompt("Go to line number:");
-    if (line && !isNaN(line)) { cm.setCursor(parseInt(line) - 1, 0); cm.focus(); }
-}
-
 const updateFontSize = () => { document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`; cm.refresh(); };
 btnZoomIn.addEventListener('click', () => { currentFontSize += 2; updateFontSize(); });
 btnZoomOut.addEventListener('click', () => { currentFontSize = Math.max(8, currentFontSize - 2); updateFontSize(); });
 
-brandButton.addEventListener('click', () => { if (window.innerWidth <= 768) mainToolbar.classList.toggle('mobile-open'); });
 cm.on('focus', () => mainToolbar.classList.remove('mobile-open'));
-
 window.addEventListener('dragenter', (e) => { e.preventDefault(); dropZone.classList.add('active'); dropZone.style.display = 'flex'; });
 dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); if (e.clientX === 0 && e.clientY === 0) { dropZone.classList.remove('active'); dropZone.style.display = 'none'; } });
 dropZone.addEventListener('dragover', (e) => { e.preventDefault(); });
@@ -369,11 +303,7 @@ dropZone.addEventListener('drop', async (e) => {
     const items = e.dataTransfer.items;
     if (items && items[0].kind === 'file') {
         const h = await items[0].getAsFileSystemHandle();
-        if (h.kind === 'file') {
-            const f = await h.getFile();
-            const c = await f.text();
-            createNewTab(f.name, c, h);
-        }
+        if (h.kind === 'file') { const f = await h.getFile(); const c = await f.text(); createNewTab(f.name, c, h); }
     }
 });
 
@@ -381,9 +311,7 @@ document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.key === 's') { e.preventDefault(); btnSave.click(); }
     if (e.ctrlKey && e.key === 'o') { e.preventDefault(); btnOpen.click(); }
     if (e.ctrlKey && e.key === 'g') { e.preventDefault(); jumpToLine(); }
-    // NEW: Shortcut Alt+N for New File
     if (e.altKey && e.key === 'n') { e.preventDefault(); createNewTab(); }
 });
 
-// --- 9. STARTUP ---
 if (openFiles.length === 0) { createNewTab(); }
