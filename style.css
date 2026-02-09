@@ -3,9 +3,18 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #202124;
     color: #e8eaed;
+}
+
+/* --- CodeMirror Customization --- */
+.CodeMirror {
+    flex-grow: 1;
+    height: auto; /* Allow flex to control height */
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
 /* --- Drag & Drop Overlay --- */
@@ -16,7 +25,7 @@ body {
     width: 100%; height: 100%;
     background: rgba(138, 180, 248, 0.9);
     color: #202124;
-    z-index: 1000;
+    z-index: 2000; /* Higher than CodeMirror */
     justify-content: center;
     align-items: center;
     font-size: 2rem;
@@ -36,7 +45,6 @@ body {
 }
 
 .app-name { font-weight: bold; color: #8ab4f8; font-size: 1.2rem; }
-
 .buttons { display: flex; gap: 5px; }
 
 button {
@@ -49,7 +57,6 @@ button {
     font-size: 0.9rem;
     transition: background 0.2s;
 }
-
 button:hover { background: #5f6368; }
 
 /* --- Search Bar --- */
@@ -60,7 +67,6 @@ button:hover { background: #5f6368; }
     gap: 10px;
     border-bottom: 1px solid #3c4043;
 }
-
 .search-bar input {
     background: #202124;
     border: 1px solid #5f6368;
@@ -70,23 +76,7 @@ button:hover { background: #5f6368; }
     flex-grow: 1;
     font-family: inherit;
 }
-
 #btnReplaceAll { background: #8ab4f8; color: #202124; border: none; font-weight: bold; }
-
-/* --- Editor --- */
-textarea {
-    flex-grow: 1;
-    width: 100%;
-    background-color: #202124;
-    color: #e8eaed;
-    border: none;
-    padding: 15px;
-    font-size: 14px;
-    resize: none;
-    outline: none;
-    white-space: pre; 
-    overflow: auto;
-}
 
 /* --- Status Bar --- */
 .status-bar {
@@ -96,5 +86,5 @@ textarea {
     padding: 5px 15px;
     color: #9aa0a6;
     display: flex;
-    justify-content: space-between; /* Pushes items to edges */
+    align-items: center;
 }
