@@ -24,28 +24,38 @@
         <div class="group-file">
             <button id="btnOpen" title="Open (Ctrl+O)">📂 Open</button>
             <button id="btnSave" title="Save (Ctrl+S)">💾 Save</button>
-            <button id="btnSaveAs" title="Save As...">💾 As...</button>
+            <button id="btnSaveAs" title="Save As New File">💾 Save As</button>
         </div>
+
+        <select id="languageSelect" class="lang-select">
+            <option value="text/plain">Plain Text</option>
+            <option value="text/html">HTML</option>
+            <option value="text/css">CSS</option>
+            <option value="text/javascript">JavaScript</option>
+            <option value="application/x-httpd-php">PHP</option>
+            <option value="application/json">JSON</option>
+            <option value="application/xml">XML</option>
+        </select>
 
         <div class="group-zoom">
             <button id="btnZoomOut" title="Smaller">-</button>
-            <span style="color:#5f6368">|</span>
+            <span style="color:#5f6368; font-size: 1.2rem; margin: 0 2px;">|</span>
             <button id="btnZoomIn" title="Bigger">+</button>
         </div>
 
         <div class="group-search">
             <input type="text" id="findInput" placeholder="Find...">
             <input type="text" id="replaceInput" placeholder="Replace...">
-            <button id="btnAction" title="Find Next / Replace All">🔎</button>
+            <button id="btnAction" title="Find Next (or Replace All if text entered)">🔎</button>
         </div>
 
-        <select id="languageSelect" style="display:none"><option value="text/plain">Plain</option></select>
     </div>
     
     <textarea id="editor"></textarea>
     
     <div class="status-bar">
         <span id="fileName">No file open</span>
+        <span id="fileMode" style="margin-left: 10px; color: #8ab4f8;">(Plain Text)</span>
         <div style="flex-grow:1"></div>
         <span id="stats">Lines: 0 | Words: 0</span>
     </div>
@@ -57,7 +67,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
 
     <script src="app.js"></script>
