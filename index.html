@@ -15,7 +15,6 @@
     <div id="dropZone" class="drop-overlay">📂 Drop file here to open</div>
 
     <div class="toolbar">
-        
         <div class="brand-section">
             <img src="logo.png" alt="Logo">
             <div class="app-name">Notepad--</div>
@@ -39,16 +38,16 @@
 
         <div class="group-zoom">
             <button id="btnZoomOut" title="Smaller">-</button>
-            <span style="color:#5f6368; font-size: 1.2rem; margin: 0 2px;">|</span>
             <button id="btnZoomIn" title="Bigger">+</button>
+            <span style="color:#5f6368; font-size: 1.2rem; margin: 0 2px;">|</span>
+            <button id="btnToggleWrap" title="Toggle Word Wrap" class="active">Wrap</button>
         </div>
 
         <div class="group-search">
             <input type="text" id="findInput" placeholder="Find...">
             <input type="text" id="replaceInput" placeholder="Replace...">
-            <button id="btnAction" title="Find Next (or Replace All if text entered)">🔎</button>
+            <button id="btnAction" title="Find Next (or Replace All)">🔎</button>
         </div>
-
     </div>
     
     <textarea id="editor"></textarea>
@@ -57,6 +56,7 @@
         <span id="fileName">No file open</span>
         <span id="fileMode" style="margin-left: 10px; color: #8ab4f8;">(Plain Text)</span>
         <div style="flex-grow:1"></div>
+        <span id="cursorPos" style="margin-right: 15px;">Ln 1, Col 1</span>
         <span id="stats">Lines: 0 | Words: 0</span>
     </div>
 
