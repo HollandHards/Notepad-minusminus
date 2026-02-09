@@ -6,137 +6,92 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #202124;
     color: #e8eaed;
+    overflow: hidden; /* Prevent body scrollbars */
 }
 
-/* --- CodeMirror Customization --- */
-.CodeMirror {
-    flex-grow: 1;
-    height: auto;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-/* --- Drag & Drop Overlay --- */
-.drop-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(138, 180, 248, 0.9);
-    color: #202124;
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-    font-size: 2rem;
-    font-weight: bold;
-    border: 5px dashed #ffffff;
-    box-sizing: border-box;
-}
-
-/* --- Toolbar Container --- */
+/* --- TOOLBAR (Flexbox Container) --- */
 .toolbar {
     background-color: #292a2d;
-    padding: 8px 12px;
+    height: 50px; /* Fixed height to prevent jumping */
+    padding: 0 15px;
     display: flex;
     align-items: center;
-    gap: 15px; /* Spacing between groups */
+    justify-content: space-between; /* Pushes Left/Right to edges */
     border-bottom: 1px solid #3c4043;
-    flex-wrap: wrap; /* Allows wrapping on very small screens */
+    white-space: nowrap; /* Prevents wrapping */
 }
 
-/* 1. Brand Section */
+/* 1. Brand (Left) */
 .brand-section {
     display: flex;
     align-items: center;
-    min-width: 130px;
+    min-width: 140px;
 }
-.brand-section img {
-    width: 24px;
-    height: 24px;
-    margin-right: 8px;
-}
-.app-name { 
-    font-weight: bold; 
-    color: #8ab4f8; 
-    font-size: 1.1rem; 
-    white-space: nowrap;
+.brand-section img { width: 24px; height: 24px; margin-right: 8px; }
+.app-name { font-weight: bold; color: #8ab4f8; font-size: 1.1rem; }
+
+/* 2. Center Controls (Search + Zoom) */
+.center-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-grow: 1; /* Takes up all middle space */
+    justify-content: center; /* Centers items in the middle space */
 }
 
-/* 2. Search Bar (Now inside toolbar) */
-.search-bar {
-    display: flex;
-    gap: 5px;
-    flex-grow: 1; /* Takes up available middle space */
-    justify-content: center;
-}
-.search-bar input {
+.search-group { display: flex; gap: 5px; }
+.search-group input {
     background: #202124;
     border: 1px solid #5f6368;
     color: white;
-    padding: 5px 8px;
+    padding: 4px 8px;
     border-radius: 4px;
-    width: 120px; /* Fixed width to save space */
+    width: 90px; /* Smaller width to fit on screen */
     font-size: 0.85rem;
 }
-.search-bar button {
-    padding: 5px 10px;
-    font-weight: bold;
-}
 
-/* 3. Middle Controls (Zoom/Lang) */
-.middle-controls {
+.zoom-group { display: flex; gap: 2px; }
+
+/* 3. File Controls (Right) */
+.file-controls {
     display: flex;
     gap: 8px;
     align-items: center;
 }
+
+/* General UI Elements */
 .lang-select {
     padding: 4px;
     background: #3c4043;
     color: white;
     border: 1px solid #5f6368;
     border-radius: 4px;
-    font-size: 0.85rem;
-    max-width: 100px;
-}
-.zoom-controls {
-    display: flex;
-    gap: 2px;
-}
-.zoom-controls button {
-    padding: 4px 8px;
-    min-width: 25px;
+    width: 80px;
 }
 
-/* 4. Action Buttons */
-.buttons { 
-    display: flex; 
-    gap: 5px; 
-    margin-left: auto; /* Pushes to far right if space allows */
-}
-
-/* General Button Styles */
 button {
     background: #3c4043;
     color: #e8eaed;
     border: 1px solid #5f6368;
-    padding: 6px 12px;
+    padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.85rem;
-    transition: background 0.2s;
-    white-space: nowrap;
 }
 button:hover { background: #5f6368; }
 #btnReplaceAll { background: #8ab4f8; color: #202124; border: none; }
 
+/* --- CodeMirror & Overlay --- */
+.CodeMirror { flex-grow: 1; font-family: 'Courier New', monospace; font-size: 14px; }
+.drop-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(138, 180, 248, 0.9); color: #202124; z-index: 2000;
+    justify-content: center; align-items: center; font-size: 2rem; font-weight: bold;
+    border: 5px dashed #ffffff; box-sizing: border-box;
+}
+
 /* --- Status Bar --- */
 .status-bar {
-    background: #292a2d;
-    border-top: 1px solid #3c4043;
-    font-size: 0.8rem;
-    padding: 4px 15px;
-    color: #9aa0a6;
-    display: flex;
-    align-items: center;
+    background: #292a2d; border-top: 1px solid #3c4043; font-size: 0.8rem;
+    padding: 4px 15px; color: #9aa0a6; display: flex; align-items: center;
 }
