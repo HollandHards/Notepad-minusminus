@@ -5,7 +5,7 @@ let currentFontSize = 14;
 const fileNameDisplay = document.getElementById('fileName');
 const fileModeDisplay = document.getElementById('fileMode');
 const statsDisplay = document.getElementById('stats');
-const cursorPosDisplay = document.getElementById('cursorPos'); // New
+const cursorPosDisplay = document.getElementById('cursorPos'); 
 const dropZone = document.getElementById('dropZone');
 const languageSelect = document.getElementById('languageSelect');
 const btnOpen = document.getElementById('btnOpen');
@@ -13,20 +13,19 @@ const btnSave = document.getElementById('btnSave');
 const btnSaveAs = document.getElementById('btnSaveAs');
 const btnZoomIn = document.getElementById('btnZoomIn');
 const btnZoomOut = document.getElementById('btnZoomOut');
-const btnToggleWrap = document.getElementById('btnToggleWrap'); // New
+const btnToggleWrap = document.getElementById('btnToggleWrap');
 const btnAction = document.getElementById('btnAction');
 const findInput = document.getElementById('findInput');
 const replaceInput = document.getElementById('replaceInput');
 
-// --- 1. INITIALIZE CODEMIRROR WITH UX IMPROVEMENTS ---
+// --- 1. INITIALIZE CODEMIRROR ---
 const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     lineNumbers: true,
     theme: 'darcula',
     mode: 'text/plain',
-    lineWrapping: true, // Default to true
+    lineWrapping: true,
     matchBrackets: true,
     indentUnit: 4,
-    // UX: Map Tab key to insert 4 spaces instead of moving focus
     extraKeys: {
         "Tab": function(cm) {
             if (cm.somethingSelected()) {
@@ -35,9 +34,7 @@ const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
                 cm.replaceSelection("    ", "end");
             }
         },
-        "Ctrl-G": function(cm) {
-            jumpToLine();
-        }
+        "Ctrl-G": function(cm) { jumpToLine(); }
     }
 });
 
@@ -54,8 +51,6 @@ const updateStats = () => {
     const lines = cm.lineCount();
     const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
     statsDisplay.textContent = `Lines: ${lines} | Words: ${words}`;
-    
-    // Auto-save & Asterisk
     localStorage.setItem('autosave_content', text);
     if (!fileNameDisplay.textContent.includes('*')) fileNameDisplay.textContent += '*';
 };
@@ -66,18 +61,15 @@ const updateCursorPos = () => {
 };
 
 cm.on('change', updateStats);
-cm.on('cursorActivity', updateCursorPos); // Track cursor movement
+cm.on('cursorActivity', updateCursorPos);
 
 // --- 2. UX FEATURES ---
-
-// A. Wrap Toggle
 btnToggleWrap.addEventListener('click', () => {
     const current = cm.getOption('lineWrapping');
     cm.setOption('lineWrapping', !current);
-    btnToggleWrap.classList.toggle('active'); // Toggle visual style
+    btnToggleWrap.classList.toggle('active');
 });
 
-// B. Jump to Line
 function jumpToLine() {
     const line = prompt("Go to line number:");
     if (line && !isNaN(line)) {
@@ -86,7 +78,6 @@ function jumpToLine() {
     }
 }
 
-// C. Zoom Controls
 const updateFontSize = () => {
     document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`;
     cm.refresh();
@@ -102,35 +93,64 @@ languageSelect.addEventListener('change', () => {
     fileModeDisplay.textContent = `(${modeName})`;
 });
 
-// --- 4. SEARCH & REPLACE ---
+// --- 4. IMPROVED SEARCH & REPLACE ---
 let lastSearchQuery = '';
 let searchCursor = null;
+
+// Helper to escape special regex characters (like . * + ? etc.)
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); 
+}
 
 btnAction.addEventListener('click', () => {
     const findText = findInput.value;
     const replaceText = replaceInput.value;
+    
     if (!findText) return;
 
+    // A. FIND NEXT (Case Insensitive)
     if (replaceText === "") {
+        // If query changed or we don't have a cursor, start a new one from current position
         if (findText !== lastSearchQuery || !searchCursor) {
             lastSearchQuery = findText;
-            searchCursor = cm.getSearchCursor(findText);
+            // Get cursor starting from where the user currently is
+            searchCursor = cm.getSearchCursor(findText, cm.getCursor(), {caseFold: true});
         }
+
+        // Try to find next match
         if (searchCursor.findNext()) {
             cm.setSelection(searchCursor.from(), searchCursor.to());
-            cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 20);
+            cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100); // 100px margin
+            cm.focus(); // CRITICAL: This makes the blue highlight visible!
         } else {
-            searchCursor = cm.getSearchCursor(findText);
+            // If not found, loop back to the top of the document
+            searchCursor = cm.getSearchCursor(findText, {line: 0, ch: 0}, {caseFold: true});
             if (searchCursor.findNext()) {
                 cm.setSelection(searchCursor.from(), searchCursor.to());
-                cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 20);
-            } else { alert("Text not found!"); }
+                cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100);
+                cm.focus();
+            } else {
+                alert("Text not found!");
+            }
         }
-    } else {
+    } 
+    // B. REPLACE ALL (Case Insensitive)
+    else {
         const content = cm.getValue();
-        const newContent = content.split(findText).join(replaceText);
-        if (content !== newContent) cm.setValue(newContent);
-        else alert("Text not found!");
+        // Create a Regex with 'g' (global) and 'i' (insensitive) flags
+        const regex = new RegExp(escapeRegExp(findText), "gi");
+        
+        const newContent = content.replace(regex, replaceText);
+        
+        if (content !== newContent) {
+            // Keep the scroll position
+            const scrollInfo = cm.getScrollInfo();
+            cm.setValue(newContent);
+            cm.scrollTo(scrollInfo.left, scrollInfo.top);
+            alert("Replaced all occurrences.");
+        } else {
+            alert("Text not found!");
+        }
     }
 });
 
@@ -194,29 +214,12 @@ btnSaveAs.addEventListener('click', async () => {
     } catch (e) {}
 });
 
-// --- 6. DRAG & DROP (Visual Polish) ---
-// Using 'dragenter' and 'dragleave' for cleaner CSS class toggling
-window.addEventListener('dragenter', (e) => {
-    e.preventDefault();
-    dropZone.classList.add('active'); // Add animation class
-    dropZone.style.display = 'flex';
-});
-
-dropZone.addEventListener('dragleave', (e) => {
-    e.preventDefault();
-    // Only remove if we actually left the window
-    if (e.clientX === 0 && e.clientY === 0) {
-        dropZone.classList.remove('active');
-        dropZone.style.display = 'none';
-    }
-});
-
-dropZone.addEventListener('dragover', (e) => { e.preventDefault(); }); // Essential to allow drop
-
+// --- 6. DRAG & DROP ---
+window.addEventListener('dragenter', (e) => { e.preventDefault(); dropZone.classList.add('active'); dropZone.style.display = 'flex'; });
+dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); if (e.clientX === 0 && e.clientY === 0) { dropZone.classList.remove('active'); dropZone.style.display = 'none'; } });
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); });
 dropZone.addEventListener('drop', async (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('active');
-    dropZone.style.display = 'none';
+    e.preventDefault(); dropZone.classList.remove('active'); dropZone.style.display = 'none';
     const items = e.dataTransfer.items;
     if (items && items[0].kind === 'file') {
         const handle = await items[0].getAsFileSystemHandle();
