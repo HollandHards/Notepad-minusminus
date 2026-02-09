@@ -32,7 +32,18 @@ A lightweight, distraction-free, and dark-mode text editor built specifically fo
 * **Line Wrapping:** Toggle word wrap on/off for viewing long logs or data files.
 * **Zoom Controls:** Increase or decrease font size on the fly.
 * **Offline Capable:** Works 100% offline via Service Worker caching.
+## 🔒 Privacy and Security
 
+Notepad-- is designed with a **"Local-First"** architecture. This means:
+
+* **100% Client-Side:** The entire application runs directly in your browser.
+* **No Cloud Storage:** Your files are **never** uploaded to any server. When you open a file, the browser reads it directly from your device's hard drive. When you save, it writes back to your drive.
+* **Zero Tracking:** There are no analytics, cookies, or user accounts.
+* **Offline Security:** Once installed, the app works without an internet connection, ensuring your data never leaves your device even by accident.
+
+
+
+You can audit the source code in this repository to verify that no data is being sent externally.
 ---
 
 ## 📥 How to Install (ChromeOS / Windows / Mac)
