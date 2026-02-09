@@ -33,7 +33,6 @@ const btnCopy = document.getElementById('btnCopy');
 const btnPaste = document.getElementById('btnPaste');
 const btnHistory = document.getElementById('btnHistory');
 
-// New Tools Elements
 const btnTools = document.getElementById('btnTools');
 const toolsMenu = document.getElementById('toolsMenu');
 const toolSort = document.getElementById('toolSort');
@@ -45,7 +44,7 @@ const toolLower = document.getElementById('toolLower');
 const findInput = document.getElementById('findInput');
 const replaceInput = document.getElementById('replaceInput');
 
-// --- 3. INITIALIZE CODEMIRROR WITH FOLDING ---
+// --- 3. INITIALIZE CODEMIRROR ---
 const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     lineNumbers: true,
     theme: 'darcula',
@@ -53,11 +52,18 @@ const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     lineWrapping: true,
     matchBrackets: true,
     indentUnit: 4,
-    // FOLDING CONFIG
+    // NEW: Folding
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+    // NEW: Smart Editing & Visuals
+    autoCloseBrackets: true,
+    autoCloseTags: true,
+    styleActiveLine: true,
+    highlightSelectionMatches: { showToken: /\w/, annotateScrollbar: true },
+    hintOptions: { completeSingle: false },
     extraKeys: {
         "Tab": (cm) => cm.somethingSelected() ? cm.indentSelection("add") : cm.replaceSelection("    ", "end"),
+        "Ctrl-Space": "autocomplete", // Trigger Autocomplete
         "Ctrl-G": () => jumpToLine(),
         "Ctrl-D": () => duplicateLine(),
         "Ctrl-Shift-Up": () => moveLineUp(),
@@ -71,78 +77,50 @@ if (localStorage.getItem('theme') === 'light') {
     btnTheme.textContent = '🌙';
 }
 
-// --- 4. LINE OPERATION FUNCTIONS (NEW) ---
+// --- 4. OPERATIONS ---
 function duplicateLine() {
-    const doc = cm.getDoc();
-    const cursor = doc.getCursor();
-    const line = doc.getLine(cursor.line);
+    const doc = cm.getDoc(); const cursor = doc.getCursor(); const line = doc.getLine(cursor.line);
     doc.replaceRange(line + "\n", {line: cursor.line + 1, ch: 0});
 }
-
 function moveLineUp() {
-    const doc = cm.getDoc();
-    const cursor = doc.getCursor();
-    if (cursor.line === 0) return;
-    const line = doc.getLine(cursor.line);
-    const prevLine = doc.getLine(cursor.line - 1);
+    const doc = cm.getDoc(); const cursor = doc.getCursor(); if (cursor.line === 0) return;
+    const line = doc.getLine(cursor.line); const prevLine = doc.getLine(cursor.line - 1);
     doc.replaceRange(line, {line: cursor.line - 1, ch: 0}, {line: cursor.line - 1, ch: prevLine.length});
     doc.replaceRange(prevLine, {line: cursor.line, ch: 0}, {line: cursor.line, ch: line.length});
     cm.setCursor(cursor.line - 1, cursor.ch);
 }
-
 function moveLineDown() {
-    const doc = cm.getDoc();
-    const cursor = doc.getCursor();
-    if (cursor.line === doc.lastLine()) return;
-    const line = doc.getLine(cursor.line);
-    const nextLine = doc.getLine(cursor.line + 1);
+    const doc = cm.getDoc(); const cursor = doc.getCursor(); if (cursor.line === doc.lastLine()) return;
+    const line = doc.getLine(cursor.line); const nextLine = doc.getLine(cursor.line + 1);
     doc.replaceRange(nextLine, {line: cursor.line, ch: 0}, {line: cursor.line, ch: line.length});
     doc.replaceRange(line, {line: cursor.line + 1, ch: 0}, {line: cursor.line + 1, ch: nextLine.length});
     cm.setCursor(cursor.line + 1, cursor.ch);
 }
-
 function sortLines() {
     const selections = cm.getSelections();
     if (selections.length > 0 && selections[0] !== "") {
-        // Sort selected lines
-        const from = cm.getCursor("from");
-        const to = cm.getCursor("to");
+        const from = cm.getCursor("from"); const to = cm.getCursor("to");
         const text = cm.getRange({line: from.line, ch: 0}, {line: to.line, ch: 999999});
-        const lines = text.split('\n');
-        lines.sort((a, b) => a.localeCompare(b));
+        const lines = text.split('\n'); lines.sort((a, b) => a.localeCompare(b));
         cm.replaceRange(lines.join('\n'), {line: from.line, ch: 0}, {line: to.line, ch: 999999});
     } else {
-        // Sort entire file
-        const text = cm.getValue();
-        const lines = text.split('\n');
-        lines.sort((a, b) => a.localeCompare(b));
-        cm.setValue(lines.join('\n'));
+        const text = cm.getValue(); const lines = text.split('\n'); lines.sort((a, b) => a.localeCompare(b)); cm.setValue(lines.join('\n'));
     }
 }
-
 function trimWhitespace() {
-    const doc = cm.getDoc();
-    const cursor = doc.getCursor();
-    // Regex replace per line
+    const doc = cm.getDoc(); const cursor = doc.getCursor();
     cm.eachLine(line => {
         const trimmed = line.text.trimRight();
-        if (trimmed !== line.text) {
-            const lineNo = doc.getLineNumber(line);
-            doc.replaceRange(trimmed, {line: lineNo, ch: 0}, {line: lineNo, ch: line.text.length});
-        }
+        if (trimmed !== line.text) { const lineNo = doc.getLineNumber(line); doc.replaceRange(trimmed, {line: lineNo, ch: 0}, {line: lineNo, ch: line.text.length}); }
     });
-    cm.setCursor(cursor); // Restore cursor
+    cm.setCursor(cursor);
 }
-
 function changeCase(type) {
     const selection = cm.getSelection();
-    if (selection) {
-        const newText = type === 'upper' ? selection.toUpperCase() : selection.toLowerCase();
-        cm.replaceSelection(newText);
-    }
+    if (selection) { const newText = type === 'upper' ? selection.toUpperCase() : selection.toLowerCase(); cm.replaceSelection(newText); }
 }
 
-// --- 5. HELPER FUNCTIONS ---
+// --- 5. HELPERS & TABS ---
 function detectMode(name) {
     if (!name) return 'text/plain';
     const ext = name.split('.').pop().toLowerCase();
@@ -163,7 +141,6 @@ function saveFileFallback(filename, content) {
     document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
-// --- 6. TAB LOGIC ---
 function createNewFileObj(name, content, handle = null) {
     return {
         id: Date.now().toString() + Math.random().toString().substr(2),
@@ -220,7 +197,7 @@ function closeTab(id) {
     openFiles = openFiles.filter(f => f.id !== id); renderTabs();
 }
 
-// --- 7. EVENT LISTENERS ---
+// --- 6. EVENT LISTENERS ---
 brandButton.addEventListener('click', () => { if (window.innerWidth <= 768) mainToolbar.classList.toggle('mobile-open'); else createNewTab(); });
 btnNewTab.addEventListener('click', () => createNewTab());
 btnOpen.addEventListener('click', async () => {
@@ -229,7 +206,6 @@ btnOpen.addEventListener('click', async () => {
 fileInput.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (e) => createNewTab(f.name, e.target.result, null); r.readAsText(f); fileInput.value = ''; });
 btnSave.addEventListener('click', async () => {
     const file = openFiles.find(f => f.id === activeFileId); if (!file) return; if (!file.handle) { btnSaveAs.click(); return; }
-    // AUTO TRIM ON SAVE
     trimWhitespace();
     try {
         const w = await file.handle.createWritable(); await w.write(cm.getValue()); await w.close();
@@ -244,7 +220,6 @@ btnSaveAs.addEventListener('click', async () => {
     } else { saveFileFallback(file.name, cm.getValue()); file.isDirty = false; renderTabs(); }
 });
 
-// --- TOOLS MENU EVENTS ---
 btnTools.addEventListener('click', (e) => { e.stopPropagation(); toolsMenu.classList.toggle('show'); });
 document.addEventListener('click', (e) => { if (!toolsMenu.contains(e.target) && e.target !== btnTools) toolsMenu.classList.remove('show'); });
 toolSort.addEventListener('click', () => { sortLines(); toolsMenu.classList.remove('show'); });
@@ -253,11 +228,8 @@ toolDup.addEventListener('click', () => { duplicateLine(); toolsMenu.classList.r
 toolUpper.addEventListener('click', () => { changeCase('upper'); toolsMenu.classList.remove('show'); });
 toolLower.addEventListener('click', () => { changeCase('lower'); toolsMenu.classList.remove('show'); });
 
-// --- EDITOR UPDATES ---
 const updateStats = (cmInstance, changeObj) => {
-    const text = cm.getValue();
-    const lines = cm.lineCount();
-    const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+    const text = cm.getValue(); const lines = cm.lineCount(); const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
     statsDisplay.textContent = `Lines: ${lines} | Words: ${words}`;
     const file = openFiles.find(f => f.id === activeFileId);
     if (file) {
@@ -268,7 +240,6 @@ const updateStats = (cmInstance, changeObj) => {
 cm.on('change', (i, c) => updateStats(i, c));
 cm.on('cursorActivity', () => { const p = cm.getCursor(); cursorPosDisplay.textContent = `Ln ${p.line + 1}, Col ${p.ch + 1}`; });
 
-// --- CLIPBOARD & SEARCH ---
 function addToHistory(text) { if (!text || !text.trim()) return; clipboardHistory = [text, ...clipboardHistory.filter(t => t !== text)].slice(0, 5); }
 function renderHistoryMenu() {
     historyMenu.innerHTML = '<div class="history-title">Clipboard History</div>';
@@ -310,6 +281,6 @@ document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.key === 'o') { e.preventDefault(); btnOpen.click(); }
     if (e.ctrlKey && e.key === 'g') { e.preventDefault(); jumpToLine(); }
     if (e.altKey && e.key === 'n') { e.preventDefault(); createNewTab(); }
-    if (e.ctrlKey && e.key === 'd') { e.preventDefault(); duplicateLine(); } // Explicit shortcut binding
+    if (e.ctrlKey && e.key === 'd') { e.preventDefault(); duplicateLine(); }
 });
 if (openFiles.length === 0) createNewTab();
