@@ -5,6 +5,7 @@ const fileNameDisplay = document.getElementById('fileName');
 const fileModeDisplay = document.getElementById('fileMode');
 const statsDisplay = document.getElementById('stats');
 const dropZone = document.getElementById('dropZone');
+const languageSelect = document.getElementById('languageSelect');
 
 // Buttons
 const btnOpen = document.getElementById('btnOpen');
@@ -14,15 +15,15 @@ const btnClose = document.getElementById('btnClose');
 const btnReplaceAll = document.getElementById('btnReplaceAll');
 
 // --- 1. INITIALIZE CODEMIRROR ---
-// This replaces the standard textarea with the syntax highlighter
 const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     lineNumbers: true,
     theme: 'darcula',
-    mode: 'text/plain', // Default mode
-    lineWrapping: true
+    mode: 'text/plain',
+    lineWrapping: true,
+    matchBrackets: true
 });
 
-// Update stats whenever text changes in CodeMirror
+// Update stats whenever text changes
 cm.on('change', () => {
     const text = cm.getValue();
     const lines = cm.lineCount();
@@ -30,21 +31,34 @@ cm.on('change', () => {
     statsDisplay.textContent = `Lines: ${lines} | Words: ${words}`;
 });
 
-// --- 2. LANGUAGE DETECTION ---
+// --- 2. LANGUAGE HANDLING ---
+
+// A. Handle Dropdown Change
+languageSelect.addEventListener('change', () => {
+    const mode = languageSelect.value;
+    cm.setOption('mode', mode);
+    const modeName = languageSelect.options[languageSelect.selectedIndex].text;
+    fileModeDisplay.textContent = `(${modeName})`;
+});
+
+// B. Auto-Detect from Filename
 function setModeByFilename(name) {
     const extension = name.split('.').pop().toLowerCase();
     let mode = 'text/plain';
-    let modeName = '(Plain Text)';
 
-    if (extension === 'html') { mode = 'htmlmixed'; modeName = '(HTML)'; }
-    else if (extension === 'js') { mode = 'javascript'; modeName = '(JavaScript)'; }
-    else if (extension === 'css') { mode = 'css'; modeName = '(CSS)'; }
-    else if (extension === 'php') { mode = 'application/x-httpd-php'; modeName = '(PHP)'; }
-    else if (extension === 'json') { mode = 'application/json'; modeName = '(JSON)'; }
-    else if (extension === 'csv') { mode = 'text/plain'; modeName = '(CSV)'; } // CSV stays plain for now
-    
+    if (['html', 'htm', 'phtml'].includes(extension)) mode = 'htmlmixed';
+    else if (['css', 'scss', 'less'].includes(extension)) mode = 'css';
+    else if (['js', 'jsx', 'ts'].includes(extension)) mode = 'javascript';
+    else if (extension === 'php') mode = 'application/x-httpd-php';
+    else if (extension === 'json') mode = 'application/json';
+    else if (extension === 'xml') mode = 'xml';
+
     cm.setOption('mode', mode);
-    fileModeDisplay.textContent = modeName;
+    languageSelect.value = mode;
+    
+    // Update label safely
+    const option = Array.from(languageSelect.options).find(o => o.value === mode);
+    if(option) fileModeDisplay.textContent = `(${option.text})`;
 }
 
 // --- 3. FILE OPERATIONS ---
@@ -60,17 +74,13 @@ async function openFile(handle) {
         const file = await handle.getFile();
         const contents = await file.text();
         
-        // Load content into CodeMirror
         cm.setValue(contents);
-        
-        // Clear history (so you can't undo back to empty)
         cm.clearHistory();
         
         fileHandle = handle;
         document.title = `${file.name} - Notepad--`;
         fileNameDisplay.textContent = file.name;
         
-        // Auto-detect syntax
         setModeByFilename(file.name);
         
     } catch (err) {
@@ -89,8 +99,7 @@ btnSave.addEventListener('click', async () => {
     if (!fileHandle) return btnExport.click();
     try {
         const writable = await fileHandle.createWritable();
-        // Get text from CodeMirror
-        await writable.write(cm.getValue()); 
+        await writable.write(cm.getValue());
         await writable.close();
         
         const originalText = btnSave.textContent;
@@ -121,7 +130,7 @@ btnClose.addEventListener('click', () => {
     document.title = "Notepad-minusminus";
     fileNameDisplay.textContent = "No file open";
     fileModeDisplay.textContent = "(Plain Text)";
-    cm.setOption('mode', 'text/plain');
+    languageSelect.value = "text/plain";
 });
 
 // --- 4. FIND & REPLACE ---
@@ -130,14 +139,10 @@ btnReplaceAll.addEventListener('click', () => {
     const replace = document.getElementById('replaceInput').value;
     if (!find) return;
     
-    // CodeMirror doesn't have a simple "Replace All" method without plugins,
-    // so we do it via string manipulation and reload the value.
     const content = cm.getValue();
-    // Using split/join for global replacement
     const newContent = content.split(find).join(replace);
     
     if (content !== newContent) {
-        // Calculate scroll position to restore it after replace
         const scrollInfo = cm.getScrollInfo();
         cm.setValue(newContent);
         cm.scrollTo(scrollInfo.left, scrollInfo.top);
