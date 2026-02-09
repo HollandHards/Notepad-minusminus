@@ -3,14 +3,16 @@ let currentFontSize = 14;
 
 // DOM Elements
 const fileNameDisplay = document.getElementById('fileName');
+const fileModeDisplay = document.getElementById('fileMode'); // Used for status bar
 const statsDisplay = document.getElementById('stats');
 const dropZone = document.getElementById('dropZone');
+const languageSelect = document.getElementById('languageSelect'); // Restored
 const btnOpen = document.getElementById('btnOpen');
 const btnSave = document.getElementById('btnSave');
 const btnSaveAs = document.getElementById('btnSaveAs');
 const btnZoomIn = document.getElementById('btnZoomIn');
 const btnZoomOut = document.getElementById('btnZoomOut');
-const btnAction = document.getElementById('btnAction'); // Renamed button
+const btnAction = document.getElementById('btnAction');
 const findInput = document.getElementById('findInput');
 const replaceInput = document.getElementById('replaceInput');
 
@@ -39,7 +41,16 @@ cm.on('change', () => {
     if (!fileNameDisplay.textContent.includes('*')) fileNameDisplay.textContent += '*';
 });
 
-// --- 2. ZOOM CONTROLS ---
+// --- 2. LANGUAGE SELECTOR LOGIC (Restored) ---
+languageSelect.addEventListener('change', () => {
+    const mode = languageSelect.value;
+    cm.setOption('mode', mode);
+    // Update status bar text
+    const modeName = languageSelect.options[languageSelect.selectedIndex].text;
+    fileModeDisplay.textContent = `(${modeName})`;
+});
+
+// --- 3. ZOOM CONTROLS ---
 const updateFontSize = () => {
     document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`;
     cm.refresh();
@@ -47,7 +58,7 @@ const updateFontSize = () => {
 btnZoomIn.addEventListener('click', () => { currentFontSize += 2; updateFontSize(); });
 btnZoomOut.addEventListener('click', () => { currentFontSize = Math.max(8, currentFontSize - 2); updateFontSize(); });
 
-// --- 3. SEARCH & REPLACE LOGIC ---
+// --- 4. SEARCH & REPLACE LOGIC ---
 let lastSearchQuery = '';
 let searchCursor = null;
 
@@ -57,21 +68,17 @@ btnAction.addEventListener('click', () => {
     
     if (!findText) return;
 
-    // CASE A: SEARCH ONLY (Replace is empty)
     if (replaceText === "") {
-        // If query changed or cursor missing, start new search
+        // FIND ONLY
         if (findText !== lastSearchQuery || !searchCursor) {
             lastSearchQuery = findText;
             searchCursor = cm.getSearchCursor(findText);
         }
-
-        // Find next occurrence
         if (searchCursor.findNext()) {
             cm.setSelection(searchCursor.from(), searchCursor.to());
             cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 20);
         } else {
-            // Loop back to start
-            searchCursor = cm.getSearchCursor(findText);
+            searchCursor = cm.getSearchCursor(findText); // Loop back
             if (searchCursor.findNext()) {
                 cm.setSelection(searchCursor.from(), searchCursor.to());
                 cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 20);
@@ -79,9 +86,8 @@ btnAction.addEventListener('click', () => {
                 alert("Text not found!");
             }
         }
-    } 
-    // CASE B: REPLACE ALL (Replace has text)
-    else {
+    } else {
+        // REPLACE ALL
         const content = cm.getValue();
         const newContent = content.split(findText).join(replaceText);
         if (content !== newContent) {
@@ -92,7 +98,7 @@ btnAction.addEventListener('click', () => {
     }
 });
 
-// --- 4. FILE OPERATIONS & AUTO-DETECT ---
+// --- 5. FILE OPERATIONS & AUTO-DETECT ---
 const pickerOptions = {
     types: [{
         description: 'Code & Text',
@@ -108,7 +114,14 @@ function setModeByFilename(name) {
     else if (['js', 'jsx', 'ts'].includes(extension)) mode = 'text/javascript';
     else if (extension === 'php') mode = 'application/x-httpd-php';
     else if (extension === 'json') mode = 'application/json';
+    else if (['xml', 'svg'].includes(extension)) mode = 'application/xml';
+
     cm.setOption('mode', mode);
+    languageSelect.value = mode;
+    
+    // Update status bar display
+    const option = Array.from(languageSelect.options).find(o => o.value === mode);
+    if(option) fileModeDisplay.textContent = `(${option.text})`;
 }
 
 async function openFile(handle) {
@@ -155,7 +168,7 @@ btnSaveAs.addEventListener('click', async () => {
     } catch (e) {}
 });
 
-// --- 5. DRAG & DROP & SHORTCUTS ---
+// --- 6. DRAG & DROP & SHORTCUTS ---
 window.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.display = 'flex'; });
 dropZone.addEventListener('dragleave', () => { dropZone.style.display = 'none'; });
 dropZone.addEventListener('drop', async (e) => {
