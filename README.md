@@ -8,6 +8,18 @@ A lightweight, distraction-free, and privacy-centric code editor optimized for C
 
 [**Launch the Application Here**](https://hollandhards.github.io/Notepad-minusminus/)
 
+## 📸 Interface Visualization
+
+The application features a responsive design capable of adapting to user preference through distinct visual themes.
+
+**Dark Mode (Default)**
+![Notepad-- Dark Mode Interface](notepad--_dark.jpg)
+*Figure 1: The default Dark Mode interface displaying syntax highlighting, the multi-tab system, and the Service Worker integration.*
+
+**Light Mode**
+![Notepad-- Light Mode Interface](notepad--_light.jpg)
+*Figure 2: The Light Mode interface offering high-contrast visibility for alternative lighting environments.*
+
 ## ✨ Functional Overview
 
 ### 🖥️ Professional Editing Suite
