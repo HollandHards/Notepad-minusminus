@@ -16,7 +16,6 @@
     --scroll-thumb: #5f6368;
     --dropdown-bg: #292a2d;
     --dropdown-hover: #3c4043;
-    /* Folding Colors */
     --gutter-bg: #202124;
     --folder-color: #6e7681;
 }
@@ -42,6 +41,7 @@ body.light-mode {
     --folder-color: #999;
 }
 
+/* --- GLOBAL --- */
 body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); overflow: hidden; transition: background-color 0.3s; }
 
 /* --- SCROLLBARS --- */
@@ -51,17 +51,31 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 ::-webkit-scrollbar-corner { background: var(--scroll-track); }
 
-/* --- CODEMIRROR OVERRIDES --- */
+/* --- CODEMIRROR --- */
 .CodeMirror { flex-grow: 1; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; }
-/* Folding Gutter Styles */
 .CodeMirror-gutters { background-color: var(--gutter-bg) !important; border-right: 1px solid var(--border-color) !important; }
 .CodeMirror-linenumber { color: var(--text-muted) !important; }
 .CodeMirror-foldgutter { color: var(--folder-color); }
 .CodeMirror-foldmarker { color: var(--accent); text-shadow: none; font-family: arial; line-height: .3; cursor: pointer; }
 .CodeMirror-foldgutter-open, .CodeMirror-foldgutter-folded { cursor: pointer; }
 
-/* --- TOOLBAR --- */
-.toolbar { background-color: var(--toolbar-bg); height: 50px; padding: 0 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); overflow-x: auto; white-space: nowrap; position: relative; z-index: 100; }
+/* --- TOOLBAR (FIXED) --- */
+.toolbar { 
+    background-color: var(--toolbar-bg); 
+    height: 50px; 
+    padding: 0 15px; 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    border-bottom: 1px solid var(--border-color); 
+    white-space: nowrap; 
+    position: relative; 
+    /* CHANGED: overflow visible allows menus to popup over the tabs */
+    overflow: visible; 
+    /* CHANGED: z-index higher than tab-bar */
+    z-index: 1000; 
+}
+
 .brand-section { display: flex; align-items: center; margin-right: 5px; cursor: pointer; user-select: none; }
 .brand-section img { width: 24px; height: 24px; margin-right: 8px; }
 .app-name { font-weight: bold; color: var(--accent); font-size: 1.1rem; transition: color 0.2s; }
@@ -69,7 +83,18 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .group-file, .group-clipboard, .group-zoom, .group-search { display: flex; gap: 5px; align-items: center; }
 
 /* --- TAB BAR --- */
-.tab-bar-container { display: flex; background-color: var(--bg-color); border-bottom: 1px solid var(--border-color); padding-top: 5px; padding-left: 5px; height: 35px; box-sizing: border-box; }
+.tab-bar-container { 
+    display: flex; 
+    background-color: var(--bg-color); 
+    border-bottom: 1px solid var(--border-color); 
+    padding-top: 5px; 
+    padding-left: 5px; 
+    height: 35px; 
+    box-sizing: border-box;
+    /* CHANGED: z-index lower than toolbar */
+    position: relative;
+    z-index: 500; 
+}
 .tab-bar { display: flex; overflow-x: auto; flex-grow: 1; scrollbar-width: none; }
 .tab-bar::-webkit-scrollbar { display: none; }
 .tab { display: flex; align-items: center; background-color: var(--tab-bg); color: var(--text-muted); padding: 0 10px; margin-right: 2px; border-top-left-radius: 6px; border-top-right-radius: 6px; border: 1px solid transparent; cursor: pointer; font-size: 0.85rem; max-width: 150px; min-width: 80px; user-select: none; }
@@ -90,11 +115,26 @@ button.active { background: var(--accent); color: var(--bg-color); border-color:
 .group-search input { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 5px 8px; border-radius: 4px; width: 90px; font-size: 0.85rem; }
 .separator { color: var(--text-muted); font-size: 1.2rem; margin: 0 2px; }
 
-/* --- MENUS (History & Tools) --- */
+/* --- MENUS --- */
 .paste-wrapper { position: relative; display: flex; }
 #btnPaste { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; }
 #btnHistory { border-top-left-radius: 0; border-bottom-left-radius: 0; padding-left: 5px; padding-right: 5px; }
-.history-menu { display: none; position: absolute; top: 100%; left: 0; background: var(--dropdown-bg); border: 1px solid var(--border-color); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); min-width: 200px; max-width: 300px; z-index: 1000; flex-direction: column; margin-top: 5px; }
+/* Menu Styling */
+.history-menu { 
+    display: none; 
+    position: absolute; 
+    top: 100%; 
+    left: 0; 
+    background: var(--dropdown-bg); 
+    border: 1px solid var(--border-color); 
+    border-radius: 4px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+    min-width: 200px; 
+    max-width: 300px; 
+    z-index: 2000; /* Highest z-index */
+    flex-direction: column; 
+    margin-top: 5px; 
+}
 .history-menu.show { display: flex; }
 .history-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-color); }
 .history-item:hover { background: var(--dropdown-hover); }
@@ -102,7 +142,7 @@ button.active { background: var(--accent); color: var(--bg-color); border-color:
 
 /* --- STATUS & OVERLAY --- */
 .status-bar { background: var(--toolbar-bg); border-top: 1px solid var(--border-color); font-size: 0.8rem; padding: 4px 15px; color: var(--text-muted); display: flex; align-items: center; }
-.drop-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(32, 33, 36, 0.95); z-index: 2000; justify-content: center; align-items: center; border: 5px dashed var(--text-muted); box-sizing: border-box; pointer-events: none; }
+.drop-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(32, 33, 36, 0.95); z-index: 3000; justify-content: center; align-items: center; border: 5px dashed var(--text-muted); box-sizing: border-box; pointer-events: none; }
 .drop-overlay.active { display: flex; border-color: var(--accent); animation: pulse 1.5s infinite; }
 .drop-message { font-size: 2rem; font-weight: bold; color: var(--accent); }
 @keyframes pulse { 0% { border-color: var(--accent); } 50% { border-color: rgba(138, 180, 248, 0.4); } 100% { border-color: var(--accent); } }
