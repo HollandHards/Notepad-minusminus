@@ -79,11 +79,13 @@
             <button id="btnTheme">☀</button>
         </div>
 
-        <!-- Search -->
+        <!-- Search & Help -->
         <div class="group-search">
             <input type="text" id="findInput" placeholder="Find...">
             <input type="text" id="replaceInput" placeholder="Replace...">
-            <button id="btnAction">🔎</button>
+            <button id="btnAction" title="Find Next / Replace All">🔎</button>
+            <!-- NEW: Help Button -->
+            <button id="btnHelp" title="Keyboard Shortcuts" style="margin-left: 5px; font-weight: bold;">?</button>
         </div>
     </div>
 
@@ -104,10 +106,33 @@
 
     <input type="file" id="fileInput" style="display: none;">
 
-    <!-- 1. CM CORE -->
+    <!-- NEW: Help Modal -->
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Keyboard Shortcuts</h3>
+                <span id="closeModal" class="modal-close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <table class="shortcut-table">
+                    <tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td>Save File</td></tr>
+                    <tr><td><kbd>Ctrl</kbd> + <kbd>O</kbd></td><td>Open File</td></tr>
+                    <tr><td><kbd>Alt</kbd> + <kbd>N</kbd></td><td>New Tab</td></tr>
+                    <tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd></td><td>Go to Line</td></tr>
+                    <tr><td><kbd>Ctrl</kbd> + <kbd>D</kbd></td><td>Duplicate Line</td></tr>
+                    <tr><td><kbd>Ctrl</kbd> + <kbd>Space</kbd></td><td>Auto-Complete</td></tr>
+                    <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↑/↓</kbd></td><td>Move Line Up/Down</td></tr>
+                    <tr><td><kbd>Tab</kbd></td><td>Indent (4 Spaces)</td></tr>
+                    <tr><td><kbd>Enter</kbd> (in Search)</td><td>Find Next</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- CM CORE -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     
-    <!-- 2. LANGUAGES -->
+    <!-- LANGUAGES -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
@@ -116,17 +141,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
 
-    <!-- 3. ADDONS: SEARCH -->
+    <!-- ADDONS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/match-highlighter.min.js"></script>
-    
-    <!-- 4. ADDONS: FOLDING -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldgutter.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/brace-fold.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/xml-fold.min.js"></script>
-    
-    <!-- 5. ADDONS: AUTO-COMPLETE & EDITING (NEW) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closetag.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/selection/active-line.min.js"></script>
