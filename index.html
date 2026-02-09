@@ -1,205 +1,68 @@
-let fileHandle;
-
-// DOM Elements
-const fileNameDisplay = document.getElementById('fileName');
-const fileModeDisplay = document.getElementById('fileMode');
-const statsDisplay = document.getElementById('stats');
-const dropZone = document.getElementById('dropZone');
-const languageSelect = document.getElementById('languageSelect');
-const btnOpen = document.getElementById('btnOpen');
-const btnSave = document.getElementById('btnSave');
-const btnExport = document.getElementById('btnExport');
-const btnClose = document.getElementById('btnClose');
-const btnReplaceAll = document.getElementById('btnReplaceAll');
-
-// --- 1. INITIALIZE CODEMIRROR ---
-const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
-    lineNumbers: true,
-    theme: 'darcula',
-    mode: 'text/plain',
-    lineWrapping: true,
-    matchBrackets: true,
-    indentUnit: 4
-});
-
-// Update stats on change
-cm.on('change', () => {
-    const text = cm.getValue();
-    const lines = cm.lineCount();
-    const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-    statsDisplay.textContent = `Lines: ${lines} | Words: ${words}`;
-});
-
-// --- 2. LANGUAGE HANDLING ---
-
-// A. Handle Dropdown Change
-languageSelect.addEventListener('change', () => {
-    const mode = languageSelect.value;
-    cm.setOption('mode', mode);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notepad-minusminus</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
     
-    // Force update of label
-    const modeName = languageSelect.options[languageSelect.selectedIndex].text;
-    fileModeDisplay.textContent = `(${modeName})`;
-});
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css">
+</head>
+<body>
+    <div id="dropZone" class="drop-overlay">
+        📂 Drop file here to open
+    </div>
 
-// B. Auto-Detect from Filename
-function setModeByFilename(name) {
-    const extension = name.split('.').pop().toLowerCase();
+    <div class="toolbar">
+        <div class="app-name">Notepad--</div>
+        
+        <select id="languageSelect" class="lang-select">
+            <option value="text/plain">Plain Text</option>
+            <option value="text/html">HTML / Web</option>
+            <option value="text/css">CSS</option>
+            <option value="text/javascript">JavaScript</option>
+            <option value="application/x-httpd-php">PHP</option>
+            <option value="application/json">JSON</option>
+            <option value="application/xml">XML</option>
+        </select>
+
+        <div class="buttons">
+            <button id="btnOpen" title="Open File (Ctrl+O)">📂 Open</button>
+            <button id="btnSave" title="Save Changes (Ctrl+S)">💾 Save</button>
+            <button id="btnExport" title="Save As New File">📤 Export</button>
+            <button id="btnClose" title="Close File">❌ Close</button>
+        </div>
+    </div>
+
+    <div class="search-bar">
+        <input type="text" id="findInput" placeholder="Find...">
+        <input type="text" id="replaceInput" placeholder="Replace with...">
+        <button id="btnReplaceAll">Replace All</button>
+    </div>
     
-    // Default to Plain Text
-    let mode = 'text/plain'; 
-
-    // Mapping extensions to MIME types
-    if (['html', 'htm', 'phtml'].includes(extension)) {
-        mode = 'text/html'; // Maps to htmlmixed
-    }
-    else if (['css', 'scss', 'less'].includes(extension)) {
-        mode = 'text/css';
-    }
-    else if (['js', 'jsx', 'ts'].includes(extension)) {
-        mode = 'text/javascript';
-    }
-    else if (extension === 'php') {
-        mode = 'application/x-httpd-php';
-    }
-    else if (extension === 'json') {
-        mode = 'application/json';
-    }
-    else if (['xml', 'svg'].includes(extension)) {
-        mode = 'application/xml';
-    }
-
-    // Apply the mode
-    cm.setOption('mode', mode);
-    languageSelect.value = mode;
+    <textarea id="editor"></textarea>
     
-    // Update the visual text
-    const option = Array.from(languageSelect.options).find(o => o.value === mode);
-    if(option) fileModeDisplay.textContent = `(${option.text})`;
-}
+    <div class="status-bar">
+        <span id="fileName">No file open</span>
+        <span id="fileMode" style="margin-left: 10px; color: #8ab4f8;">(Plain Text)</span>
+        <div style="flex-grow:1"></div>
+        <span id="stats">Lines: 0 | Words: 0</span>
+    </div>
 
-// --- 3. FILE OPERATIONS ---
-const pickerOptions = {
-    types: [{
-        description: 'Code & Text',
-        accept: { 'text/plain': ['.txt', '.csv', '.php', '.js', '.html', '.css', '.json', '.md'] },
-    }],
-};
-
-async function openFile(handle) {
-    try {
-        const file = await handle.getFile();
-        const contents = await file.text();
-        
-        cm.setValue(contents);
-        cm.clearHistory();
-        
-        fileHandle = handle;
-        document.title = `${file.name} - Notepad--`;
-        fileNameDisplay.textContent = file.name;
-        
-        setModeByFilename(file.name);
-        
-    } catch (err) {
-        console.error("Error opening file", err);
-    }
-}
-
-// Button Events
-btnOpen.addEventListener('click', async () => {
-    try {
-        const [handle] = await window.showOpenFilePicker(pickerOptions);
-        await openFile(handle);
-    } catch (err) { /* Cancelled */ }
-});
-
-btnSave.addEventListener('click', async () => {
-    if (!fileHandle) return btnExport.click();
-    try {
-        const writable = await fileHandle.createWritable();
-        await writable.write(cm.getValue());
-        await writable.close();
-        
-        const originalText = btnSave.textContent;
-        btnSave.textContent = "✅ Saved";
-        setTimeout(() => btnSave.textContent = originalText, 1500);
-    } catch (err) { console.error(err); }
-});
-
-btnExport.addEventListener('click', async () => {
-    try {
-        const handle = await window.showSaveFilePicker(pickerOptions);
-        fileHandle = handle;
-        const writable = await fileHandle.createWritable();
-        await writable.write(cm.getValue());
-        await writable.close();
-        
-        const file = await handle.getFile();
-        document.title = `${file.name} - Notepad--`;
-        fileNameDisplay.textContent = file.name;
-        setModeByFilename(file.name);
-    } catch (err) { /* Cancelled */ }
-});
-
-btnClose.addEventListener('click', () => {
-    if(cm.getValue().length > 0 && !confirm("Close file? Unsaved changes will be lost.")) return;
-    cm.setValue("");
-    fileHandle = null;
-    document.title = "Notepad-minusminus";
-    fileNameDisplay.textContent = "No file open";
-    fileModeDisplay.textContent = "(Plain Text)";
-    languageSelect.value = "text/plain";
-    cm.setOption('mode', 'text/plain');
-});
-
-// --- 4. FIND & REPLACE ---
-btnReplaceAll.addEventListener('click', () => {
-    const find = document.getElementById('findInput').value;
-    const replace = document.getElementById('replaceInput').value;
-    if (!find) return;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     
-    const content = cm.getValue();
-    const newContent = content.split(find).join(replace);
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
     
-    if (content !== newContent) {
-        const scrollInfo = cm.getScrollInfo();
-        cm.setValue(newContent);
-        cm.scrollTo(scrollInfo.left, scrollInfo.top);
-    } else {
-        alert("Text not found!");
-    }
-});
-
-// --- 5. DRAG & DROP ---
-window.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.style.display = 'flex';
-});
-
-dropZone.addEventListener('dragleave', () => {
-    dropZone.style.display = 'none';
-});
-
-dropZone.addEventListener('drop', async (e) => {
-    e.preventDefault();
-    dropZone.style.display = 'none';
-    const items = e.dataTransfer.items;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
     
-    if (items && items[0].kind === 'file') {
-        try {
-            const handle = await items[0].getAsFileSystemHandle();
-            if (handle.kind === 'file') {
-                await openFile(handle);
-            }
-        } catch (err) {
-            console.error("Drop failed", err);
-            alert("Could not open dropped file.");
-        }
-    }
-});
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
 
-// --- 6. KEYBOARD SHORTCUTS ---
-document.addEventListener('keydown', e => {
-    if (e.ctrlKey && e.key === 's') { e.preventDefault(); btnSave.click(); }
-    if (e.ctrlKey && e.key === 'o') { e.preventDefault(); btnOpen.click(); }
-});
+    <script src="app.js"></script>
+</body>
+</html>
