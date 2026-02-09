@@ -6,7 +6,7 @@ A lightweight, distraction-free, and privacy-centric code editor optimized for C
 
 ## 🚀 Access the Application
 
-[**Launch the Application Here**](https://hollandhards.github.io/notepad-minusminus/)
+[**Launch the Application Here**](https://hollandhards.github.io/Notepad-minusminus/)
 
 ## ✨ Functional Overview
 
@@ -68,7 +68,7 @@ As a Progressive Web App (PWA), Notepad-- may be installed as a standalone appli
 
 ### ChromeOS / Edge / Chrome Desktop
 
-1. Navigate to the [Live Demo](https://hollandhards.github.io/notepad-minusminus/).
+1. Navigate to the [Live Demo](https://hollandhards.github.io/Notepad-minusminus/).
 
 2. Select the **Install icon** (monitor with a down arrow) located in the address bar.
 
