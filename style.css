@@ -1,3 +1,33 @@
+/* --- THEME VARIABLES (Default = Dark) --- */
+:root {
+    --bg-color: #202124;
+    --toolbar-bg: #292a2d;
+    --text-color: #e8eaed;
+    --text-muted: #9aa0a6;
+    --border-color: #3c4043;
+    --input-bg: #202124;
+    --btn-bg: #3c4043;
+    --btn-hover: #5f6368;
+    --accent: #8ab4f8;
+    --scroll-track: #202124;
+    --scroll-thumb: #5f6368;
+}
+
+/* Light Mode Overrides */
+body.light-mode {
+    --bg-color: #ffffff;
+    --toolbar-bg: #f1f3f4;
+    --text-color: #202124;
+    --text-muted: #5f6368;
+    --border-color: #dadce0;
+    --input-bg: #ffffff;
+    --btn-bg: #ffffff;
+    --btn-hover: #e8eaed;
+    --accent: #1a73e8; /* darker blue for light mode */
+    --scroll-track: #ffffff;
+    --scroll-thumb: #dadce0;
+}
+
 /* --- GLOBAL STYLES --- */
 body {
     margin: 0;
@@ -5,32 +35,33 @@ body {
     flex-direction: column;
     height: 100vh;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #202124;
-    color: #e8eaed;
-    overflow: hidden; /* Prevent body scrollbars */
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow: hidden;
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
 }
 
-/* --- CUSTOM SCROLLBARS (Dark Mode) --- */
+/* --- CUSTOM SCROLLBARS --- */
 ::-webkit-scrollbar { width: 12px; height: 12px; }
-::-webkit-scrollbar-track { background: #202124; }
+::-webkit-scrollbar-track { background: var(--scroll-track); }
 ::-webkit-scrollbar-thumb {
-    background: #5f6368; 
+    background: var(--scroll-thumb); 
     border-radius: 6px;
-    border: 3px solid #202124;
+    border: 3px solid var(--scroll-track);
 }
-::-webkit-scrollbar-thumb:hover { background: #8ab4f8; }
-::-webkit-scrollbar-corner { background: #202124; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+::-webkit-scrollbar-corner { background: var(--scroll-track); }
 
 /* --- TOOLBAR --- */
 .toolbar {
-    background-color: #292a2d;
+    background-color: var(--toolbar-bg);
     height: 50px;
     padding: 0 15px;
     display: flex;
     align-items: center;
-    gap: 15px; /* Spacing between groups */
-    border-bottom: 1px solid #3c4043;
-    overflow-x: auto; /* Allow horizontal scroll on small desktops */
+    gap: 15px;
+    border-bottom: 1px solid var(--border-color);
+    overflow-x: auto;
     white-space: nowrap;
     position: relative;
     z-index: 100;
@@ -44,7 +75,7 @@ body {
     cursor: default;
 }
 .brand-section img { width: 24px; height: 24px; margin-right: 8px; }
-.app-name { font-weight: bold; color: #8ab4f8; font-size: 1.1rem; }
+.app-name { font-weight: bold; color: var(--accent); font-size: 1.1rem; }
 
 /* 2. Groups & Inputs */
 .group-file { display: flex; gap: 5px; }
@@ -52,9 +83,9 @@ body {
 .group-search { display: flex; gap: 5px; align-items: center; }
 
 .lang-select {
-    background: #3c4043;
-    color: white;
-    border: 1px solid #5f6368;
+    background: var(--btn-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     padding: 5px 8px;
     border-radius: 4px;
     font-size: 0.85rem;
@@ -62,22 +93,22 @@ body {
 }
 
 .group-search input {
-    background: #202124;
-    border: 1px solid #5f6368;
-    color: white;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
     padding: 5px 8px;
     border-radius: 4px;
     width: 90px;
     font-size: 0.85rem;
 }
 
-.separator { color: #5f6368; font-size: 1.2rem; margin: 0 2px; }
+.separator { color: var(--text-muted); font-size: 1.2rem; margin: 0 2px; }
 
 /* 3. Buttons */
 button {
-    background: #3c4043;
-    color: #e8eaed;
-    border: 1px solid #5f6368;
+    background: var(--btn-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     padding: 6px 10px;
     border-radius: 4px;
     cursor: pointer;
@@ -86,15 +117,15 @@ button {
     flex-shrink: 0;
     transition: background 0.2s;
 }
-button:hover { background: #5f6368; }
-button.active { background: #8ab4f8; color: #202124; border-color: #8ab4f8; font-weight: bold; }
-#btnAction { background: #8ab4f8; color: #202124; border: none; font-weight: bold; }
+button:hover { background: var(--btn-hover); }
+button.active { background: var(--accent); color: var(--bg-color); border-color: var(--accent); font-weight: bold; }
+#btnAction { background: var(--accent); color: var(--bg-color); border: none; font-weight: bold; }
 
 /* --- EDITOR & STATUS BAR --- */
 .CodeMirror { flex-grow: 1; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; }
 .status-bar {
-    background: #292a2d; border-top: 1px solid #3c4043; font-size: 0.8rem;
-    padding: 4px 15px; color: #9aa0a6; display: flex; align-items: center;
+    background: var(--toolbar-bg); border-top: 1px solid var(--border-color); font-size: 0.8rem;
+    padding: 4px 15px; color: var(--text-muted); display: flex; align-items: center;
 }
 
 /* --- DROP OVERLAY (Animated) --- */
@@ -103,87 +134,59 @@ button.active { background: #8ab4f8; color: #202124; border-color: #8ab4f8; font
     background: rgba(32, 33, 36, 0.95);
     z-index: 2000;
     justify-content: center; align-items: center;
-    border: 5px dashed #5f6368;
+    border: 5px dashed var(--text-muted);
     box-sizing: border-box;
     pointer-events: none;
 }
 .drop-overlay.active {
     display: flex;
-    border-color: #8ab4f8;
+    border-color: var(--accent);
     animation: pulse 1.5s infinite;
 }
 .drop-message {
-    font-size: 2rem; font-weight: bold; color: #8ab4f8;
+    font-size: 2rem; font-weight: bold; color: var(--accent);
 }
 
 @keyframes pulse {
-    0% { border-color: #8ab4f8; }
+    0% { border-color: var(--accent); }
     50% { border-color: rgba(138, 180, 248, 0.4); }
-    100% { border-color: #8ab4f8; }
+    100% { border-color: var(--accent); }
 }
 
 
-/* --- MOBILE RESPONSIVENESS (Max-width: 768px) --- */
+/* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 768px) {
-    .toolbar {
-        display: block; /* Switch to block layout */
-        height: 50px;
-        overflow: hidden;
-        padding: 0;
-        transition: height 0.3s ease;
-    }
+    .toolbar { display: block; height: 50px; overflow: hidden; padding: 0; transition: height 0.3s ease; }
 
-    /* 1. Brand Section becomes the toggle button */
     .brand-section {
-        height: 50px;
-        width: 100%;
-        padding: 0 15px;
-        box-sizing: border-box;
-        justify-content: space-between;
-        background-color: #292a2d;
-        cursor: pointer;
-        border-bottom: 1px solid transparent;
+        height: 50px; width: 100%; padding: 0 15px; box-sizing: border-box;
+        justify-content: space-between; background-color: var(--toolbar-bg);
+        cursor: pointer; border-bottom: 1px solid transparent;
     }
     
-    /* Hamburger Icon */
     .brand-section::after {
-        content: '☰';
-        color: #e8eaed;
-        font-size: 1.5rem;
+        content: '☰'; color: var(--text-color); font-size: 1.5rem;
     }
 
-    /* 2. Hide all controls by default */
     .group-file, .lang-select, .group-zoom, .group-search {
-        display: none;
-        width: 100%;
-        padding: 12px 15px;
-        box-sizing: border-box;
-        border-top: 1px solid #3c4043;
-        background: #202124;
-        justify-content: center; /* Center items */
+        display: none; width: 100%; padding: 12px 15px; box-sizing: border-box;
+        border-top: 1px solid var(--border-color); background: var(--bg-color);
+        justify-content: center;
     }
 
-    /* 3. EXPANDED STATE */
     .toolbar.mobile-open {
-        height: auto;
-        overflow: visible;
-        position: absolute;
-        width: 100%;
+        height: auto; overflow: visible; position: absolute; width: 100%;
         box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
     
-    .toolbar.mobile-open .brand-section { border-bottom: 1px solid #3c4043; }
-    .toolbar.mobile-open .brand-section::after { content: '✕'; } /* Close Icon */
+    .toolbar.mobile-open .brand-section { border-bottom: 1px solid var(--border-color); }
+    .toolbar.mobile-open .brand-section::after { content: '✕'; }
 
-    /* Show items in column layout */
     .toolbar.mobile-open .group-file,
     .toolbar.mobile-open .lang-select,
     .toolbar.mobile-open .group-zoom,
-    .toolbar.mobile-open .group-search {
-        display: flex;
-    }
+    .toolbar.mobile-open .group-search { display: flex; }
     
-    /* Bigger touch targets */
     .group-file { gap: 10px; flex-wrap: wrap; }
     .group-file button { flex-grow: 1; padding: 12px; }
     .group-search input { flex-grow: 1; width: auto; padding: 10px; }
