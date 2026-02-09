@@ -1,93 +1,123 @@
 # Notepad-minusminus (Notepad--) 📝
 
-A lightweight, distraction-free, and dark-mode text editor built specifically for ChromeOS (but works everywhere). 
+A lightweight, distraction-free, and privacy-centric code editor optimized for ChromeOS, yet universally compatible across platforms.
 
-**Notepad--** is a Progressive Web App (PWA) that leverages the modern File System Access API to edit local files directly from your browser, just like a native desktop application. No accounts, no clouds, no tracking—just code.
+**Notepad--** operates as a Progressive Web App (PWA), utilizing the advanced File System Access API to facilitate direct manipulation of local files through the browser interface, mirroring the functionality of native desktop applications. The application incorporates a sophisticated multi-tab interface and intelligent coding capabilities, while maintaining full offline functionality.
 
-## 🚀 Live Demo
-[**Click here to use the app**](https://hollandhards.github.io/Notepad-minusminus/)  
+## 🚀 Access the Application
 
+[**Launch the Application Here**](https://hollandhards.github.io/notepad-minusminus/)
 
----
+## ✨ Functional Overview
 
-## ✨ Features
+### 🖥️ Professional Editing Suite
 
-### 🖥️ Desktop Experience
-* **Native File Handling:** Open, edit, and save files directly to your hard drive (`.txt`, `.html`, `.css`, `.js`, `.php`, `.csv`, etc.).
-* **Syntax Highlighting:** Automatic coloring for HTML, CSS, JavaScript, PHP, XML, and JSON.
-* **Dark Mode:** Built-in Darcula theme for eye comfort.
-* **Drag & Drop:** Drag files from your file manager directly into the window to open them.
-* **Search & Replace:** * **Smart Search:** Press `Enter` to find next.
-    * **Regex Support:** Use Regular Expressions for powerful find/replace operations.
-    * **Case Insensitive:** Finds matches regardless of capitalization.
-* **Auto-Save:** Saves your session to local storage automatically—never lose unsaved work if you accidentally close the tab.
+* **Multi-Tab Interface:** Facilitates concurrent editing of multiple files within a unified tabbed layout.
 
-### 📱 Mobile Friendly
-* **Responsive Design:** The toolbar automatically collapses into a "Hamburger Menu" on mobile screens.
-* **Touch Optimized:** Large tap targets for file operations.
+* **Syntax Highlighting:** Provides automated syntax highlighting for HTML, CSS, JavaScript, PHP, XML, SQL, and JSON.
 
-### ⚡ Performance & UX
-* **Smart Indentation:** Press `Tab` to insert 4 spaces (coding friendly).
-* **Go to Line:** Press `Ctrl + G` to jump to a specific line number.
-* **Line Wrapping:** Toggle word wrap on/off for viewing long logs or data files.
-* **Zoom Controls:** Increase or decrease font size on the fly.
-* **Offline Capable:** Works 100% offline via Service Worker caching.
-## 🔒 Privacy and Security
+* **Intelligent Coding Assistance:**
 
-Notepad-- is designed with a **"Local-First"** architecture. This means:
+  * **Auto-Completion:** Offers intelligent code suggestions via the `Ctrl + Space` keyboard shortcut.
 
-* **100% Client-Side:** The entire application runs directly in your browser.
-* **No Cloud Storage:** Your files are **never** uploaded to any server. When you open a file, the browser reads it directly from your device's hard drive. When you save, it writes back to your drive.
-* **Zero Tracking:** There are no analytics, cookies, or user accounts.
-* **Offline Security:** Once installed, the app works without an internet connection, ensuring your data never leaves your device even by accident.
+  * **Code Folding:** Allows for the collapsing of code blocks via gutter indicators.
 
+  * **Auto-Closure:** Automatically completes brackets `()` and HTML tags `<div>`.
 
+* **Theme Customization:** Enables instant transitions between a refined **Dark Mode** (Darcula) and **Light Mode**.
 
-You can audit the source code in this repository to verify that no data is being sent externally.
----
+### 🛠️ Advanced Utilities
 
-## 📥 How to Install (ChromeOS / Windows / Mac)
+* **Line Operations:**
 
-Since this is a Progressive Web App (PWA), you can install it as a standalone app.
+  * **Sort Lines:** Alphabetizes selected text lines.
 
-1.  **Open the App:** Go to the [Live Demo URL](https://hollandhards.github.io/Notepad-minusminus/).
-2.  **Install:**
-    * **ChromeOS:** Click the "Install Notepad--" icon (monitor with a down arrow) in the right side of the address bar.
-    * **Mobile (Android):** Tap the browser menu (⋮) -> "Add to Home Screen".
-3.  **Launch:** The app will now appear in your app drawer/launcher and open in its own window without the browser interface.
+  * **Trim Whitespace:** Automatically removes trailing whitespace upon saving.
 
----
+  * **Duplicate Line:** Expedites code duplication via `Ctrl + D`.
 
-## 🛠️ Keyboard Shortcuts
+  * **Move Lines:** Facilitates vertical transposition of code blocks via `Ctrl + Shift + Arrows`.
 
-| Shortcut | Action |
-| :--- | :--- |
-| `Ctrl + O` | Open File |
-| `Ctrl + S` | Save File |
-| `Ctrl + G` | Go to Line Number |
-| `Enter` | Find Next (when in Search box) |
-| `Tab` | Indent (4 spaces) |
+* **Case Conversion:** Seamlessly toggles text case between uppercase and lowercase.
 
----
+* **Advanced Search:** Includes advanced Find & Replace functionality with Regular Expression support and case-insensitivity.
 
-## 🏗️ Technical Stack
+* **Clipboard History:** Maintains an internal history of the five most recent clipboard actions.
 
-* **Core:** HTML5, CSS3, Vanilla JavaScript (ES6+)
-* **Editor Engine:** [CodeMirror 5](https://codemirror.net/5/)
-* **File Access:** [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API)
-* **Offline:** Service Worker caching strategy (Stale-while-revalidate)
+### 📱 Mobile Optimization
 
----
+* **Responsive Design:** The toolbar dynamically adapts into a collapsible menu on mobile devices.
 
-## 🤝 Contributing
+* **Touch Optimization:** Features enlarged touch targets to enhance file operation usability on touchscreens.
 
-Feel free to fork this repository and submit pull requests. 
-1.  Fork the repo.
-2.  Create your feature branch (`git checkout -b feature/NewFeature`).
-3.  Commit your changes (`git commit -m 'Add some NewFeature'`).
-4.  Push to the branch (`git push origin feature/NewFeature`).
-5.  Open a Pull Request.
+## 🔒 Privacy and Security Architecture
 
-## 📄 License
+Notepad-- is architected upon a **"Local-First"** principle, ensuring data sovereignty:
 
-This project is open source and available under the [MIT License](LICENSE).
+* **Client-Side Execution:** The application executes entirely within the client-side browser environment.
+
+* **Local Data Storage:** Files remain strictly local; no data is transmitted to external servers. File operations interact directly with the device's local storage.
+
+* **Zero Tracking Policy:** The application employs no analytics, cookies, or user account systems.
+
+* **Offline Capability:** Following installation, the application functions independently of internet connectivity, guaranteeing data remains contained within the device.
+
+## 📥 Installation Instructions
+
+As a Progressive Web App (PWA), Notepad-- may be installed as a standalone application.
+
+### ChromeOS / Edge / Chrome Desktop
+
+1. Navigate to the [Live Demo](https://hollandhards.github.io/notepad-minusminus/).
+
+2. Select the **Install icon** (monitor with a down arrow) located in the address bar.
+
+3. The application will launch in a dedicated window and appear in the system launcher.
+
+### Firefox / Safari
+
+* *Note: Current browser limitations regarding direct file editing apply to these platforms.*
+
+* Notepad-- implements an **Intelligent Fallback Mechanism**: opening files utilizes the standard upload dialog, while saving initiates a download to the default "Downloads" directory.
+
+## 🛠️ Keyboard Shortcuts Reference
+
+| Shortcut | Action | 
+ | ----- | ----- | 
+| `Ctrl + S` | Save File | 
+| `Ctrl + O` | Open File | 
+| `Alt + N` | **New Tab** | 
+| `Ctrl + D` | **Duplicate Line** | 
+| `Ctrl + Space` | **Auto-Complete** | 
+| `Ctrl + G` | Go to Line Number | 
+| `Ctrl + Shift + ↑/↓` | Move Line Up/Down | 
+| `Tab` | Indent (4 spaces) | 
+| `Enter` | Find Next (when within Search interface) | 
+
+## 🏗️ Technical Architecture
+
+* **Core Technologies:** Utilizes HTML5, CSS3 (leveraging variables for theming), and Vanilla JavaScript (ES6+).
+
+* **Editor Engine:** Built upon the [CodeMirror 5](https://codemirror.net/5/) engine, augmented with custom extensions.
+
+* **File Access:** Implements the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API), with appropriate fallbacks for broad compatibility.
+
+* **Offline Functionality:** Employs a Service Worker caching strategy (Stale-while-revalidate).
+
+## 🤝 Contribution Guidelines
+
+Contributions are welcomed. Please fork the repository and submit pull requests according to standard procedures.
+
+1. Fork the repository.
+
+2. Create a feature branch (`git checkout -b feature/NewFeature`).
+
+3. Commit changes (`git commit -m 'Add some NewFeature'`).
+
+4. Push to the branch (`git push origin feature/NewFeature`).
+
+5. Submit a Open Pull Request.
+
+## 📄 Licensing
+
+This project is open-source software distributed under the [MIT License](LICENSE).
