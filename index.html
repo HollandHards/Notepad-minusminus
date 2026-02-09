@@ -21,39 +21,31 @@
             <div class="app-name">Notepad--</div>
         </div>
         
-        <div class="center-controls">
-            <div class="search-group">
-                <input type="text" id="findInput" placeholder="Find">
-                <input type="text" id="replaceInput" placeholder="Replace">
-                <button id="btnReplaceAll" title="Replace All">⏎</button>
-            </div>
-
-            <div class="zoom-group">
-                <button id="btnZoomOut" title="Smaller Text">A-</button>
-                <button id="btnZoomIn" title="Larger Text">A+</button>
-            </div>
+        <div class="group-file">
+            <button id="btnOpen" title="Open (Ctrl+O)">📂 Open</button>
+            <button id="btnSave" title="Save (Ctrl+S)">💾 Save</button>
+            <button id="btnSaveAs" title="Save As...">💾 As...</button>
         </div>
 
-        <div class="file-controls">
-            <select id="languageSelect" class="lang-select">
-                <option value="text/plain">Plain</option>
-                <option value="text/html">HTML</option>
-                <option value="text/css">CSS</option>
-                <option value="text/javascript">JS</option>
-                <option value="application/x-httpd-php">PHP</option>
-            </select>
-            
-            <button id="btnOpen" title="Ctrl+O">📂</button>
-            <button id="btnSave" title="Ctrl+S">💾</button>
-            <button id="btnSaveAs" title="Save Copy As...">💾 As</button>
+        <div class="group-zoom">
+            <button id="btnZoomOut" title="Smaller">-</button>
+            <span style="color:#5f6368">|</span>
+            <button id="btnZoomIn" title="Bigger">+</button>
         </div>
+
+        <div class="group-search">
+            <input type="text" id="findInput" placeholder="Find...">
+            <input type="text" id="replaceInput" placeholder="Replace...">
+            <button id="btnAction" title="Find Next / Replace All">🔎</button>
+        </div>
+
+        <select id="languageSelect" style="display:none"><option value="text/plain">Plain</option></select>
     </div>
     
     <textarea id="editor"></textarea>
     
     <div class="status-bar">
         <span id="fileName">No file open</span>
-        <span id="fileMode" style="margin-left: 10px; color: #8ab4f8;">(Plain Text)</span>
         <div style="flex-grow:1"></div>
         <span id="stats">Lines: 0 | Words: 0</span>
     </div>
@@ -65,6 +57,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
 
     <script src="app.js"></script>
     <script>
