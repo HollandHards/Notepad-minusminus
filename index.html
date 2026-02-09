@@ -12,17 +12,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css">
 </head>
 <body>
-    <div id="dropZone" class="drop-overlay">📂 Drop file here to open</div>
+    <div id="dropZone" class="drop-overlay">
+        <div class="drop-message">📂 Drop file here to open</div>
+    </div>
 
-    <div class="toolbar">
-        <div class="brand-section">
+    <div class="toolbar" id="mainToolbar">
+        
+        <div class="brand-section" id="brandButton">
             <img src="logo.png" alt="Logo">
             <div class="app-name">Notepad--</div>
         </div>
         
         <div class="group-file">
-            <button id="btnOpen" title="Open (Ctrl+O)">📂 Open</button>
-            <button id="btnSave" title="Save (Ctrl+S)">💾 Save</button>
+            <button id="btnOpen" title="Open File (Ctrl+O)">📂 Open</button>
+            <button id="btnSave" title="Save File (Ctrl+S)">💾 Save</button>
             <button id="btnSaveAs" title="Save As New File">💾 Save As</button>
         </div>
 
@@ -37,17 +40,18 @@
         </select>
 
         <div class="group-zoom">
-            <button id="btnZoomOut" title="Smaller">-</button>
-            <button id="btnZoomIn" title="Bigger">+</button>
-            <span style="color:#5f6368; font-size: 1.2rem; margin: 0 2px;">|</span>
+            <button id="btnZoomOut" title="Decrease Font Size">-</button>
+            <button id="btnZoomIn" title="Increase Font Size">+</button>
+            <span class="separator">|</span>
             <button id="btnToggleWrap" title="Toggle Word Wrap" class="active">Wrap</button>
         </div>
 
         <div class="group-search">
             <input type="text" id="findInput" placeholder="Find...">
             <input type="text" id="replaceInput" placeholder="Replace...">
-            <button id="btnAction" title="Find Next (or Replace All)">🔎</button>
+            <button id="btnAction" title="Find Next (Enter) or Replace All">🔎</button>
         </div>
+
     </div>
     
     <textarea id="editor"></textarea>
@@ -61,17 +65,22 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
 
     <script src="app.js"></script>
+    
     <script>
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
     </script>
 </body>
 </html>
