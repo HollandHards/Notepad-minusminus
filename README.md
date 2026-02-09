@@ -5,8 +5,8 @@ A lightweight, distraction-free, and dark-mode text editor built specifically fo
 **Notepad--** is a Progressive Web App (PWA) that leverages the modern File System Access API to edit local files directly from your browser, just like a native desktop application. No accounts, no clouds, no tracking—just code.
 
 ## 🚀 Live Demo
-[**Click here to use the app**](https://yourusername.github.io/notepad-minusminus/)  
-*(Replace `yourusername` with your actual GitHub username)*
+[**Click here to use the app**](https://hollandhards.github.io/Notepad-minusminus/)  
+
 
 ---
 
@@ -39,7 +39,7 @@ A lightweight, distraction-free, and dark-mode text editor built specifically fo
 
 Since this is a Progressive Web App (PWA), you can install it as a standalone app.
 
-1.  **Open the App:** Go to the [Live Demo URL](https://yourusername.github.io/notepad-minusminus/).
+1.  **Open the App:** Go to the [Live Demo URL](https://hollandhards.github.io/Notepad-minusminus/).
 2.  **Install:**
     * **ChromeOS:** Click the "Install Notepad--" icon (monitor with a down arrow) in the right side of the address bar.
     * **Mobile (Android):** Tap the browser menu (⋮) -> "Add to Home Screen".
