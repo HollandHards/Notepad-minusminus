@@ -7,22 +7,32 @@
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+    <!-- CodeMirror Core -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css">
+    <!-- CodeMirror Folding CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldgutter.min.css">
 </head>
 <body>
     <div id="dropZone" class="drop-overlay"><div class="drop-message">📂 Drop file to open in new tab</div></div>
 
+    <!-- MAIN TOOLBAR -->
     <div class="toolbar" id="mainToolbar">
+        
+        <!-- Brand -->
         <div class="brand-section" id="brandButton" title="New File (Alt+N)">
             <img src="logo.png" alt="Logo">
             <div class="app-name" id="appName">Notepad--</div>
         </div>
+        
+        <!-- File -->
         <div class="group-file">
             <button id="btnOpen" title="Ctrl+O">📂 Open</button>
             <button id="btnSave" title="Ctrl+S">💾 Save</button>
             <button id="btnSaveAs">💾 Save As</button>
         </div>
+
+        <!-- Clipboard -->
         <div class="group-clipboard">
             <button id="btnCopy" title="Ctrl+C">📄 Copy</button>
             <div class="paste-wrapper">
@@ -31,6 +41,8 @@
                 <div id="historyMenu" class="history-menu"><div class="history-title">Clipboard History</div></div>
             </div>
         </div>
+
+        <!-- Language -->
         <select id="languageSelect" class="lang-select">
             <option value="text/plain">Plain Text</option>
             <option value="text/html">HTML</option>
@@ -40,6 +52,22 @@
             <option value="application/json">JSON</option>
             <option value="application/xml">XML</option>
         </select>
+
+        <!-- NEW: Tools Menu -->
+        <div class="paste-wrapper" style="margin-right: 5px;">
+            <button id="btnTools" title="Tools & Operations">⚙️ Tools ▼</button>
+            <div id="toolsMenu" class="history-menu">
+                <div class="history-title">Line Operations</div>
+                <div class="history-item" id="toolSort">Az Sort Lines</div>
+                <div class="history-item" id="toolTrim">Trim Whitespace</div>
+                <div class="history-item" id="toolDup">Duplicate Line (Ctrl+D)</div>
+                <div class="history-title">Case Conversion</div>
+                <div class="history-item" id="toolUpper">UPPERCASE</div>
+                <div class="history-item" id="toolLower">lowercase</div>
+            </div>
+        </div>
+
+        <!-- Zoom -->
         <div class="group-zoom">
             <button id="btnZoomOut">-</button>
             <button id="btnZoomIn">+</button>
@@ -48,6 +76,8 @@
             <span class="separator">|</span>
             <button id="btnTheme">☀</button>
         </div>
+
+        <!-- Search -->
         <div class="group-search">
             <input type="text" id="findInput" placeholder="Find...">
             <input type="text" id="replaceInput" placeholder="Replace...">
@@ -55,6 +85,7 @@
         </div>
     </div>
 
+    <!-- TAB BAR -->
     <div class="tab-bar-container">
         <div class="tab-bar" id="tabBar"></div>
         <button id="btnNewTab" title="New File (Alt+N)" class="tab-plus">+</button>
@@ -71,14 +102,24 @@
 
     <input type="file" id="fileInput" style="display: none;">
 
+    <!-- CM Core -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <!-- CM Modes -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
+    <!-- CM Addons -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
+    <!-- Folding Addons (NEW) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldgutter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/brace-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/xml-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/comment-fold.min.js"></script>
+
     <script src="app.js"></script>
     <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }</script>
 </body>
