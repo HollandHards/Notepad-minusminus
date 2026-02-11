@@ -106,10 +106,10 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
     height: 50px; 
     min-height: 50px; 
     flex-shrink: 0;
-    padding: 0 10px; 
+    padding: 0 15px; 
     display: flex; 
     align-items: center; 
-    gap: 6px; /* Reduced gap between groups */
+    gap: 6px; 
     border-bottom: 1px solid var(--border-color); 
     white-space: nowrap; 
     position: relative; 
@@ -121,14 +121,12 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .brand-section img { width: 24px; height: 24px; margin-right: 8px; }
 .app-name { font-weight: bold; color: var(--accent); font-size: 1.1rem; transition: color 0.2s; }
 .brand-section:hover .app-name { color: var(--text-color); }
-.group-file, .group-clipboard, .group-zoom, .group-search { 
-    display: flex; 
-    gap: 6px; /* Unified gap between buttons */
-    align-items: center; 
-}
+.group-file, .group-clipboard, .group-zoom, .group-search { display: flex; gap: 6px; align-items: center; }
 
+/* Desktop: Show Logo, Hide Text */
 @media (min-width: 769px) {
-    .brand-section { display: none; }
+    .brand-section { display: flex; }
+    .app-name { display: none; }
 }
 
 /* --- TAB BAR --- */
@@ -161,7 +159,7 @@ button {
     background: var(--btn-bg); 
     color: var(--text-color); 
     border: 1px solid var(--border-color); 
-    padding: 4px 8px; /* Reduced padding */
+    padding: 4px 8px; 
     border-radius: 4px; 
     cursor: pointer; 
     font-size: 0.85rem; 
@@ -171,7 +169,6 @@ button {
 }
 button:hover { background: var(--btn-hover); }
 button.active { background: var(--accent); color: var(--bg-color); border-color: var(--accent); font-weight: bold; }
-/* HIDE PREVIEW BUTTON BY DEFAULT */
 #btnPreview { display: none; }
 
 .lang-select { background: var(--btn-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; }
@@ -218,6 +215,8 @@ kbd { background-color: var(--kbd-bg); border: 1px solid var(--kbd-border); bord
     .brand-section { display: flex; height: 50px; width: 100%; padding: 0 15px; box-sizing: border-box; justify-content: space-between; background-color: var(--toolbar-bg); cursor: pointer; border-bottom: 1px solid transparent; }
     .brand-section::after { content: '☰'; color: var(--text-color); font-size: 1.5rem; }
     
+    .app-name { display: block; } /* Show name on mobile menu header */
+
     .group-file, .group-clipboard, .lang-select, .group-zoom, .group-search, .paste-wrapper, .save-wrapper { display: none; width: 100%; padding: 10px 15px; box-sizing: border-box; border-top: 1px solid var(--border-color); background: var(--bg-color); justify-content: center; }
     .toolbar.mobile-open { height: auto; overflow: visible; position: absolute; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     .toolbar.mobile-open .brand-section { border-bottom: 1px solid var(--border-color); }
