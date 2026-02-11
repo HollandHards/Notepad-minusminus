@@ -5,9 +5,13 @@
   "display": "standalone",
   "background_color": "#202124",
   "theme_color": "#292a2d",
-  "description": "A dark mode text editor for ChromeOS",
   "icons": [
     {
+      "src": "favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    },
+    {
       "src": "logo.png",
       "sizes": "192x192",
       "type": "image/png",
@@ -15,36 +19,9 @@
     },
     {
       "src": "logo.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
-    },
-    {
-      "src": "logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "file_handlers": [
-    {
-      "action": "./index.html",
-      "accept": {
-        "text/plain": [".txt", ".md", ".csv", ".log", ".ini"],
-        "text/html": [".html", ".htm"],
-        "text/css": [".css"],
-        "text/javascript": [".js", ".mjs", ".ts"],
-        "application/json": [".json"],
-        "application/xml": [".xml", ".svg"],
-        "application/x-httpd-php": [".php"],
-        "text/x-sql": [".sql"]
-      }
     }
   ]
 }
