@@ -20,13 +20,13 @@ const historyMenu = document.getElementById('historyMenu');
 const appName = document.getElementById('appName');
 const fileInput = document.getElementById('fileInput');
 
-// NEW BUTTONS & MENUS
+// BUTTONS
 const btnNewFile = document.getElementById('btnNewFile');
 const btnOpen = document.getElementById('btnOpen');
 const btnSave = document.getElementById('btnSave');
-const btnSaveMenu = document.getElementById('btnSaveMenu'); // The Arrow Button
-const saveDropdown = document.getElementById('saveDropdown'); // The Dropdown Menu
-const btnSaveAs = document.getElementById('btnSaveAs'); // The Option inside Dropdown
+const btnSaveMenu = document.getElementById('btnSaveMenu');
+const saveDropdown = document.getElementById('saveDropdown');
+const btnSaveAs = document.getElementById('btnSaveAs');
 
 const btnNewTab = document.getElementById('btnNewTab');
 const btnZoomIn = document.getElementById('btnZoomIn');
@@ -74,7 +74,6 @@ const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     }
 });
 
-// FIX: Silence "Form field should have id or name" warning for CodeMirror's hidden input
 cm.getInputField().setAttribute('name', 'cm-editor-input');
 cm.getInputField().setAttribute('id', 'cm-editor-input');
 
@@ -214,7 +213,7 @@ btnOpen.addEventListener('click', async () => {
 });
 fileInput.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (e) => createNewTab(f.name, e.target.result, null); r.readAsText(f); fileInput.value = ''; });
 
-// --- SAVE & SAVE AS LOGIC (UPDATED) ---
+// SAVE & SAVE AS LOGIC
 function triggerSaveAs() {
     const file = openFiles.find(f => f.id === activeFileId); if (!file) return;
     trimWhitespace();
@@ -225,7 +224,6 @@ function triggerSaveAs() {
     } else { saveFileFallback(file.name, cm.getValue()); file.isDirty = false; renderTabs(); }
 }
 
-// Standard Save Button
 btnSave.addEventListener('click', async () => {
     const file = openFiles.find(f => f.id === activeFileId); if (!file) return; if (!file.handle) { triggerSaveAs(); return; }
     trimWhitespace();
@@ -235,7 +233,6 @@ btnSave.addEventListener('click', async () => {
     } catch (e) { alert("Could not save file."); }
 });
 
-// Save As Dropdown Logic
 if (btnSaveMenu && saveDropdown) {
     btnSaveMenu.addEventListener('click', (e) => { 
         e.stopPropagation(); 
@@ -249,14 +246,12 @@ if (btnSaveAs) {
     });
 }
 
-// GLOBAL CLICK TO CLOSE MENUS
 document.addEventListener('click', (e) => { 
     if (toolsMenu && !toolsMenu.contains(e.target) && e.target !== btnTools) toolsMenu.classList.remove('show');
     if (saveDropdown && !saveDropdown.contains(e.target) && e.target !== btnSaveMenu) saveDropdown.classList.remove('show'); 
     if (historyMenu && !historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show');
 });
 
-// Tools & Helpers
 btnTools.addEventListener('click', (e) => { e.stopPropagation(); toolsMenu.classList.toggle('show'); });
 toolSort.addEventListener('click', () => { sortLines(); toolsMenu.classList.remove('show'); });
 toolTrim.addEventListener('click', () => { trimWhitespace(); toolsMenu.classList.remove('show'); });
@@ -327,5 +322,7 @@ document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.key === 'g') { e.preventDefault(); jumpToLine(); }
     if (e.altKey && e.key === 'n') { e.preventDefault(); createNewTab(); }
     if (e.ctrlKey && e.key === 'd') { e.preventDefault(); duplicateLine(); }
+    // ADDED: Alt+W to Close Tab
+    if (e.altKey && e.key === 'w') { e.preventDefault(); if (activeFileId) closeTab(activeFileId); }
 });
 if (openFiles.length === 0) createNewTab();
