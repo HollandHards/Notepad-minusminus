@@ -1,4 +1,4 @@
-const CACHE_NAME = 'notepad-minusminus-v1.4';
+const CACHE_NAME = 'notepad-minusminus-v1.6'; // Bumped to v1.6 to force logo/icon refresh
 const ASSETS = [
   './',
   'index.html',
