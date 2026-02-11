@@ -66,7 +66,7 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 /* --- CODEMIRROR --- */
 .CodeMirror { 
     flex-grow: 1; 
-    height: 100% !important; /* Critical Fix: Force override of library default 300px */
+    height: 100% !important; 
     font-family: 'Courier New', monospace; 
     font-size: 14px; 
     line-height: 1.6; 
@@ -82,11 +82,11 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .CodeMirror-hint { color: var(--text-color) !important; padding: 2px 6px !important; border-radius: 2px; }
 .CodeMirror-hint-active { background: var(--accent) !important; color: var(--bg-color) !important; }
 
-/* --- PREVIEW PANE (NEW) --- */
+/* --- PREVIEW PANE --- */
 .preview-pane {
     display: none;
     flex-grow: 1;
-    height: 100%; /* Ensure full height */
+    height: 100%;
     background-color: var(--bg-color);
     color: var(--text-color);
     padding: 20px;
@@ -104,8 +104,8 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .toolbar { 
     background-color: var(--toolbar-bg); 
     height: 50px; 
-    min-height: 50px; /* Prevent shrinking */
-    flex-shrink: 0;   /* Prevent shrinking */
+    min-height: 50px; 
+    flex-shrink: 0;
     padding: 0 15px; 
     display: flex; 
     align-items: center; 
@@ -113,7 +113,6 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
     border-bottom: 1px solid var(--border-color); 
     white-space: nowrap; 
     position: relative; 
-    /* Allows menus to pop up over the tabs */
     overflow: visible; 
     z-index: 1000; 
 }
@@ -124,11 +123,8 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .brand-section:hover .app-name { color: var(--text-color); }
 .group-file, .group-clipboard, .group-zoom, .group-search { display: flex; gap: 5px; align-items: center; }
 
-/* Desktop Adjustment: Hide Branding */
 @media (min-width: 769px) {
-    .brand-section {
-        display: none;
-    }
+    .brand-section { display: none; }
 }
 
 /* --- TAB BAR --- */
@@ -139,8 +135,8 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
     padding-top: 5px; 
     padding-left: 5px; 
     height: 35px; 
-    min-height: 35px; /* Prevent shrinking */
-    flex-shrink: 0;   /* Prevent shrinking */
+    min-height: 35px;
+    flex-shrink: 0;
     box-sizing: border-box; 
     position: relative; 
     z-index: 500; 
@@ -160,68 +156,28 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 button { background: var(--btn-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; flex-shrink: 0; transition: background 0.2s; }
 button:hover { background: var(--btn-hover); }
 button.active { background: var(--accent); color: var(--bg-color); border-color: var(--accent); font-weight: bold; }
+/* HIDE PREVIEW BUTTON BY DEFAULT */
+#btnPreview { display: none; }
+
 .lang-select { background: var(--btn-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 5px 8px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; }
 .group-search input { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 5px 8px; border-radius: 4px; width: 90px; font-size: 0.85rem; }
 .separator { color: var(--text-muted); font-size: 1.2rem; margin: 0 2px; }
 
-/* --- SPLIT BUTTON WRAPPERS (NO GAPS) --- */
-.paste-wrapper, .save-wrapper { 
-    position: relative; 
-    display: flex; 
-    align-items: center; 
-    gap: 0 !important; 
-}
-
-.paste-wrapper button, .save-wrapper button {
-    margin: 0 !important;
-}
-
-#btnPaste, #btnSave { 
-    border-top-right-radius: 0; 
-    border-bottom-right-radius: 0; 
-    border-right: 0; 
-}
-
-#btnHistory, #btnSaveMenu { 
-    border-top-left-radius: 0; 
-    border-bottom-left-radius: 0; 
-    border-left: 1px solid var(--border-color); 
-    padding-left: 5px; 
-    padding-right: 5px; 
-}
+/* --- SPLIT BUTTON WRAPPERS --- */
+.paste-wrapper, .save-wrapper { position: relative; display: flex; align-items: center; gap: 0 !important; }
+.paste-wrapper button, .save-wrapper button { margin: 0 !important; }
+#btnPaste, #btnSave { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: 0; }
+#btnHistory, #btnSaveMenu { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 1px solid var(--border-color); padding-left: 5px; padding-right: 5px; }
 
 /* --- MENUS --- */
-.history-menu { 
-    display: none; 
-    position: absolute; 
-    top: 100%; 
-    left: 0; 
-    background: var(--dropdown-bg); 
-    border: 1px solid var(--border-color); 
-    border-radius: 4px; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
-    min-width: 180px; 
-    max-width: 300px; 
-    z-index: 2000; 
-    flex-direction: column; 
-    margin-top: 4px; 
-}
+.history-menu { display: none; position: absolute; top: 100%; left: 0; background: var(--dropdown-bg); border: 1px solid var(--border-color); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); min-width: 180px; max-width: 300px; z-index: 2000; flex-direction: column; margin-top: 4px; }
 .history-menu.show { display: flex; }
 .history-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-color); }
 .history-item:hover { background: var(--dropdown-hover); }
 .history-title { padding: 5px 12px; font-size: 0.7rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase; background: var(--btn-bg); }
 
 /* --- STATUS & OVERLAY --- */
-.status-bar { 
-    background: var(--toolbar-bg); 
-    border-top: 1px solid var(--border-color); 
-    font-size: 0.8rem; 
-    padding: 4px 15px; 
-    color: var(--text-muted); 
-    display: flex; 
-    align-items: center;
-    flex-shrink: 0; /* Prevent shrinking */
-}
+.status-bar { background: var(--toolbar-bg); border-top: 1px solid var(--border-color); font-size: 0.8rem; padding: 4px 15px; color: var(--text-muted); display: flex; align-items: center; flex-shrink: 0; }
 .drop-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(32, 33, 36, 0.95); z-index: 3000; justify-content: center; align-items: center; border: 5px dashed var(--text-muted); box-sizing: border-box; pointer-events: none; }
 .drop-overlay.active { display: flex; border-color: var(--accent); animation: pulse 1.5s infinite; }
 .drop-message { font-size: 2rem; font-weight: bold; color: var(--accent); }
@@ -262,12 +218,7 @@ kbd { background-color: var(--kbd-bg); border: 1px solid var(--kbd-border); bord
     
     .group-file, .group-clipboard { gap: 8px; flex-wrap: wrap; }
     
-    .group-file button, .group-clipboard button { 
-        flex-grow: 1; 
-        padding: 8px 10px; 
-        font-size: 0.85rem; 
-    }
-    
+    .group-file button, .group-clipboard button { flex-grow: 1; padding: 8px 10px; font-size: 0.85rem; }
     .group-search input { flex-grow: 1; width: auto; padding: 8px; }
     .group-search button { padding: 8px 12px; }
     
