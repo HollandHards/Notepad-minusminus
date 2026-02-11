@@ -1,5 +1,4 @@
-const CACHE_NAME = 'notepad-minusminus-v13';
-// ... rest of sw.js is the same as previous version ...
+const CACHE_NAME = 'notepad-minusminus-v1.4';
 const ASSETS = [
   './',
   'index.html',
@@ -16,6 +15,9 @@ const ASSETS = [
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/match-highlighter.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldcode.min.js',
