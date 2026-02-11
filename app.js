@@ -20,6 +20,7 @@ const historyMenu = document.getElementById('historyMenu');
 const appName = document.getElementById('appName');
 const fileInput = document.getElementById('fileInput');
 
+// NEW BUTTONS & MENUS
 const btnNewFile = document.getElementById('btnNewFile');
 const btnOpen = document.getElementById('btnOpen');
 const btnSave = document.getElementById('btnSave');
@@ -32,7 +33,11 @@ const btnZoomIn = document.getElementById('btnZoomIn');
 const btnZoomOut = document.getElementById('btnZoomOut');
 const btnToggleWrap = document.getElementById('btnToggleWrap');
 const btnTheme = document.getElementById('btnTheme');
-const btnAction = document.getElementById('btnAction');
+
+// SEARCH BUTTONS (UPDATED)
+const btnFind = document.getElementById('btnFind'); // NEW
+const btnReplaceAll = document.getElementById('btnReplaceAll'); // NEW ID (was btnAction)
+
 const btnCopy = document.getElementById('btnCopy');
 const btnPaste = document.getElementById('btnPaste');
 const btnHistory = document.getElementById('btnHistory');
@@ -212,7 +217,7 @@ btnOpen.addEventListener('click', async () => {
 });
 fileInput.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (e) => createNewTab(f.name, e.target.result, null); r.readAsText(f); fileInput.value = ''; });
 
-// SAVE & SAVE AS
+// SAVE & SAVE AS LOGIC
 function triggerSaveAs() {
     const file = openFiles.find(f => f.id === activeFileId); if (!file) return;
     trimWhitespace();
@@ -280,33 +285,68 @@ btnCopy.addEventListener('click', () => { const sel = cm.getSelection(); if (sel
 btnPaste.addEventListener('click', async () => { try { const text = await navigator.clipboard.readText(); cm.replaceSelection(text); addToHistory(text); cm.focus(); } catch (e) {} });
 btnHistory.addEventListener('click', (e) => { e.stopPropagation(); renderHistoryMenu(); historyMenu.classList.toggle('show'); });
 
-// --- REPLACED SEARCH LOGIC: ALWAYS REPLACE ALL ---
-const triggerSearch = (e) => { if (e.key === 'Enter') { e.preventDefault(); btnAction.click(); } };
-findInput.addEventListener('keydown', triggerSearch); replaceInput.addEventListener('keydown', triggerSearch);
+// --- SEARCH & REPLACE LOGIC (UPDATED) ---
+let lastSearchQuery = ''; 
+let searchCursor = null;
 
-btnAction.addEventListener('click', () => {
-    const findText = findInput.value;
-    const replaceText = replaceInput.value;
-    
-    // Require at least a search term
-    if (!findText) return;
+// FIND BUTTON (Highlight Next)
+if (btnFind) {
+    btnFind.addEventListener('click', () => {
+        const findText = findInput.value;
+        if (!findText) return;
 
-    const content = cm.getValue();
-    // Escape the search term so symbols don't break regex
-    const regex = new RegExp(escapeRegExp(findText), "gi");
-    
-    // Replace all occurrences (even if replaceText is empty string)
-    const newContent = content.replace(regex, replaceText);
-    
-    if (content !== newContent) {
-        const scrollInfo = cm.getScrollInfo();
-        cm.setValue(newContent);
-        cm.scrollTo(scrollInfo.left, scrollInfo.top);
-        // Removed alert to make it faster/smoother
-    } else {
-        alert("Text not found!");
-    }
+        if (findText !== lastSearchQuery || !searchCursor) {
+            lastSearchQuery = findText;
+            searchCursor = cm.getSearchCursor(findText, cm.getCursor(), {caseFold: true});
+        }
+
+        if (searchCursor.findNext()) {
+            cm.setSelection(searchCursor.from(), searchCursor.to());
+            cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100);
+            cm.focus();
+        } else {
+            // Loop back to start
+            searchCursor = cm.getSearchCursor(findText, {line: 0, ch: 0}, {caseFold: true});
+            if (searchCursor.findNext()) {
+                cm.setSelection(searchCursor.from(), searchCursor.to());
+                cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100);
+                cm.focus();
+            } else {
+                alert("Text not found!");
+            }
+        }
+    });
+}
+
+// REPLACE ALL BUTTON
+if (btnReplaceAll) {
+    btnReplaceAll.addEventListener('click', () => {
+        const findText = findInput.value;
+        const replaceText = replaceInput.value; // Can be empty string to delete
+        
+        if (!findText) return;
+
+        const content = cm.getValue();
+        const regex = new RegExp(escapeRegExp(findText), "gi");
+        const newContent = content.replace(regex, replaceText);
+        
+        if (content !== newContent) {
+            cm.setValue(newContent);
+            // Optional: alert or notification
+        } else {
+            alert("Text not found!");
+        }
+    });
+}
+
+// ENTER KEYS
+findInput.addEventListener('keydown', (e) => { 
+    if (e.key === 'Enter') { e.preventDefault(); if(btnFind) btnFind.click(); } 
 });
+replaceInput.addEventListener('keydown', (e) => { 
+    if (e.key === 'Enter') { e.preventDefault(); if(btnReplaceAll) btnReplaceAll.click(); } 
+});
+
 
 languageSelect.addEventListener('change', () => { const f = openFiles.find(x => x.id === activeFileId); if(f) { f.mode = languageSelect.value; cm.setOption('mode', f.mode); fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`; } });
 btnToggleWrap.addEventListener('click', () => { const c = cm.getOption('lineWrapping'); cm.setOption('lineWrapping', !c); btnToggleWrap.classList.toggle('active'); });
@@ -322,6 +362,7 @@ dropZone.addEventListener('drop', async (e) => { e.preventDefault(); dropZone.cl
 const btnHelp = document.getElementById('btnHelp');
 const helpModal = document.getElementById('helpModal');
 const closeModal = document.getElementById('closeModal');
+
 if (btnHelp) { btnHelp.addEventListener('click', (e) => { e.preventDefault(); helpModal.classList.add('show'); }); }
 if (closeModal) { closeModal.addEventListener('click', () => helpModal.classList.remove('show')); }
 if (helpModal) { helpModal.addEventListener('click', (e) => { if(e.target === helpModal) helpModal.classList.remove('show'); }); }
@@ -335,7 +376,6 @@ document.addEventListener('keydown', e => {
     if (e.altKey && e.key === 'w') { e.preventDefault(); if (activeFileId) closeTab(activeFileId); }
 });
 
-// PWA Launch Queue
 if ('launchQueue' in window && 'files' in LaunchParams.prototype) {
     launchQueue.setConsumer(async (launchParams) => {
         if (!launchParams.files.length) return;
