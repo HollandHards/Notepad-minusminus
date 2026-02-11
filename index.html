@@ -8,6 +8,7 @@
     <meta name="theme-color" content="#292a2d">
     <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
+    <link rel="shortcut icon" href="favicon.ico">
     
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -53,8 +54,9 @@
             </div>
         </div>
 
-        <!-- Language -->
+        <!-- Language (Fixed Placeholder) -->
         <select id="languageSelect" class="lang-select" name="language">
+            <option value="" disabled selected>Syntax theme</option>
             <option value="text/plain">Plain Text</option>
             <option value="text/html">HTML</option>
             <option value="text/css">CSS</option>
@@ -62,37 +64,44 @@
             <option value="application/x-httpd-php">PHP</option>
             <option value="application/json">JSON</option>
             <option value="application/xml">XML</option>
+            <option value="text/x-markdown">Markdown</option>
         </select>
 
-        <!-- Tools Menu -->
+        <!-- Tools Menu (Updated with Zoom/Wrap) -->
         <div class="paste-wrapper" style="margin-right: 5px;">
             <button id="btnTools" title="Tools & Operations">⚙️ Tools ▼</button>
             <div id="toolsMenu" class="history-menu">
+                <div class="history-title">Editor View</div>
+                <div class="history-item" id="toolWrap">Toggle Word Wrap</div>
+                <div class="history-item" id="toolZoomIn">Zoom In (+)</div>
+                <div class="history-item" id="toolZoomOut">Zoom Out (-)</div>
+                
                 <div class="history-title">Line Operations</div>
                 <div class="history-item" id="toolSort">Az Sort Lines</div>
                 <div class="history-item" id="toolTrim">Trim Whitespace</div>
                 <div class="history-item" id="toolDup">Duplicate Line (Ctrl+D)</div>
+                
                 <div class="history-title">Case Conversion</div>
                 <div class="history-item" id="toolUpper">UPPERCASE</div>
                 <div class="history-item" id="toolLower">lowercase</div>
             </div>
         </div>
 
-        <!-- Zoom -->
+        <!-- Theme & Preview Only -->
         <div class="group-zoom">
-            <button id="btnZoomOut">-</button>
-            <button id="btnZoomIn">+</button>
+            <button id="btnTheme" title="Toggle Light/Dark Mode">☀</button>
             <span class="separator">|</span>
-            <button id="btnToggleWrap">Wrap</button>
-            <span class="separator">|</span>
-            <button id="btnTheme">☀</button>
+            <button id="btnPreview" title="Toggle Markdown Preview">👁️</button>
         </div>
 
-        <!-- Search & Help -->
+        <!-- Search & Help (Split Buttons) -->
         <div class="group-search">
             <input type="text" id="findInput" name="search" placeholder="Find..." autocomplete="off">
+            <button id="btnFind" title="Find Next (Enter)">🔎</button>
+            
             <input type="text" id="replaceInput" name="replace" placeholder="Replace..." autocomplete="off">
-            <button id="btnAction" title="Find Next / Replace All">🔎</button>
+            <button id="btnReplaceAll" title="Replace All">🔁</button>
+            
             <button id="btnHelp" title="Keyboard Shortcuts" style="margin-left: 5px; font-weight: bold;">?</button>
         </div>
     </div>
@@ -103,7 +112,11 @@
         <button id="btnNewTab" title="New File (Alt+N)" class="tab-plus">+</button>
     </div>
     
-    <textarea id="editor" name="content"></textarea>
+    <!-- Editor Container -->
+    <div style="position: relative; flex-grow: 1; display: flex; overflow: hidden;">
+        <textarea id="editor" name="content"></textarea>
+        <div id="previewPane" class="preview-pane"></div>
+    </div>
     
     <div class="status-bar">
         <span id="fileMode" style="margin-left: 10px; color: var(--accent);">(Plain Text)</span>
@@ -114,7 +127,7 @@
 
     <input type="file" id="fileInput" name="fileUpload" style="display: none;">
 
-    <!-- Help Modal -->
+    <!-- Help Modal (Updated Version) -->
     <div id="helpModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -122,7 +135,7 @@
                 <span id="closeModal" class="modal-close-btn">&times;</span>
             </div>
             <div class="modal-body">
-                <p><strong>Version:</strong> 1.6.0</p>
+                <p><strong>Version:</strong> 1.4.0</p>
                 <p><strong>Source Code:</strong> <a href="https://github.com/HollandHards/Notepad-minusminus" target="_blank" style="color: var(--accent);">GitHub Repository</a></p>
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
                 
@@ -143,10 +156,10 @@
         </div>
     </div>
 
-    <!-- CM CORE -->
+    <!-- SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     
-    <!-- LANGUAGES -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
@@ -154,8 +167,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
 
-    <!-- ADDONS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/match-highlighter.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldcode.min.js"></script>
@@ -174,7 +187,7 @@
     <script src="app.js"></script>
     <script>
         if ('serviceWorker' in navigator) { 
-            navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration failed (expected in some previews):', e));
+            navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration failed:', e));
         }
     </script>
 </body>
