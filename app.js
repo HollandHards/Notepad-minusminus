@@ -7,7 +7,6 @@ let activeFileId = null;
 const supportsFileSystem = 'showOpenFilePicker' in window;
 
 // --- 2. DOM ELEMENTS ---
-const fileNameDisplay = document.getElementById('fileName');
 const fileModeDisplay = document.getElementById('fileMode');
 const statsDisplay = document.getElementById('stats');
 const cursorPosDisplay = document.getElementById('cursorPos'); 
@@ -17,7 +16,6 @@ const tabBar = document.getElementById('tabBar');
 const mainToolbar = document.getElementById('mainToolbar');
 const brandButton = document.getElementById('brandButton');
 const historyMenu = document.getElementById('historyMenu');
-const appName = document.getElementById('appName');
 const fileInput = document.getElementById('fileInput');
 
 // BUTTONS
@@ -154,6 +152,7 @@ function renderTabs() {
         tab.className = `tab ${file.id === activeFileId ? 'active' : ''}`;
         tab.setAttribute('draggable', 'true');
         
+        // Drag Events for Tab Reordering
         tab.ondragstart = (e) => { e.dataTransfer.setData('text/plain', index); tab.classList.add('dragging'); };
         tab.ondragover = (e) => e.preventDefault();
         tab.ondrop = (e) => {
@@ -180,7 +179,11 @@ function renderTabs() {
 function switchToTab(id) {
     if (activeFileId) {
         const oldFile = openFiles.find(f => f.id === activeFileId);
-        if (oldFile) { oldFile.content = cm.getValue(); oldFile.history = cm.getHistory(); oldFile.cursor = cm.getCursor(); }
+        if (oldFile) { 
+            oldFile.content = cm.getValue(); 
+            oldFile.history = cm.getHistory(); 
+            oldFile.cursor = cm.getCursor(); 
+        }
     }
     activeFileId = id;
     const newFile = openFiles.find(f => f.id === id);
