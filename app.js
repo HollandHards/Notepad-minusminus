@@ -29,9 +29,7 @@ const saveDropdown = document.getElementById('saveDropdown');
 const btnSaveAs = document.getElementById('btnSaveAs');
 
 const btnNewTab = document.getElementById('btnNewTab');
-const btnZoomIn = document.getElementById('btnZoomIn');
-const btnZoomOut = document.getElementById('btnZoomOut');
-const btnToggleWrap = document.getElementById('btnToggleWrap');
+// Removed: btnZoomIn, btnZoomOut, btnToggleWrap (Moved to Tools Menu)
 const btnTheme = document.getElementById('btnTheme');
 const btnPreview = document.getElementById('btnPreview'); 
 
@@ -45,11 +43,16 @@ const btnHistory = document.getElementById('btnHistory');
 
 const btnTools = document.getElementById('btnTools');
 const toolsMenu = document.getElementById('toolsMenu');
+
+// Tools Menu Items (UPDATED)
 const toolSort = document.getElementById('toolSort');
 const toolTrim = document.getElementById('toolTrim');
 const toolDup = document.getElementById('toolDup');
 const toolUpper = document.getElementById('toolUpper');
 const toolLower = document.getElementById('toolLower');
+const toolWrap = document.getElementById('toolWrap');     // New
+const toolZoomIn = document.getElementById('toolZoomIn'); // New
+const toolZoomOut = document.getElementById('toolZoomOut'); // New
 
 const findInput = document.getElementById('findInput');
 const replaceInput = document.getElementById('replaceInput');
@@ -279,6 +282,7 @@ btnOpen.addEventListener('click', async () => {
 });
 fileInput.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (e) => createNewTab(f.name, e.target.result, null); r.readAsText(f); fileInput.value = ''; });
 
+// SAVE & SAVE AS
 function triggerSaveAs() {
     const file = openFiles.find(f => f.id === activeFileId); if (!file) return;
     trimWhitespace();
@@ -305,6 +309,7 @@ document.addEventListener('click', (e) => {
     if (historyMenu && !historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show');
 });
 
+// TOOLS ACTIONS
 btnTools.addEventListener('click', (e) => { e.stopPropagation(); toolsMenu.classList.toggle('show'); });
 toolSort.addEventListener('click', () => { sortLines(); toolsMenu.classList.remove('show'); });
 toolTrim.addEventListener('click', () => { trimWhitespace(); toolsMenu.classList.remove('show'); });
@@ -312,6 +317,29 @@ toolDup.addEventListener('click', () => { duplicateLine(); toolsMenu.classList.r
 toolUpper.addEventListener('click', () => { changeCase('upper'); toolsMenu.classList.remove('show'); });
 toolLower.addEventListener('click', () => { changeCase('lower'); toolsMenu.classList.remove('show'); });
 
+// NEW: Moved Wrap and Zoom logic here
+if (toolWrap) {
+    toolWrap.addEventListener('click', () => {
+        const c = cm.getOption('lineWrapping');
+        cm.setOption('lineWrapping', !c);
+        toolsMenu.classList.remove('show');
+    });
+}
+const updateFontSize = () => { document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`; cm.refresh(); };
+if (toolZoomIn) {
+    toolZoomIn.addEventListener('click', () => { 
+        currentFontSize += 2; updateFontSize(); 
+        // toolsMenu.classList.remove('show'); // Optional: keep menu open for repeated zooming
+    });
+}
+if (toolZoomOut) {
+    toolZoomOut.addEventListener('click', () => { 
+        currentFontSize = Math.max(8, currentFontSize - 2); updateFontSize(); 
+        // toolsMenu.classList.remove('show');
+    });
+}
+
+// PREVIEW BUTTON LOGIC
 if (btnPreview) {
     btnPreview.addEventListener('click', () => {
         if (previewPane.classList.contains('active')) {
@@ -378,10 +406,9 @@ if (btnReplaceAll) {
 }
 
 languageSelect.addEventListener('change', () => { const f = openFiles.find(x => x.id === activeFileId); if(f) { f.mode = languageSelect.value; cm.setOption('mode', f.mode); fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`; saveSession(); } });
-btnToggleWrap.addEventListener('click', () => { const c = cm.getOption('lineWrapping'); cm.setOption('lineWrapping', !c); btnToggleWrap.classList.toggle('active'); });
+
 btnTheme.addEventListener('click', () => { document.body.classList.toggle('light-mode'); const isLight = document.body.classList.contains('light-mode'); cm.setOption('theme', isLight ? 'default' : 'darcula'); btnTheme.textContent = isLight ? '🌙' : '☀'; localStorage.setItem('theme', isLight ? 'light' : 'dark'); });
-const updateFontSize = () => { document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`; cm.refresh(); };
-btnZoomIn.addEventListener('click', () => { currentFontSize += 2; updateFontSize(); }); btnZoomOut.addEventListener('click', () => { currentFontSize = Math.max(8, currentFontSize - 2); updateFontSize(); });
+
 cm.on('focus', () => mainToolbar.classList.remove('mobile-open'));
 window.addEventListener('dragenter', (e) => { e.preventDefault(); dropZone.classList.add('active'); dropZone.style.display = 'flex'; });
 dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); if (e.clientX === 0 && e.clientY === 0) { dropZone.classList.remove('active'); dropZone.style.display = 'none'; } });
