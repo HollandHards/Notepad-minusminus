@@ -20,7 +20,6 @@
     --folder-color: #6e7681;
     --active-line-bg: #323639;
     --match-highlight: #44475a;
-    /* Modal Colors */
     --modal-bg: #292a2d;
     --modal-overlay: rgba(0, 0, 0, 0.7);
     --kbd-bg: #3c4043;
@@ -79,11 +78,19 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 
 /* --- TOOLBAR --- */
 .toolbar { background-color: var(--toolbar-bg); height: 50px; padding: 0 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); white-space: nowrap; position: relative; overflow: visible; z-index: 1000; }
+
 .brand-section { display: flex; align-items: center; margin-right: 5px; cursor: pointer; user-select: none; }
 .brand-section img { width: 24px; height: 24px; margin-right: 8px; }
 .app-name { font-weight: bold; color: var(--accent); font-size: 1.1rem; transition: color 0.2s; }
 .brand-section:hover .app-name { color: var(--text-color); }
 .group-file, .group-clipboard, .group-zoom, .group-search { display: flex; gap: 5px; align-items: center; }
+
+/* Desktop Adjustment: Hide Branding to save space (Rely on OS Titlebar) */
+@media (min-width: 769px) {
+    .brand-section {
+        display: none;
+    }
+}
 
 /* --- TAB BAR --- */
 .tab-bar-container { display: flex; background-color: var(--bg-color); border-bottom: 1px solid var(--border-color); padding-top: 5px; padding-left: 5px; height: 35px; box-sizing: border-box; position: relative; z-index: 500; }
@@ -124,26 +131,11 @@ button.active { background: var(--accent); color: var(--bg-color); border-color:
 .drop-message { font-size: 2rem; font-weight: bold; color: var(--accent); }
 @keyframes pulse { 0% { border-color: var(--accent); } 50% { border-color: rgba(138, 180, 248, 0.4); } 100% { border-color: var(--accent); } }
 
-/* --- MODAL (HELP) --- */
-.modal-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: var(--modal-overlay); z-index: 4000;
-    align-items: center; justify-content: center;
-}
+/* --- MODAL --- */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--modal-overlay); z-index: 4000; align-items: center; justify-content: center; }
 .modal-overlay.show { display: flex; }
-.modal-content {
-    background-color: var(--modal-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    width: 90%; max-width: 400px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    overflow: hidden;
-}
-.modal-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 15px; border-bottom: 1px solid var(--border-color);
-    background-color: var(--toolbar-bg);
-}
+.modal-content { background-color: var(--modal-bg); border: 1px solid var(--border-color); border-radius: 8px; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); overflow: hidden; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border-bottom: 1px solid var(--border-color); background-color: var(--toolbar-bg); }
 .modal-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-color); }
 .modal-close-btn { font-size: 1.5rem; cursor: pointer; color: var(--text-muted); line-height: 1; }
 .modal-close-btn:hover { color: var(--accent); }
@@ -151,46 +143,24 @@ button.active { background: var(--accent); color: var(--bg-color); border-color:
 .shortcut-table { width: 100%; border-collapse: collapse; }
 .shortcut-table td { padding: 6px 0; font-size: 0.9rem; color: var(--text-color); border-bottom: 1px solid var(--border-color); }
 .shortcut-table tr:last-child td { border-bottom: none; }
-kbd {
-    background-color: var(--kbd-bg);
-    border: 1px solid var(--kbd-border);
-    border-radius: 3px;
-    padding: 2px 5px;
-    font-family: monospace;
-    font-size: 0.8rem;
-    box-shadow: 0 1px 1px rgba(0,0,0,0.2);
-    color: var(--text-color);
-}
+kbd { background-color: var(--kbd-bg); border: 1px solid var(--kbd-border); border-radius: 3px; padding: 2px 5px; font-family: monospace; font-size: 0.8rem; box-shadow: 0 1px 1px rgba(0,0,0,0.2); color: var(--text-color); }
 
-/* --- MOBILE RESPONSIVENESS (UPDATED) --- */
+/* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 768px) {
     .toolbar { display: block; height: 50px; overflow: hidden; padding: 0; transition: height 0.3s ease; }
-    .brand-section { height: 50px; width: 100%; padding: 0 15px; box-sizing: border-box; justify-content: space-between; background-color: var(--toolbar-bg); cursor: pointer; border-bottom: 1px solid transparent; }
+    /* Mobile: Ensure brand section is visible for toggle */
+    .brand-section { display: flex; height: 50px; width: 100%; padding: 0 15px; box-sizing: border-box; justify-content: space-between; background-color: var(--toolbar-bg); cursor: pointer; border-bottom: 1px solid transparent; }
     .brand-section::after { content: '☰'; color: var(--text-color); font-size: 1.5rem; }
+    
     .group-file, .group-clipboard, .lang-select, .group-zoom, .group-search, .paste-wrapper { display: none; width: 100%; padding: 10px 15px; box-sizing: border-box; border-top: 1px solid var(--border-color); background: var(--bg-color); justify-content: center; }
     .toolbar.mobile-open { height: auto; overflow: visible; position: absolute; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     .toolbar.mobile-open .brand-section { border-bottom: 1px solid var(--border-color); }
     .toolbar.mobile-open .brand-section::after { content: '✕'; }
-    
-    .toolbar.mobile-open .group-file, 
-    .toolbar.mobile-open .group-clipboard, 
-    .toolbar.mobile-open .lang-select, 
-    .toolbar.mobile-open .group-zoom, 
-    .toolbar.mobile-open .group-search, 
-    .toolbar.mobile-open .paste-wrapper { display: flex; }
-    
+    .toolbar.mobile-open .group-file, .toolbar.mobile-open .group-clipboard, .toolbar.mobile-open .lang-select, .toolbar.mobile-open .group-zoom, .toolbar.mobile-open .group-search, .toolbar.mobile-open .paste-wrapper { display: flex; }
     .group-file, .group-clipboard { gap: 8px; flex-wrap: wrap; }
-    
-    /* Reduced padding and size for mobile buttons */
-    .group-file button, .group-clipboard button { 
-        flex-grow: 1; 
-        padding: 8px 10px; 
-        font-size: 0.85rem; 
-    }
-    
+    .group-file button, .group-clipboard button { flex-grow: 1; padding: 8px 10px; font-size: 0.85rem; }
     .group-search input { flex-grow: 1; width: auto; padding: 8px; }
     .group-search button { padding: 8px 12px; }
-    
     .paste-wrapper, #btnPaste { flex-grow: 1; }
     #btnHistory, #btnTools { width: auto; flex-grow: 0; }
 }
