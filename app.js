@@ -29,11 +29,9 @@ const saveDropdown = document.getElementById('saveDropdown');
 const btnSaveAs = document.getElementById('btnSaveAs');
 
 const btnNewTab = document.getElementById('btnNewTab');
-// Removed: btnZoomIn, btnZoomOut, btnToggleWrap (Moved to Tools Menu)
 const btnTheme = document.getElementById('btnTheme');
 const btnPreview = document.getElementById('btnPreview'); 
 
-const btnAction = document.getElementById('btnAction');
 const btnFind = document.getElementById('btnFind'); 
 const btnReplaceAll = document.getElementById('btnReplaceAll'); 
 
@@ -44,15 +42,15 @@ const btnHistory = document.getElementById('btnHistory');
 const btnTools = document.getElementById('btnTools');
 const toolsMenu = document.getElementById('toolsMenu');
 
-// Tools Menu Items (UPDATED)
+// Tools Menu Items
 const toolSort = document.getElementById('toolSort');
 const toolTrim = document.getElementById('toolTrim');
 const toolDup = document.getElementById('toolDup');
 const toolUpper = document.getElementById('toolUpper');
 const toolLower = document.getElementById('toolLower');
-const toolWrap = document.getElementById('toolWrap');     // New
-const toolZoomIn = document.getElementById('toolZoomIn'); // New
-const toolZoomOut = document.getElementById('toolZoomOut'); // New
+const toolWrap = document.getElementById('toolWrap');     
+const toolZoomIn = document.getElementById('toolZoomIn'); 
+const toolZoomOut = document.getElementById('toolZoomOut'); 
 
 const findInput = document.getElementById('findInput');
 const replaceInput = document.getElementById('replaceInput');
@@ -317,25 +315,23 @@ toolDup.addEventListener('click', () => { duplicateLine(); toolsMenu.classList.r
 toolUpper.addEventListener('click', () => { changeCase('upper'); toolsMenu.classList.remove('show'); });
 toolLower.addEventListener('click', () => { changeCase('lower'); toolsMenu.classList.remove('show'); });
 
-// NEW: Moved Wrap and Zoom logic here
-if (toolWrap) {
-    toolWrap.addEventListener('click', () => {
-        const c = cm.getOption('lineWrapping');
-        cm.setOption('lineWrapping', !c);
-        toolsMenu.classList.remove('show');
-    });
-}
+// VIEW ACTIONS (Zoom & Wrap)
 const updateFontSize = () => { document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`; cm.refresh(); };
 if (toolZoomIn) {
     toolZoomIn.addEventListener('click', () => { 
         currentFontSize += 2; updateFontSize(); 
-        // toolsMenu.classList.remove('show'); // Optional: keep menu open for repeated zooming
     });
 }
 if (toolZoomOut) {
     toolZoomOut.addEventListener('click', () => { 
         currentFontSize = Math.max(8, currentFontSize - 2); updateFontSize(); 
-        // toolsMenu.classList.remove('show');
+    });
+}
+if (toolWrap) {
+    toolWrap.addEventListener('click', () => {
+        const c = cm.getOption('lineWrapping');
+        cm.setOption('lineWrapping', !c);
+        toolsMenu.classList.remove('show');
     });
 }
 
@@ -399,9 +395,20 @@ if (btnFind) {
 
 if (btnReplaceAll) {
     btnReplaceAll.addEventListener('click', () => {
-        const f = findInput.value; const r = replaceInput.value; if (!f) return;
-        const c = cm.getValue(); const reg = new RegExp(escapeRegExp(f), "gi"); const n = c.replace(reg, r);
-        if (c !== n) { cm.setValue(n); } else alert("Text not found!");
+        const f = findInput.value; const r = replaceInput.value;
+        // Allows replacement with empty string (r is "" is valid)
+        if (!f) return;
+
+        const c = cm.getValue(); 
+        const reg = new RegExp(escapeRegExp(f), "gi"); 
+        const n = c.replace(reg, r);
+        
+        if (c !== n) { 
+            cm.setValue(n); 
+            // Optional: alert removed for speed
+        } else { 
+            alert("Text not found!"); 
+        }
     });
 }
 
@@ -432,12 +439,29 @@ document.addEventListener('keydown', e => {
     if (e.altKey && e.key === 'w') { e.preventDefault(); if (activeFileId) closeTab(activeFileId); }
 });
 
+// PWA Launch Queue
+if ('launchQueue' in window && 'files' in LaunchParams.prototype) {
+    launchQueue.setConsumer(async (launchParams) => {
+        if (!launchParams.files.length) return;
+        for (const handle of launchParams.files) {
+            if (handle.kind === 'file') {
+                if (openFiles.length === 1 && openFiles[0].name === "Untitled" && !openFiles[0].isDirty && openFiles[0].content === "") {
+                     closeTab(openFiles[0].id);
+                }
+                try {
+                    const file = await handle.getFile();
+                    const content = await file.text();
+                    createNewTab(file.name, content, handle);
+                } catch (e) { console.error("Error handling launched file:", e); }
+            }
+        }
+    });
+}
+
 // FIXED STARTUP LOGIC
 if (!restoreSession()) { 
     if (openFiles.length === 0) createNewTab(); 
 } else { 
-    // Fix: Clear activeFileId so switchToTab thinks we are switching *to* a new file
-    // and correctly loads content from the object into the empty editor.
     renderTabs(); 
     const savedId = activeFileId;
     activeFileId = null;
