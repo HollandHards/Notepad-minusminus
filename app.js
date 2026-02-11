@@ -24,9 +24,9 @@ const fileInput = document.getElementById('fileInput');
 const btnNewFile = document.getElementById('btnNewFile');
 const btnOpen = document.getElementById('btnOpen');
 const btnSave = document.getElementById('btnSave');
-const btnSaveMenu = document.getElementById('btnSaveMenu');
-const saveDropdown = document.getElementById('saveDropdown');
-const btnSaveAs = document.getElementById('btnSaveAs'); // Now a div inside dropdown
+const btnSaveMenu = document.getElementById('btnSaveMenu'); // The Arrow Button
+const saveDropdown = document.getElementById('saveDropdown'); // The Dropdown Menu
+const btnSaveAs = document.getElementById('btnSaveAs'); // The Option inside Dropdown
 
 const btnNewTab = document.getElementById('btnNewTab');
 const btnZoomIn = document.getElementById('btnZoomIn');
@@ -207,14 +207,14 @@ function closeTab(id) {
 // --- 6. EVENT LISTENERS ---
 brandButton.addEventListener('click', () => { if (window.innerWidth <= 768) mainToolbar.classList.toggle('mobile-open'); else createNewTab(); });
 btnNewTab.addEventListener('click', () => createNewTab());
-btnNewFile.addEventListener('click', () => createNewTab()); // Added logic for new button
+if(btnNewFile) btnNewFile.addEventListener('click', () => createNewTab()); 
 
 btnOpen.addEventListener('click', async () => {
     if (supportsFileSystem) { try { const [h] = await window.showOpenFilePicker(pickerOptions); const f = await h.getFile(); const c = await f.text(); createNewTab(f.name, c, h); } catch (e) {} } else fileInput.click();
 });
 fileInput.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (e) => createNewTab(f.name, e.target.result, null); r.readAsText(f); fileInput.value = ''; });
 
-// SAVE & SAVE AS LOGIC
+// --- SAVE & SAVE AS LOGIC (UPDATED) ---
 function triggerSaveAs() {
     const file = openFiles.find(f => f.id === activeFileId); if (!file) return;
     trimWhitespace();
@@ -225,6 +225,7 @@ function triggerSaveAs() {
     } else { saveFileFallback(file.name, cm.getValue()); file.isDirty = false; renderTabs(); }
 }
 
+// Standard Save Button
 btnSave.addEventListener('click', async () => {
     const file = openFiles.find(f => f.id === activeFileId); if (!file) return; if (!file.handle) { triggerSaveAs(); return; }
     trimWhitespace();
@@ -234,16 +235,28 @@ btnSave.addEventListener('click', async () => {
     } catch (e) { alert("Could not save file."); }
 });
 
-btnSaveMenu.addEventListener('click', (e) => { e.stopPropagation(); saveDropdown.classList.toggle('show'); });
-btnSaveAs.addEventListener('click', () => { triggerSaveAs(); saveDropdown.classList.remove('show'); });
+// Save As Dropdown Logic
+if (btnSaveMenu && saveDropdown) {
+    btnSaveMenu.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        saveDropdown.classList.toggle('show'); 
+    });
+}
+if (btnSaveAs) {
+    btnSaveAs.addEventListener('click', () => { 
+        triggerSaveAs(); 
+        if(saveDropdown) saveDropdown.classList.remove('show'); 
+    });
+}
 
 // GLOBAL CLICK TO CLOSE MENUS
 document.addEventListener('click', (e) => { 
-    if (!toolsMenu.contains(e.target) && e.target !== btnTools) toolsMenu.classList.remove('show');
-    if (!saveDropdown.contains(e.target) && e.target !== btnSaveMenu) saveDropdown.classList.remove('show'); 
-    if (!historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show');
+    if (toolsMenu && !toolsMenu.contains(e.target) && e.target !== btnTools) toolsMenu.classList.remove('show');
+    if (saveDropdown && !saveDropdown.contains(e.target) && e.target !== btnSaveMenu) saveDropdown.classList.remove('show'); 
+    if (historyMenu && !historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show');
 });
 
+// Tools & Helpers
 btnTools.addEventListener('click', (e) => { e.stopPropagation(); toolsMenu.classList.toggle('show'); });
 toolSort.addEventListener('click', () => { sortLines(); toolsMenu.classList.remove('show'); });
 toolTrim.addEventListener('click', () => { trimWhitespace(); toolsMenu.classList.remove('show'); });
