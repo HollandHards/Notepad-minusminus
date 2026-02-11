@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notepad-minusminus</title>
-    <!-- Robust Icon Definitions -->
+    
+    <!-- PWA Color & Icon Settings -->
+    <meta name="theme-color" content="#292a2d">
     <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     
@@ -162,7 +164,7 @@
     <script src="app.js"></script>
     <script>
         if ('serviceWorker' in navigator) { 
-            navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration failed (expected in some previews):', e));
+            navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration failed:', e));
         }
     </script>
 </body>
