@@ -62,6 +62,7 @@
             <option value="application/x-httpd-php">PHP</option>
             <option value="application/json">JSON</option>
             <option value="application/xml">XML</option>
+            <option value="text/x-markdown">Markdown</option> <!-- Added explicit Markdown -->
         </select>
 
         <!-- Tools Menu -->
@@ -78,7 +79,7 @@
             </div>
         </div>
 
-        <!-- Zoom -->
+        <!-- Zoom & Preview -->
         <div class="group-zoom">
             <button id="btnZoomOut">-</button>
             <button id="btnZoomIn">+</button>
@@ -86,9 +87,12 @@
             <button id="btnToggleWrap">Wrap</button>
             <span class="separator">|</span>
             <button id="btnTheme">☀</button>
+            <span class="separator">|</span>
+            <!-- NEW: Preview Button -->
+            <button id="btnPreview" title="Toggle Markdown Preview">👁️</button>
         </div>
 
-        <!-- Search & Help (UPDATED LAYOUT) -->
+        <!-- Search & Help -->
         <div class="group-search">
             <input type="text" id="findInput" name="search" placeholder="Find..." autocomplete="off">
             <button id="btnFind" title="Find Next (Enter)">🔎</button>
@@ -106,7 +110,12 @@
         <button id="btnNewTab" title="New File (Alt+N)" class="tab-plus">+</button>
     </div>
     
-    <textarea id="editor" name="content"></textarea>
+    <!-- Editor Container -->
+    <div style="position: relative; flex-grow: 1; display: flex; overflow: hidden;">
+        <textarea id="editor" name="content"></textarea>
+        <!-- NEW: Preview Pane -->
+        <div id="previewPane" class="preview-pane"></div>
+    </div>
     
     <div class="status-bar">
         <span id="fileMode" style="margin-left: 10px; color: var(--accent);">(Plain Text)</span>
@@ -141,6 +150,8 @@
         </div>
     </div>
 
+    <!-- SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
@@ -149,6 +160,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/match-highlighter.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldcode.min.js"></script>
