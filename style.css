@@ -129,11 +129,10 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
     align-items: center; 
 }
 
-/* Desktop Adjustment: Hide Branding */
+/* Desktop Adjustment: Show Logo, Hide Text */
 @media (min-width: 769px) {
-    .brand-section {
-        display: none;
-    }
+    .brand-section { display: flex; }
+    .app-name { display: none; }
 }
 
 /* --- TAB BAR --- */
