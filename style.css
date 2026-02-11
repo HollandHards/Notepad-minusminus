@@ -64,7 +64,13 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 ::-webkit-scrollbar-corner { background: var(--scroll-track); }
 
 /* --- CODEMIRROR --- */
-.CodeMirror { flex-grow: 1; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; }
+.CodeMirror { 
+    flex-grow: 1; 
+    height: 100%; /* Force full height */
+    font-family: 'Courier New', monospace; 
+    font-size: 14px; 
+    line-height: 1.6; 
+}
 .CodeMirror-gutters { background-color: var(--gutter-bg) !important; border-right: 1px solid var(--border-color) !important; }
 .CodeMirror-linenumber { color: var(--text-muted) !important; }
 .CodeMirror-foldgutter { color: var(--folder-color); }
