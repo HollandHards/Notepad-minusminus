@@ -29,6 +29,9 @@ const saveDropdown = document.getElementById('saveDropdown');
 const btnSaveAs = document.getElementById('btnSaveAs');
 
 const btnNewTab = document.getElementById('btnNewTab');
+const btnZoomIn = document.getElementById('btnZoomIn');
+const btnZoomOut = document.getElementById('btnZoomOut');
+const btnToggleWrap = document.getElementById('btnToggleWrap');
 const btnTheme = document.getElementById('btnTheme');
 const btnPreview = document.getElementById('btnPreview'); 
 
@@ -42,16 +45,11 @@ const btnHistory = document.getElementById('btnHistory');
 
 const btnTools = document.getElementById('btnTools');
 const toolsMenu = document.getElementById('toolsMenu');
-
-// Tools Menu Items
 const toolSort = document.getElementById('toolSort');
 const toolTrim = document.getElementById('toolTrim');
 const toolDup = document.getElementById('toolDup');
 const toolUpper = document.getElementById('toolUpper');
 const toolLower = document.getElementById('toolLower');
-const toolWrap = document.getElementById('toolWrap');     // Moved here
-const toolZoomIn = document.getElementById('toolZoomIn'); // Moved here
-const toolZoomOut = document.getElementById('toolZoomOut'); // Moved here
 
 const findInput = document.getElementById('findInput');
 const replaceInput = document.getElementById('replaceInput');
@@ -208,9 +206,7 @@ function switchToTab(id) {
         languageSelect.value = newFile.mode;
         fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`;
 
-        // Preview Visibility
         const isMd = newFile.mode === 'text/x-markdown';
-        
         if (btnPreview) {
             btnPreview.style.display = isMd ? 'inline-block' : 'none';
             if (previewPane.classList.contains('active')) {
@@ -283,7 +279,6 @@ btnOpen.addEventListener('click', async () => {
 });
 fileInput.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (e) => createNewTab(f.name, e.target.result, null); r.readAsText(f); fileInput.value = ''; });
 
-// SAVE & SAVE AS
 function triggerSaveAs() {
     const file = openFiles.find(f => f.id === activeFileId); if (!file) return;
     trimWhitespace();
@@ -310,7 +305,6 @@ document.addEventListener('click', (e) => {
     if (historyMenu && !historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show');
 });
 
-// TOOLS & ACTIONS
 btnTools.addEventListener('click', (e) => { e.stopPropagation(); toolsMenu.classList.toggle('show'); });
 toolSort.addEventListener('click', () => { sortLines(); toolsMenu.classList.remove('show'); });
 toolTrim.addEventListener('click', () => { trimWhitespace(); toolsMenu.classList.remove('show'); });
@@ -318,24 +312,6 @@ toolDup.addEventListener('click', () => { duplicateLine(); toolsMenu.classList.r
 toolUpper.addEventListener('click', () => { changeCase('upper'); toolsMenu.classList.remove('show'); });
 toolLower.addEventListener('click', () => { changeCase('lower'); toolsMenu.classList.remove('show'); });
 
-// MOVED ZOOM & WRAP LISTENERS
-const updateFontSize = () => { document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`; cm.refresh(); };
-
-toolZoomIn.addEventListener('click', () => { 
-    currentFontSize += 2; updateFontSize(); toolsMenu.classList.remove('show'); 
-});
-toolZoomOut.addEventListener('click', () => { 
-    currentFontSize = Math.max(8, currentFontSize - 2); updateFontSize(); toolsMenu.classList.remove('show'); 
-});
-toolWrap.addEventListener('click', () => {
-    const c = cm.getOption('lineWrapping');
-    cm.setOption('lineWrapping', !c);
-    // Optional: Visually indicate state? The toggle acts immediately.
-    toolsMenu.classList.remove('show');
-});
-
-
-// PREVIEW BUTTON LOGIC
 if (btnPreview) {
     btnPreview.addEventListener('click', () => {
         if (previewPane.classList.contains('active')) {
@@ -402,8 +378,10 @@ if (btnReplaceAll) {
 }
 
 languageSelect.addEventListener('change', () => { const f = openFiles.find(x => x.id === activeFileId); if(f) { f.mode = languageSelect.value; cm.setOption('mode', f.mode); fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`; saveSession(); } });
+btnToggleWrap.addEventListener('click', () => { const c = cm.getOption('lineWrapping'); cm.setOption('lineWrapping', !c); btnToggleWrap.classList.toggle('active'); });
 btnTheme.addEventListener('click', () => { document.body.classList.toggle('light-mode'); const isLight = document.body.classList.contains('light-mode'); cm.setOption('theme', isLight ? 'default' : 'darcula'); btnTheme.textContent = isLight ? '🌙' : '☀'; localStorage.setItem('theme', isLight ? 'light' : 'dark'); });
-
+const updateFontSize = () => { document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`; cm.refresh(); };
+btnZoomIn.addEventListener('click', () => { currentFontSize += 2; updateFontSize(); }); btnZoomOut.addEventListener('click', () => { currentFontSize = Math.max(8, currentFontSize - 2); updateFontSize(); });
 cm.on('focus', () => mainToolbar.classList.remove('mobile-open'));
 window.addEventListener('dragenter', (e) => { e.preventDefault(); dropZone.classList.add('active'); dropZone.style.display = 'flex'; });
 dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); if (e.clientX === 0 && e.clientY === 0) { dropZone.classList.remove('active'); dropZone.style.display = 'none'; } });
@@ -427,4 +405,14 @@ document.addEventListener('keydown', e => {
     if (e.altKey && e.key === 'w') { e.preventDefault(); if (activeFileId) closeTab(activeFileId); }
 });
 
-if (!restoreSession()) { if (openFiles.length === 0) createNewTab(); } else { renderTabs(); switchToTab(activeFileId); }
+// FIXED STARTUP LOGIC
+if (!restoreSession()) { 
+    if (openFiles.length === 0) createNewTab(); 
+} else { 
+    // Fix: Clear activeFileId so switchToTab thinks we are switching *to* a new file
+    // and correctly loads content from the object into the empty editor.
+    renderTabs(); 
+    const savedId = activeFileId;
+    activeFileId = null;
+    switchToTab(savedId); 
+}
