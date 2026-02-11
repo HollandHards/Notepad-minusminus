@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notepad-minusminus</title>
     
-    <!-- PWA Color & Icon Settings -->
     <meta name="theme-color" content="#292a2d">
     <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
@@ -13,10 +12,8 @@
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     
-    <!-- CodeMirror Core -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css">
-    <!-- Addons CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldgutter.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
 </head>
@@ -32,12 +29,11 @@
             <div class="app-name" id="appName">Notepad--</div>
         </div>
         
-        <!-- File Group (UPDATED) -->
+        <!-- File Group -->
         <div class="group-file">
             <button id="btnNewFile" title="New File (Alt+N)">📄 New</button>
             <button id="btnOpen" title="Ctrl+O">📂 Open</button>
             
-            <!-- Save Split Button -->
             <div class="save-wrapper">
                 <button id="btnSave" title="Ctrl+S">💾 Save</button>
                 <button id="btnSaveMenu" title="More Options">▼</button>
@@ -118,7 +114,7 @@
 
     <input type="file" id="fileInput" name="fileUpload" style="display: none;">
 
-    <!-- Help Modal -->
+    <!-- Help Modal (UPDATED) -->
     <div id="helpModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -127,13 +123,14 @@
             </div>
             <div class="modal-body">
                 <table class="shortcut-table">
-                    <tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td>Save File</td></tr>
+                    <tr><td><kbd>Alt</kbd> + <kbd>N</kbd></td><td>New File / Tab</td></tr>
+                    <tr><td><kbd>Alt</kbd> + <kbd>W</kbd></td><td>Close Current Tab</td></tr>
                     <tr><td><kbd>Ctrl</kbd> + <kbd>O</kbd></td><td>Open File</td></tr>
-                    <tr><td><kbd>Alt</kbd> + <kbd>N</kbd></td><td>New Tab</td></tr>
-                    <tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd></td><td>Go to Line</td></tr>
+                    <tr><td><kbd>Ctrl</kbd> + <kbd>S</kbd></td><td>Save File</td></tr>
                     <tr><td><kbd>Ctrl</kbd> + <kbd>D</kbd></td><td>Duplicate Line</td></tr>
-                    <tr><td><kbd>Ctrl</kbd> + <kbd>Space</kbd></td><td>Auto-Complete</td></tr>
+                    <tr><td><kbd>Ctrl</kbd> + <kbd>G</kbd></td><td>Go to Line</td></tr>
                     <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↑/↓</kbd></td><td>Move Line Up/Down</td></tr>
+                    <tr><td><kbd>Ctrl</kbd> + <kbd>Space</kbd></td><td>Auto-Complete</td></tr>
                     <tr><td><kbd>Tab</kbd></td><td>Indent (4 Spaces)</td></tr>
                     <tr><td><kbd>Enter</kbd> (in Search)</td><td>Find Next</td></tr>
                 </table>
@@ -141,10 +138,7 @@
         </div>
     </div>
 
-    <!-- CM CORE -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-    
-    <!-- LANGUAGES -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
@@ -152,8 +146,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
-
-    <!-- ADDONS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/match-highlighter.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldcode.min.js"></script>
