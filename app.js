@@ -29,9 +29,6 @@ const saveDropdown = document.getElementById('saveDropdown');
 const btnSaveAs = document.getElementById('btnSaveAs');
 
 const btnNewTab = document.getElementById('btnNewTab');
-const btnZoomIn = document.getElementById('btnZoomIn');
-const btnZoomOut = document.getElementById('btnZoomOut');
-const btnToggleWrap = document.getElementById('btnToggleWrap');
 const btnTheme = document.getElementById('btnTheme');
 const btnPreview = document.getElementById('btnPreview'); 
 
@@ -45,11 +42,16 @@ const btnHistory = document.getElementById('btnHistory');
 
 const btnTools = document.getElementById('btnTools');
 const toolsMenu = document.getElementById('toolsMenu');
+
+// Tools Menu Items
 const toolSort = document.getElementById('toolSort');
 const toolTrim = document.getElementById('toolTrim');
 const toolDup = document.getElementById('toolDup');
 const toolUpper = document.getElementById('toolUpper');
 const toolLower = document.getElementById('toolLower');
+const toolWrap = document.getElementById('toolWrap');     // Moved here
+const toolZoomIn = document.getElementById('toolZoomIn'); // Moved here
+const toolZoomOut = document.getElementById('toolZoomOut'); // Moved here
 
 const findInput = document.getElementById('findInput');
 const replaceInput = document.getElementById('replaceInput');
@@ -182,15 +184,10 @@ function renderTabs() {
         if (file.id === activeFileId) tab.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 }
-
 function switchToTab(id) {
-    // 1. Save Old Tab State
     if (activeFileId) {
         const oldFile = openFiles.find(f => f.id === activeFileId);
         if (oldFile) { 
-            // If the editor is active, get value from it. 
-            // If preview is active, we assume 'content' in memory is up to date (via updateStats)
-            // or we grab it if possible. But usually 'change' event keeps 'content' sync.
             oldFile.content = cm.getValue(); 
             oldFile.history = cm.getHistory(); 
             oldFile.cursor = cm.getCursor(); 
@@ -198,12 +195,10 @@ function switchToTab(id) {
         }
     }
 
-    // 2. Set New ID
     activeFileId = id; 
     const newFile = openFiles.find(f => f.id === id);
 
     if (newFile) {
-        // 3. Load Content
         cm.setValue(newFile.content); 
         cm.setOption('mode', newFile.mode);
         cm.setHistory(newFile.history || { done: [], undone: [] });
@@ -213,29 +208,22 @@ function switchToTab(id) {
         languageSelect.value = newFile.mode;
         fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`;
 
-        // 4. Handle Preview Visibility
+        // Preview Visibility
         const isMd = newFile.mode === 'text/x-markdown';
         
         if (btnPreview) {
             btnPreview.style.display = isMd ? 'inline-block' : 'none';
-            
-            // IF PREVIEW IS OPEN...
             if (previewPane.classList.contains('active')) {
                 if (isMd) {
-                    // Switching from MD to MD -> Update the preview content
-                    if (typeof marked !== 'undefined') {
-                        previewPane.innerHTML = marked.parse(newFile.content);
-                    }
+                    if (typeof marked !== 'undefined') previewPane.innerHTML = marked.parse(newFile.content);
                 } else {
-                    // Switching from MD to Non-MD -> Close preview, Show Editor
                     previewPane.classList.remove('active');
                     document.querySelector('.CodeMirror').style.display = 'block';
                     btnPreview.classList.remove('active');
-                    cm.refresh(); // Crucial: Fixes blank editor glitch
+                    cm.refresh(); 
                     cm.focus();
                 }
             } else {
-                // Preview was closed, ensure editor is fresh
                 cm.refresh();
                 cm.focus();
             }
@@ -322,12 +310,30 @@ document.addEventListener('click', (e) => {
     if (historyMenu && !historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show');
 });
 
+// TOOLS & ACTIONS
 btnTools.addEventListener('click', (e) => { e.stopPropagation(); toolsMenu.classList.toggle('show'); });
 toolSort.addEventListener('click', () => { sortLines(); toolsMenu.classList.remove('show'); });
 toolTrim.addEventListener('click', () => { trimWhitespace(); toolsMenu.classList.remove('show'); });
 toolDup.addEventListener('click', () => { duplicateLine(); toolsMenu.classList.remove('show'); });
 toolUpper.addEventListener('click', () => { changeCase('upper'); toolsMenu.classList.remove('show'); });
 toolLower.addEventListener('click', () => { changeCase('lower'); toolsMenu.classList.remove('show'); });
+
+// MOVED ZOOM & WRAP LISTENERS
+const updateFontSize = () => { document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`; cm.refresh(); };
+
+toolZoomIn.addEventListener('click', () => { 
+    currentFontSize += 2; updateFontSize(); toolsMenu.classList.remove('show'); 
+});
+toolZoomOut.addEventListener('click', () => { 
+    currentFontSize = Math.max(8, currentFontSize - 2); updateFontSize(); toolsMenu.classList.remove('show'); 
+});
+toolWrap.addEventListener('click', () => {
+    const c = cm.getOption('lineWrapping');
+    cm.setOption('lineWrapping', !c);
+    // Optional: Visually indicate state? The toggle acts immediately.
+    toolsMenu.classList.remove('show');
+});
+
 
 // PREVIEW BUTTON LOGIC
 if (btnPreview) {
@@ -336,7 +342,7 @@ if (btnPreview) {
             previewPane.classList.remove('active');
             document.querySelector('.CodeMirror').style.display = 'block';
             btnPreview.classList.remove('active');
-            cm.refresh(); // Refresh on manual toggle
+            cm.refresh(); 
         } else {
             const markdown = cm.getValue();
             if (typeof marked !== 'undefined') {
@@ -396,10 +402,8 @@ if (btnReplaceAll) {
 }
 
 languageSelect.addEventListener('change', () => { const f = openFiles.find(x => x.id === activeFileId); if(f) { f.mode = languageSelect.value; cm.setOption('mode', f.mode); fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`; saveSession(); } });
-btnToggleWrap.addEventListener('click', () => { const c = cm.getOption('lineWrapping'); cm.setOption('lineWrapping', !c); btnToggleWrap.classList.toggle('active'); });
 btnTheme.addEventListener('click', () => { document.body.classList.toggle('light-mode'); const isLight = document.body.classList.contains('light-mode'); cm.setOption('theme', isLight ? 'default' : 'darcula'); btnTheme.textContent = isLight ? '🌙' : '☀'; localStorage.setItem('theme', isLight ? 'light' : 'dark'); });
-const updateFontSize = () => { document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`; cm.refresh(); };
-btnZoomIn.addEventListener('click', () => { currentFontSize += 2; updateFontSize(); }); btnZoomOut.addEventListener('click', () => { currentFontSize = Math.max(8, currentFontSize - 2); updateFontSize(); });
+
 cm.on('focus', () => mainToolbar.classList.remove('mobile-open'));
 window.addEventListener('dragenter', (e) => { e.preventDefault(); dropZone.classList.add('active'); dropZone.style.display = 'flex'; });
 dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); if (e.clientX === 0 && e.clientY === 0) { dropZone.classList.remove('active'); dropZone.style.display = 'none'; } });
