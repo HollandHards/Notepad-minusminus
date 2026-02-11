@@ -6,6 +6,9 @@
     <title>Notepad-minusminus</title>
     
     <meta name="theme-color" content="#292a2d">
+    
+    <!-- ICONS: favicon.ico for tabs, logo.png for high-res/mobile -->
+    <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     
@@ -53,10 +56,8 @@
             </div>
         </div>
 
-        <!-- Language (UPDATED) -->
+        <!-- Language -->
         <select id="languageSelect" class="lang-select" name="language">
-            <!-- New Informative Placeholder -->
-            <option value="" disabled selected>Syntax theme</option>
             <option value="text/plain">Plain Text</option>
             <option value="text/html">HTML</option>
             <option value="text/css">CSS</option>
@@ -64,33 +65,30 @@
             <option value="application/x-httpd-php">PHP</option>
             <option value="application/json">JSON</option>
             <option value="application/xml">XML</option>
-            <option value="text/x-markdown">Markdown</option>
         </select>
 
         <!-- Tools Menu -->
         <div class="paste-wrapper" style="margin-right: 5px;">
             <button id="btnTools" title="Tools & Operations">⚙️ Tools ▼</button>
             <div id="toolsMenu" class="history-menu">
-                <div class="history-title">Editor View</div>
-                <div class="history-item" id="toolWrap">Toggle Word Wrap</div>
-                <div class="history-item" id="toolZoomIn">Zoom In (+)</div>
-                <div class="history-item" id="toolZoomOut">Zoom Out (-)</div>
-                
                 <div class="history-title">Line Operations</div>
                 <div class="history-item" id="toolSort">Az Sort Lines</div>
                 <div class="history-item" id="toolTrim">Trim Whitespace</div>
                 <div class="history-item" id="toolDup">Duplicate Line (Ctrl+D)</div>
-                
                 <div class="history-title">Case Conversion</div>
                 <div class="history-item" id="toolUpper">UPPERCASE</div>
                 <div class="history-item" id="toolLower">lowercase</div>
             </div>
         </div>
 
-        <!-- Theme & Preview -->
-        <div class="group-view">
-            <button id="btnTheme" title="Toggle Light/Dark Mode">☀</button>
-            <button id="btnPreview" title="Toggle Markdown Preview">👁️</button>
+        <!-- Zoom -->
+        <div class="group-zoom">
+            <button id="btnZoomOut">-</button>
+            <button id="btnZoomIn">+</button>
+            <span class="separator">|</span>
+            <button id="btnToggleWrap">Wrap</button>
+            <span class="separator">|</span>
+            <button id="btnTheme">☀</button>
         </div>
 
         <!-- Search & Help -->
@@ -111,11 +109,7 @@
         <button id="btnNewTab" title="New File (Alt+N)" class="tab-plus">+</button>
     </div>
     
-    <!-- Editor Container -->
-    <div style="position: relative; flex-grow: 1; display: flex; overflow: hidden;">
-        <textarea id="editor" name="content"></textarea>
-        <div id="previewPane" class="preview-pane"></div>
-    </div>
+    <textarea id="editor" name="content"></textarea>
     
     <div class="status-bar">
         <span id="fileMode" style="margin-left: 10px; color: var(--accent);">(Plain Text)</span>
@@ -130,15 +124,10 @@
     <div id="helpModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Notepad-- Help</h3>
+                <h3>Keyboard Shortcuts</h3>
                 <span id="closeModal" class="modal-close-btn">&times;</span>
             </div>
             <div class="modal-body">
-                <p><strong>Version:</strong> 1.4.0</p>
-                <p><strong>Source Code:</strong> <a href="https://github.com/HollandHards/Notepad-minusminus" target="_blank" style="color: var(--accent);">GitHub Repository</a></p>
-                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
-                
-                <h4>Keyboard Shortcuts</h4>
                 <table class="shortcut-table">
                     <tr><td><kbd>Alt</kbd> + <kbd>N</kbd></td><td>New File / Tab</td></tr>
                     <tr><td><kbd>Alt</kbd> + <kbd>W</kbd></td><td>Close Current Tab</td></tr>
@@ -155,8 +144,10 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <!-- CM CORE -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    
+    <!-- LANGUAGES -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
@@ -164,7 +155,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js"></script>
+
+    <!-- ADDONS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/match-highlighter.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldcode.min.js"></script>
