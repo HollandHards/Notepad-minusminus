@@ -1,23 +1,23 @@
 {
   "name": "Notepad-minusminus",
   "short_name": "Notepad--",
-  "start_url": ".",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#202124",
   "theme_color": "#292a2d",
   "description": "A dark mode text editor for ChromeOS",
   "icons": [
     {
-      "src": "./logo.png",
+      "src": "logo.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "./logo.png",
+      "src": "logo.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }
