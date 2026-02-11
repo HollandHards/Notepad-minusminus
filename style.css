@@ -151,7 +151,6 @@ button.active { background: var(--accent); color: var(--bg-color); border-color:
 .shortcut-table { width: 100%; border-collapse: collapse; }
 .shortcut-table td { padding: 6px 0; font-size: 0.9rem; color: var(--text-color); border-bottom: 1px solid var(--border-color); }
 .shortcut-table tr:last-child td { border-bottom: none; }
-/* Keyboard Key Style */
 kbd {
     background-color: var(--kbd-bg);
     border: 1px solid var(--kbd-border);
@@ -163,20 +162,35 @@ kbd {
     color: var(--text-color);
 }
 
-/* --- MOBILE --- */
+/* --- MOBILE RESPONSIVENESS (UPDATED) --- */
 @media (max-width: 768px) {
     .toolbar { display: block; height: 50px; overflow: hidden; padding: 0; transition: height 0.3s ease; }
     .brand-section { height: 50px; width: 100%; padding: 0 15px; box-sizing: border-box; justify-content: space-between; background-color: var(--toolbar-bg); cursor: pointer; border-bottom: 1px solid transparent; }
     .brand-section::after { content: '☰'; color: var(--text-color); font-size: 1.5rem; }
-    .group-file, .group-clipboard, .lang-select, .group-zoom, .group-search, .paste-wrapper { display: none; width: 100%; padding: 12px 15px; box-sizing: border-box; border-top: 1px solid var(--border-color); background: var(--bg-color); justify-content: center; }
+    .group-file, .group-clipboard, .lang-select, .group-zoom, .group-search, .paste-wrapper { display: none; width: 100%; padding: 10px 15px; box-sizing: border-box; border-top: 1px solid var(--border-color); background: var(--bg-color); justify-content: center; }
     .toolbar.mobile-open { height: auto; overflow: visible; position: absolute; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     .toolbar.mobile-open .brand-section { border-bottom: 1px solid var(--border-color); }
     .toolbar.mobile-open .brand-section::after { content: '✕'; }
-    .toolbar.mobile-open .group-file, .toolbar.mobile-open .group-clipboard, .toolbar.mobile-open .lang-select, .toolbar.mobile-open .group-zoom, .toolbar.mobile-open .group-search, .toolbar.mobile-open .paste-wrapper { display: flex; }
-    .group-file, .group-clipboard { gap: 10px; flex-wrap: wrap; }
-    .group-file button, .group-clipboard button { flex-grow: 1; padding: 12px; }
-    .group-search input { flex-grow: 1; width: auto; padding: 10px; }
-    .group-search button { padding: 10px 15px; }
+    
+    .toolbar.mobile-open .group-file, 
+    .toolbar.mobile-open .group-clipboard, 
+    .toolbar.mobile-open .lang-select, 
+    .toolbar.mobile-open .group-zoom, 
+    .toolbar.mobile-open .group-search, 
+    .toolbar.mobile-open .paste-wrapper { display: flex; }
+    
+    .group-file, .group-clipboard { gap: 8px; flex-wrap: wrap; }
+    
+    /* Reduced padding and size for mobile buttons */
+    .group-file button, .group-clipboard button { 
+        flex-grow: 1; 
+        padding: 8px 10px; 
+        font-size: 0.85rem; 
+    }
+    
+    .group-search input { flex-grow: 1; width: auto; padding: 8px; }
+    .group-search button { padding: 8px 12px; }
+    
     .paste-wrapper, #btnPaste { flex-grow: 1; }
     #btnHistory, #btnTools { width: auto; flex-grow: 0; }
 }
