@@ -1,4 +1,4 @@
-const CACHE_NAME = 'notepad-minusminus-v8'; // Bumped to v8
+const CACHE_NAME = 'notepad-minusminus-v9';
 const ASSETS = [
   './',
   'index.html',
