@@ -1,6 +1,6 @@
 # Notepad-minusminus (Notepad--) 📝
 
-A lightweight, distraction-free, and privacy-centric code editor optimized for ChromeOS, yet universally compatible across platforms.
+A lightweight, distraction-free, and privacy-centric code editor optimized for ChromeOS or Firefox, yet universally compatible across platforms.
 
 **Notepad--** operates as a Progressive Web App (PWA), utilizing the advanced File System Access API to facilitate direct manipulation of local files through the browser interface, mirroring the functionality of native desktop applications. The application incorporates a sophisticated multi-tab interface and intelligent coding capabilities, while maintaining full offline functionality.
 
@@ -99,6 +99,7 @@ As a Progressive Web App (PWA), Notepad-- may be installed as a standalone appli
 | `Ctrl + S` | Save File | 
 | `Ctrl + O` | Open File | 
 | `Alt + N` | **New Tab** | 
+| `Alt + W` | **Close Tab** |
 | `Ctrl + D` | **Duplicate Line** | 
 | `Ctrl + Space` | **Auto-Complete** | 
 | `Ctrl + G` | Go to Line Number | 
