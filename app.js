@@ -322,7 +322,32 @@ document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.key === 'g') { e.preventDefault(); jumpToLine(); }
     if (e.altKey && e.key === 'n') { e.preventDefault(); createNewTab(); }
     if (e.ctrlKey && e.key === 'd') { e.preventDefault(); duplicateLine(); }
-    // ADDED: Alt+W to Close Tab
     if (e.altKey && e.key === 'w') { e.preventDefault(); if (activeFileId) closeTab(activeFileId); }
 });
-if (openFiles.length === 0) createNewTab();
+
+// --- 9. PWA FILE HANDLING (Launch Queue) ---
+if ('launchQueue' in window && 'files' in LaunchParams.prototype) {
+    launchQueue.setConsumer(async (launchParams) => {
+        if (!launchParams.files.length) {
+            return;
+        }
+        for (const handle of launchParams.files) {
+            if (handle.kind === 'file') {
+                // If it's the very first empty tab, verify if we should replace it
+                if (openFiles.length === 1 && openFiles[0].name === "Untitled" && !openFiles[0].isDirty && openFiles[0].content === "") {
+                     closeTab(openFiles[0].id); // Remove default empty tab
+                }
+                
+                try {
+                    const file = await handle.getFile();
+                    const content = await file.text();
+                    createNewTab(file.name, content, handle);
+                } catch (e) {
+                    console.error("Error handling launched file:", e);
+                }
+            }
+        }
+    });
+}
+
+if (openFiles.length === 0) { createNewTab(); }
