@@ -88,12 +88,14 @@
             <button id="btnTheme">☀</button>
         </div>
 
-        <!-- Search & Help -->
+        <!-- Search & Help (UPDATED LAYOUT) -->
         <div class="group-search">
             <input type="text" id="findInput" name="search" placeholder="Find..." autocomplete="off">
+            <button id="btnFind" title="Find Next (Enter)">🔎</button>
+            
             <input type="text" id="replaceInput" name="replace" placeholder="Replace..." autocomplete="off">
-            <!-- UPDATED TITLE and ICON -->
-            <button id="btnAction" title="Replace All">🔁</button>
+            <button id="btnReplaceAll" title="Replace All">🔁</button>
+            
             <button id="btnHelp" title="Keyboard Shortcuts" style="margin-left: 5px; font-weight: bold;">?</button>
         </div>
     </div>
@@ -115,7 +117,7 @@
 
     <input type="file" id="fileInput" name="fileUpload" style="display: none;">
 
-    <!-- Help Modal (UPDATED) -->
+    <!-- Help Modal -->
     <div id="helpModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
