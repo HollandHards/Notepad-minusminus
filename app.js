@@ -35,6 +35,7 @@ const btnToggleWrap = document.getElementById('btnToggleWrap');
 const btnTheme = document.getElementById('btnTheme');
 const btnPreview = document.getElementById('btnPreview'); 
 
+const btnAction = document.getElementById('btnAction');
 const btnFind = document.getElementById('btnFind'); 
 const btnReplaceAll = document.getElementById('btnReplaceAll'); 
 
@@ -207,10 +208,8 @@ function switchToTab(id) {
         if (newFile.cursor) cm.setCursor(newFile.cursor);
         if (newFile.scrollInfo) cm.scrollTo(newFile.scrollInfo.left, newFile.scrollInfo.top);
         
-        // VISUAL UPDATE: Show "Syntax theme" placeholder if plain text
         languageSelect.value = newFile.mode === 'text/plain' ? "" : newFile.mode;
         
-        // Find correct label for Status Bar
         const modeOption = Array.from(languageSelect.options).find(o => o.value === newFile.mode);
         const displayText = modeOption ? modeOption.text : "Plain Text";
         fileModeDisplay.textContent = `(${displayText})`;
@@ -315,6 +314,7 @@ document.addEventListener('click', (e) => {
     if (historyMenu && !historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show');
 });
 
+// TOOLS ACTIONS
 btnTools.addEventListener('click', (e) => { e.stopPropagation(); toolsMenu.classList.toggle('show'); });
 toolSort.addEventListener('click', () => { sortLines(); toolsMenu.classList.remove('show'); });
 toolTrim.addEventListener('click', () => { trimWhitespace(); toolsMenu.classList.remove('show'); });
@@ -442,6 +442,26 @@ document.addEventListener('keydown', e => {
     if (e.altKey && e.key === 'w') { e.preventDefault(); if (activeFileId) closeTab(activeFileId); }
 });
 
+// PWA Launch Queue
+if ('launchQueue' in window && 'files' in LaunchParams.prototype) {
+    launchQueue.setConsumer(async (launchParams) => {
+        if (!launchParams.files.length) return;
+        for (const handle of launchParams.files) {
+            if (handle.kind === 'file') {
+                if (openFiles.length === 1 && openFiles[0].name === "Untitled" && !openFiles[0].isDirty && openFiles[0].content === "") {
+                     closeTab(openFiles[0].id);
+                }
+                try {
+                    const file = await handle.getFile();
+                    const content = await file.text();
+                    createNewTab(file.name, content, handle);
+                } catch (e) { console.error("Error handling launched file:", e); }
+            }
+        }
+    });
+}
+
+// FIXED STARTUP LOGIC
 if (!restoreSession()) { 
     if (openFiles.length === 0) createNewTab(); 
 } else { 
