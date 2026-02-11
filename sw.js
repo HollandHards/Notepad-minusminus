@@ -1,11 +1,11 @@
-const CACHE_NAME = 'notepad-minusminus-v4'; // Bumped version to force update
+const CACHE_NAME = 'notepad-minusminus-v6'; // Bumped to v6 to force logo redownload
 const ASSETS = [
   './',
-  './index.html',
-  './style.css',
-  './app.js',
-  './manifest.json',
-  './logo.png',
+  'index.html',
+  'style.css',
+  'app.js',
+  'manifest.json',
+  'logo.png', // Path matches manifest exactly now
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js',
@@ -32,6 +32,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
+  self.skipWaiting(); // Force new service worker to activate immediately
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
@@ -51,6 +52,6 @@ self.addEventListener('activate', (e) => {
           return caches.delete(key);
         }
       }));
-    })
+    }).then(() => self.clients.claim()) // Take control of the page immediately
   );
 });
