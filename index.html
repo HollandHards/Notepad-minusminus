@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notepad-minusminus</title>
-    <link rel="icon" type="image/png" href="logo.png">
+    <!-- Robust Icon Definitions -->
+    <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     
@@ -45,7 +48,7 @@
         </div>
 
         <!-- Language -->
-        <select id="languageSelect" class="lang-select">
+        <select id="languageSelect" class="lang-select" name="language">
             <option value="text/plain">Plain Text</option>
             <option value="text/html">HTML</option>
             <option value="text/css">CSS</option>
@@ -81,10 +84,9 @@
 
         <!-- Search & Help -->
         <div class="group-search">
-            <input type="text" id="findInput" placeholder="Find...">
-            <input type="text" id="replaceInput" placeholder="Replace...">
+            <input type="text" id="findInput" name="search" placeholder="Find..." autocomplete="off">
+            <input type="text" id="replaceInput" name="replace" placeholder="Replace..." autocomplete="off">
             <button id="btnAction" title="Find Next / Replace All">🔎</button>
-            <!-- NEW: Help Button -->
             <button id="btnHelp" title="Keyboard Shortcuts" style="margin-left: 5px; font-weight: bold;">?</button>
         </div>
     </div>
@@ -95,7 +97,7 @@
         <button id="btnNewTab" title="New File (Alt+N)" class="tab-plus">+</button>
     </div>
     
-    <textarea id="editor"></textarea>
+    <textarea id="editor" name="content"></textarea>
     
     <div class="status-bar">
         <span id="fileMode" style="margin-left: 10px; color: var(--accent);">(Plain Text)</span>
@@ -104,9 +106,9 @@
         <span id="stats">Lines: 0 | Words: 0</span>
     </div>
 
-    <input type="file" id="fileInput" style="display: none;">
+    <input type="file" id="fileInput" name="fileUpload" style="display: none;">
 
-    <!-- NEW: Help Modal -->
+    <!-- Help Modal -->
     <div id="helpModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -158,6 +160,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/anyword-hint.min.js"></script>
 
     <script src="app.js"></script>
-    <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }</script>
+    <script>
+        if ('serviceWorker' in navigator) { 
+            navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW registration failed (expected in some previews):', e));
+        }
+    </script>
 </body>
 </html>
