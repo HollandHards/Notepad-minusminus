@@ -19,5 +19,20 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "file_handlers": [
+    {
+      "action": "./index.html",
+      "accept": {
+        "text/plain": [".txt", ".md", ".csv", ".log", ".ini"],
+        "text/html": [".html", ".htm"],
+        "text/css": [".css"],
+        "text/javascript": [".js", ".mjs", ".ts"],
+        "application/json": [".json"],
+        "application/xml": [".xml", ".svg"],
+        "application/x-httpd-php": [".php"],
+        "text/x-sql": [".sql"]
+      }
+    }
   ]
 }
