@@ -54,7 +54,7 @@
             </div>
         </div>
 
-        <!-- Language (Fixed Placeholder) -->
+        <!-- Language -->
         <select id="languageSelect" class="lang-select" name="language">
             <option value="" disabled selected>Syntax theme</option>
             <option value="text/plain">Plain Text</option>
@@ -67,7 +67,7 @@
             <option value="text/x-markdown">Markdown</option>
         </select>
 
-        <!-- Tools Menu (Updated with Zoom/Wrap) -->
+        <!-- Tools Menu -->
         <div class="paste-wrapper" style="margin-right: 5px;">
             <button id="btnTools" title="Tools & Operations">⚙️ Tools ▼</button>
             <div id="toolsMenu" class="history-menu">
@@ -87,14 +87,14 @@
             </div>
         </div>
 
-        <!-- Theme & Preview Only -->
+        <!-- Theme & Preview -->
         <div class="group-zoom">
             <button id="btnTheme" title="Toggle Light/Dark Mode">☀</button>
             <span class="separator">|</span>
             <button id="btnPreview" title="Toggle Markdown Preview">👁️</button>
         </div>
 
-        <!-- Search & Help (Split Buttons) -->
+        <!-- Search & Help -->
         <div class="group-search">
             <input type="text" id="findInput" name="search" placeholder="Find..." autocomplete="off">
             <button id="btnFind" title="Find Next (Enter)">🔎</button>
@@ -127,15 +127,18 @@
 
     <input type="file" id="fileInput" name="fileUpload" style="display: none;">
 
-    <!-- Help Modal (Updated Version) -->
+    <!-- Help Modal -->
     <div id="helpModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Notepad-- Help</h3>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="logo.png" alt="Logo" style="width: 24px; height: 24px;">
+                    <h3>Notepad-- Help</h3>
+                </div>
                 <span id="closeModal" class="modal-close-btn">&times;</span>
             </div>
             <div class="modal-body">
-                <p><strong>Version:</strong> 1.4.0</p>
+                <p><strong>Version:</strong> 1.8.0</p>
                 <p><strong>Source Code:</strong> <a href="https://github.com/HollandHards/Notepad-minusminus" target="_blank" style="color: var(--accent);">GitHub Repository</a></p>
                 <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 15px 0;">
                 
@@ -156,7 +159,6 @@
         </div>
     </div>
 
-    <!-- SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     
