@@ -20,9 +20,14 @@ const historyMenu = document.getElementById('historyMenu');
 const appName = document.getElementById('appName');
 const fileInput = document.getElementById('fileInput');
 
+// NEW BUTTONS & MENUS
+const btnNewFile = document.getElementById('btnNewFile');
 const btnOpen = document.getElementById('btnOpen');
 const btnSave = document.getElementById('btnSave');
-const btnSaveAs = document.getElementById('btnSaveAs');
+const btnSaveMenu = document.getElementById('btnSaveMenu');
+const saveDropdown = document.getElementById('saveDropdown');
+const btnSaveAs = document.getElementById('btnSaveAs'); // Now a div inside dropdown
+
 const btnNewTab = document.getElementById('btnNewTab');
 const btnZoomIn = document.getElementById('btnZoomIn');
 const btnZoomOut = document.getElementById('btnZoomOut');
@@ -52,10 +57,8 @@ const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     lineWrapping: true,
     matchBrackets: true,
     indentUnit: 4,
-    // Folding
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-    // Smart Editing & Visuals
     autoCloseBrackets: true,
     autoCloseTags: true,
     styleActiveLine: true,
@@ -204,28 +207,44 @@ function closeTab(id) {
 // --- 6. EVENT LISTENERS ---
 brandButton.addEventListener('click', () => { if (window.innerWidth <= 768) mainToolbar.classList.toggle('mobile-open'); else createNewTab(); });
 btnNewTab.addEventListener('click', () => createNewTab());
+btnNewFile.addEventListener('click', () => createNewTab()); // Added logic for new button
+
 btnOpen.addEventListener('click', async () => {
     if (supportsFileSystem) { try { const [h] = await window.showOpenFilePicker(pickerOptions); const f = await h.getFile(); const c = await f.text(); createNewTab(f.name, c, h); } catch (e) {} } else fileInput.click();
 });
 fileInput.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (e) => createNewTab(f.name, e.target.result, null); r.readAsText(f); fileInput.value = ''; });
+
+// SAVE & SAVE AS LOGIC
+function triggerSaveAs() {
+    const file = openFiles.find(f => f.id === activeFileId); if (!file) return;
+    trimWhitespace();
+    if (supportsFileSystem) {
+        window.showSaveFilePicker({ suggestedName: file.name, ...pickerOptions }).then(async (h) => {
+            const w = await h.createWritable(); await w.write(cm.getValue()); await w.close(); const f = await h.getFile(); file.handle = h; file.name = f.name; file.isDirty = false; file.mode = detectMode(f.name); switchToTab(file.id);
+        }).catch(e => {});
+    } else { saveFileFallback(file.name, cm.getValue()); file.isDirty = false; renderTabs(); }
+}
+
 btnSave.addEventListener('click', async () => {
-    const file = openFiles.find(f => f.id === activeFileId); if (!file) return; if (!file.handle) { btnSaveAs.click(); return; }
+    const file = openFiles.find(f => f.id === activeFileId); if (!file) return; if (!file.handle) { triggerSaveAs(); return; }
     trimWhitespace();
     try {
         const w = await file.handle.createWritable(); await w.write(cm.getValue()); await w.close();
         file.isDirty = false; renderTabs(); const org = btnSave.textContent; btnSave.textContent = "✅ Saved"; setTimeout(() => btnSave.textContent = "💾 Save", 1500);
     } catch (e) { alert("Could not save file."); }
 });
-btnSaveAs.addEventListener('click', async () => {
-    const file = openFiles.find(f => f.id === activeFileId); if (!file) return;
-    trimWhitespace();
-    if (supportsFileSystem) {
-        try { const h = await window.showSaveFilePicker({ suggestedName: file.name, ...pickerOptions }); const w = await h.createWritable(); await w.write(cm.getValue()); await w.close(); const f = await h.getFile(); file.handle = h; file.name = f.name; file.isDirty = false; file.mode = detectMode(f.name); switchToTab(file.id); } catch (e) {}
-    } else { saveFileFallback(file.name, cm.getValue()); file.isDirty = false; renderTabs(); }
+
+btnSaveMenu.addEventListener('click', (e) => { e.stopPropagation(); saveDropdown.classList.toggle('show'); });
+btnSaveAs.addEventListener('click', () => { triggerSaveAs(); saveDropdown.classList.remove('show'); });
+
+// GLOBAL CLICK TO CLOSE MENUS
+document.addEventListener('click', (e) => { 
+    if (!toolsMenu.contains(e.target) && e.target !== btnTools) toolsMenu.classList.remove('show');
+    if (!saveDropdown.contains(e.target) && e.target !== btnSaveMenu) saveDropdown.classList.remove('show'); 
+    if (!historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show');
 });
 
 btnTools.addEventListener('click', (e) => { e.stopPropagation(); toolsMenu.classList.toggle('show'); });
-document.addEventListener('click', (e) => { if (!toolsMenu.contains(e.target) && e.target !== btnTools) toolsMenu.classList.remove('show'); });
 toolSort.addEventListener('click', () => { sortLines(); toolsMenu.classList.remove('show'); });
 toolTrim.addEventListener('click', () => { trimWhitespace(); toolsMenu.classList.remove('show'); });
 toolDup.addEventListener('click', () => { duplicateLine(); toolsMenu.classList.remove('show'); });
@@ -253,7 +272,6 @@ function renderHistoryMenu() {
 btnCopy.addEventListener('click', () => { const sel = cm.getSelection(); if (sel) { navigator.clipboard.writeText(sel); addToHistory(sel); const org = btnCopy.textContent; btnCopy.textContent = "✅"; setTimeout(() => btnCopy.textContent = "📄 Copy", 1000); } });
 btnPaste.addEventListener('click', async () => { try { const text = await navigator.clipboard.readText(); cm.replaceSelection(text); addToHistory(text); cm.focus(); } catch (e) {} });
 btnHistory.addEventListener('click', (e) => { e.stopPropagation(); renderHistoryMenu(); historyMenu.classList.toggle('show'); });
-document.addEventListener('click', (e) => { if (!historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show'); });
 
 let lastSearchQuery = ''; let searchCursor = null;
 const triggerSearch = (e) => { if (e.key === 'Enter') { e.preventDefault(); btnAction.click(); } };
@@ -286,15 +304,9 @@ const btnHelp = document.getElementById('btnHelp');
 const helpModal = document.getElementById('helpModal');
 const closeModal = document.getElementById('closeModal');
 
-if (btnHelp) {
-    btnHelp.addEventListener('click', (e) => { e.preventDefault(); helpModal.classList.add('show'); });
-}
-if (closeModal) {
-    closeModal.addEventListener('click', () => helpModal.classList.remove('show'));
-}
-if (helpModal) {
-    helpModal.addEventListener('click', (e) => { if(e.target === helpModal) helpModal.classList.remove('show'); });
-}
+if (btnHelp) { btnHelp.addEventListener('click', (e) => { e.preventDefault(); helpModal.classList.add('show'); }); }
+if (closeModal) { closeModal.addEventListener('click', () => helpModal.classList.remove('show')); }
+if (helpModal) { helpModal.addEventListener('click', (e) => { if(e.target === helpModal) helpModal.classList.remove('show'); }); }
 
 document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.key === 's') { e.preventDefault(); btnSave.click(); }
