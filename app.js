@@ -33,7 +33,7 @@ const btnZoomIn = document.getElementById('btnZoomIn');
 const btnZoomOut = document.getElementById('btnZoomOut');
 const btnToggleWrap = document.getElementById('btnToggleWrap');
 const btnTheme = document.getElementById('btnTheme');
-const btnPreview = document.getElementById('btnPreview'); // NEW
+const btnPreview = document.getElementById('btnPreview'); 
 
 const btnAction = document.getElementById('btnAction');
 const btnFind = document.getElementById('btnFind'); 
@@ -144,7 +144,7 @@ function detectMode(name) {
     if (ext === 'php') return 'application/x-httpd-php';
     if (ext === 'json') return 'application/json';
     if (['xml', 'svg'].includes(ext)) return 'application/xml';
-    if (ext === 'md') return 'text/x-markdown'; // DETECT MARKDOWN
+    if (ext === 'md') return 'text/x-markdown';
     return 'text/plain';
 }
 function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -182,38 +182,73 @@ function renderTabs() {
         if (file.id === activeFileId) tab.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 }
+
 function switchToTab(id) {
+    // 1. Save Old Tab State
     if (activeFileId) {
         const oldFile = openFiles.find(f => f.id === activeFileId);
-        if (oldFile) { oldFile.content = cm.getValue(); oldFile.history = cm.getHistory(); oldFile.cursor = cm.getCursor(); oldFile.scrollInfo = cm.getScrollInfo(); }
+        if (oldFile) { 
+            // If the editor is active, get value from it. 
+            // If preview is active, we assume 'content' in memory is up to date (via updateStats)
+            // or we grab it if possible. But usually 'change' event keeps 'content' sync.
+            oldFile.content = cm.getValue(); 
+            oldFile.history = cm.getHistory(); 
+            oldFile.cursor = cm.getCursor(); 
+            oldFile.scrollInfo = cm.getScrollInfo(); 
+        }
     }
-    activeFileId = id; const newFile = openFiles.find(f => f.id === id);
+
+    // 2. Set New ID
+    activeFileId = id; 
+    const newFile = openFiles.find(f => f.id === id);
+
     if (newFile) {
-        cm.setValue(newFile.content); cm.setOption('mode', newFile.mode);
+        // 3. Load Content
+        cm.setValue(newFile.content); 
+        cm.setOption('mode', newFile.mode);
         cm.setHistory(newFile.history || { done: [], undone: [] });
         if (newFile.cursor) cm.setCursor(newFile.cursor);
         if (newFile.scrollInfo) cm.scrollTo(newFile.scrollInfo.left, newFile.scrollInfo.top);
+        
         languageSelect.value = newFile.mode;
         fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`;
-        cm.focus();
 
-        // TOGGLE PREVIEW BUTTON AND CLOSE PANE IF NOT MARKDOWN
+        // 4. Handle Preview Visibility
         const isMd = newFile.mode === 'text/x-markdown';
+        
         if (btnPreview) {
-            btnPreview.style.display = isMd ? 'inline-block' : 'none'; // Use inline-block for buttons
-            if (!isMd && previewPane.classList.contains('active')) {
-                previewPane.classList.remove('active');
-                document.querySelector('.CodeMirror').style.display = 'block';
-                btnPreview.classList.remove('active');
+            btnPreview.style.display = isMd ? 'inline-block' : 'none';
+            
+            // IF PREVIEW IS OPEN...
+            if (previewPane.classList.contains('active')) {
+                if (isMd) {
+                    // Switching from MD to MD -> Update the preview content
+                    if (typeof marked !== 'undefined') {
+                        previewPane.innerHTML = marked.parse(newFile.content);
+                    }
+                } else {
+                    // Switching from MD to Non-MD -> Close preview, Show Editor
+                    previewPane.classList.remove('active');
+                    document.querySelector('.CodeMirror').style.display = 'block';
+                    btnPreview.classList.remove('active');
+                    cm.refresh(); // Crucial: Fixes blank editor glitch
+                    cm.focus();
+                }
+            } else {
+                // Preview was closed, ensure editor is fresh
+                cm.refresh();
+                cm.focus();
             }
         }
     }
     renderTabs();
     saveSession();
 }
+
 function createNewTab(name = "Untitled", content = "", handle = null) {
     const newFile = createNewFileObj(name, content, handle);
-    openFiles.push(newFile); switchToTab(newFile.id);
+    openFiles.push(newFile); 
+    switchToTab(newFile.id);
 }
 function closeTab(id) {
     if (id === activeFileId) {
@@ -301,6 +336,7 @@ if (btnPreview) {
             previewPane.classList.remove('active');
             document.querySelector('.CodeMirror').style.display = 'block';
             btnPreview.classList.remove('active');
+            cm.refresh(); // Refresh on manual toggle
         } else {
             const markdown = cm.getValue();
             if (typeof marked !== 'undefined') {
