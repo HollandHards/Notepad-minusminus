@@ -62,33 +62,33 @@
             <option value="application/x-httpd-php">PHP</option>
             <option value="application/json">JSON</option>
             <option value="application/xml">XML</option>
-            <option value="text/x-markdown">Markdown</option> <!-- Added explicit Markdown -->
+            <option value="text/x-markdown">Markdown</option>
         </select>
 
-        <!-- Tools Menu -->
+        <!-- Tools Menu (UPDATED) -->
         <div class="paste-wrapper" style="margin-right: 5px;">
             <button id="btnTools" title="Tools & Operations">⚙️ Tools ▼</button>
             <div id="toolsMenu" class="history-menu">
+                <div class="history-title">Editor View</div>
+                <div class="history-item" id="toolWrap">Toggle Word Wrap</div>
+                <div class="history-item" id="toolZoomIn">Zoom In (+)</div>
+                <div class="history-item" id="toolZoomOut">Zoom Out (-)</div>
+                
                 <div class="history-title">Line Operations</div>
                 <div class="history-item" id="toolSort">Az Sort Lines</div>
                 <div class="history-item" id="toolTrim">Trim Whitespace</div>
                 <div class="history-item" id="toolDup">Duplicate Line (Ctrl+D)</div>
+                
                 <div class="history-title">Case Conversion</div>
                 <div class="history-item" id="toolUpper">UPPERCASE</div>
                 <div class="history-item" id="toolLower">lowercase</div>
             </div>
         </div>
 
-        <!-- Zoom & Preview -->
-        <div class="group-zoom">
-            <button id="btnZoomOut">-</button>
-            <button id="btnZoomIn">+</button>
-            <span class="separator">|</span>
-            <button id="btnToggleWrap">Wrap</button>
-            <span class="separator">|</span>
-            <button id="btnTheme">☀</button>
-            <span class="separator">|</span>
-            <!-- NEW: Preview Button -->
+        <!-- Theme & Preview (Cleaned up) -->
+        <div class="group-view">
+            <button id="btnTheme" title="Toggle Light/Dark Mode">☀</button>
+            <!-- Preview Button -->
             <button id="btnPreview" title="Toggle Markdown Preview">👁️</button>
         </div>
 
@@ -113,7 +113,6 @@
     <!-- Editor Container -->
     <div style="position: relative; flex-grow: 1; display: flex; overflow: hidden;">
         <textarea id="editor" name="content"></textarea>
-        <!-- NEW: Preview Pane -->
         <div id="previewPane" class="preview-pane"></div>
     </div>
     
@@ -153,6 +152,7 @@
     <!-- SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
