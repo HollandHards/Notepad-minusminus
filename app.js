@@ -41,11 +41,6 @@ const toolDup = document.getElementById('toolDup');
 const toolUpper = document.getElementById('toolUpper');
 const toolLower = document.getElementById('toolLower');
 
-// Help Elements
-const btnHelp = document.getElementById('btnHelp');
-const helpModal = document.getElementById('helpModal');
-const closeModal = document.getElementById('closeModal');
-
 const findInput = document.getElementById('findInput');
 const replaceInput = document.getElementById('replaceInput');
 
@@ -57,8 +52,10 @@ const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
     lineWrapping: true,
     matchBrackets: true,
     indentUnit: 4,
+    // Folding
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+    // Smart Editing & Visuals
     autoCloseBrackets: true,
     autoCloseTags: true,
     styleActiveLine: true,
@@ -73,6 +70,10 @@ const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
         "Ctrl-Shift-Down": () => moveLineDown()
     }
 });
+
+// FIX: Silence "Form field should have id or name" warning for CodeMirror's hidden input
+cm.getInputField().setAttribute('name', 'cm-editor-input');
+cm.getInputField().setAttribute('id', 'cm-editor-input');
 
 if (localStorage.getItem('theme') === 'light') {
     document.body.classList.add('light-mode');
@@ -281,9 +282,19 @@ dropZone.addEventListener('dragover', (e) => { e.preventDefault(); });
 dropZone.addEventListener('drop', async (e) => { e.preventDefault(); dropZone.classList.remove('active'); dropZone.style.display = 'none'; const items = e.dataTransfer.items; if (items && items[0].kind === 'file') { const h = await items[0].getAsFileSystemHandle(); if (h.kind === 'file') { const f = await h.getFile(); const c = await f.text(); createNewTab(f.name, c, h); } } });
 
 // HELP MODAL LOGIC
-btnHelp.addEventListener('click', (e) => { e.preventDefault(); helpModal.classList.add('show'); });
-closeModal.addEventListener('click', () => helpModal.classList.remove('show'));
-helpModal.addEventListener('click', (e) => { if(e.target === helpModal) helpModal.classList.remove('show'); });
+const btnHelp = document.getElementById('btnHelp');
+const helpModal = document.getElementById('helpModal');
+const closeModal = document.getElementById('closeModal');
+
+if (btnHelp) {
+    btnHelp.addEventListener('click', (e) => { e.preventDefault(); helpModal.classList.add('show'); });
+}
+if (closeModal) {
+    closeModal.addEventListener('click', () => helpModal.classList.remove('show'));
+}
+if (helpModal) {
+    helpModal.addEventListener('click', (e) => { if(e.target === helpModal) helpModal.classList.remove('show'); });
+}
 
 document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.key === 's') { e.preventDefault(); btnSave.click(); }
