@@ -1,3 +1,4 @@
+/* --- THEME VARIABLES --- */
 :root {
     --bg-color: #202124;
     --toolbar-bg: #292a2d;
@@ -18,16 +19,20 @@ body.light-mode {
     --border-color: #dadce0;
 }
 
-body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: sans-serif; background: var(--bg-color); color: var(--text-color); }
+/* --- GLOBAL --- */
+body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-color); overflow: hidden; }
 
-.toolbar { background: var(--toolbar-bg); height: 50px; display: flex; align-items: center; padding: 0 15px; gap: 10px; border-bottom: 1px solid var(--border-color); }
+/* --- TOOLBAR --- */
+.toolbar { background-color: var(--toolbar-bg); height: 50px; display: flex; align-items: center; padding: 0 15px; gap: 10px; border-bottom: 1px solid var(--border-color); }
 
-.tab-bar-container { display: flex; background: var(--bg-color); border-bottom: 1px solid var(--border-color); height: 35px; }
+/* --- TAB BAR --- */
+.tab-bar-container { display: flex; background-color: var(--bg-color); border-bottom: 1px solid var(--border-color); height: 35px; }
 .tab-bar { display: flex; flex-grow: 1; overflow-x: auto; }
-.tab { padding: 5px 15px; cursor: pointer; border: 1px solid transparent; background: var(--tab-bg); display: flex; align-items: center; gap: 5px; min-width: 100px; }
+.tab { padding: 5px 15px; cursor: pointer; border: 1px solid transparent; background: var(--tab-bg); display: flex; align-items: center; gap: 5px; min-width: 100px; user-select: none; }
 .tab.active { background: var(--tab-active); border-top: 2px solid var(--accent); }
 .tab.dragging { opacity: 0.5; border: 1px dashed var(--accent); }
 
+/* --- EDITOR & SPLIT VIEW --- */
 #editor-container { flex-grow: 1; display: flex; flex-direction: row; }
 .CodeMirror { flex: 1; height: 100% !important; font-size: 14px; }
 
@@ -37,12 +42,11 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
     height: 100%; 
     padding: 20px; 
     overflow-y: auto; 
-    background: var(--bg-color); 
-    border-left: 1px solid var(--border-color); 
+    background-color: var(--bg-color); 
+    border-left: 2px solid var(--border-color); 
 }
 .preview-pane.active { display: block; }
 
-.status-bar { background: var(--toolbar-bg); height: 25px; display: flex; align-items: center; padding: 0 10px; font-size: 12px; }
-
+/* --- BUTTONS --- */
 button { background: var(--tab-active); color: var(--text-color); border: 1px solid var(--border-color); cursor: pointer; padding: 4px 8px; border-radius: 4px; }
 button:hover { background: var(--accent); color: #000; }
