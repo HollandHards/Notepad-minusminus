@@ -1,4 +1,4 @@
-const CACHE_NAME = 'notepad-minusminus-v11';
+const CACHE_NAME = 'notepad-minusminus-v12';
 const ASSETS = [
   './',
   'index.html',
