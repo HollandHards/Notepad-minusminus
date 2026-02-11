@@ -77,7 +77,20 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .CodeMirror-hint-active { background: var(--accent) !important; color: var(--bg-color) !important; }
 
 /* --- TOOLBAR --- */
-.toolbar { background-color: var(--toolbar-bg); height: 50px; padding: 0 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border-color); white-space: nowrap; position: relative; overflow: visible; z-index: 1000; }
+.toolbar { 
+    background-color: var(--toolbar-bg); 
+    height: 50px; 
+    padding: 0 15px; 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    border-bottom: 1px solid var(--border-color); 
+    white-space: nowrap; 
+    position: relative; 
+    /* Allows menus to pop up over the tabs */
+    overflow: visible; 
+    z-index: 1000; 
+}
 
 .brand-section { display: flex; align-items: center; margin-right: 5px; cursor: pointer; user-select: none; }
 .brand-section img { width: 24px; height: 24px; margin-right: 8px; }
@@ -109,36 +122,33 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 button { background: var(--btn-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; flex-shrink: 0; transition: background 0.2s; }
 button:hover { background: var(--btn-hover); }
 button.active { background: var(--accent); color: var(--bg-color); border-color: var(--accent); font-weight: bold; }
-#btnAction { background: var(--accent); color: var(--bg-color); border: none; font-weight: bold; }
+#btnAction, #btnFind, #btnReplaceAll { background: var(--accent); color: var(--bg-color); border: none; font-weight: bold; }
 .lang-select { background: var(--btn-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 5px 8px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; }
 .group-search input { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 5px 8px; border-radius: 4px; width: 90px; font-size: 0.85rem; }
 .separator { color: var(--text-muted); font-size: 1.2rem; margin: 0 2px; }
 
-/* --- SPLIT BUTTON WRAPPERS (FIXED) --- */
+/* --- SPLIT BUTTON WRAPPERS (NO GAPS) --- */
 .paste-wrapper, .save-wrapper { 
     position: relative; 
     display: flex; 
-    align-items: center; /* Ensure vertical alignment */
-    gap: 0 !important; /* Force items to touch */
+    align-items: center; 
+    gap: 0 !important; 
 }
 
-/* Force buttons inside wrappers to have no margin */
 .paste-wrapper button, .save-wrapper button {
     margin: 0 !important;
 }
 
-/* Button 1 (Left side) */
 #btnPaste, #btnSave { 
     border-top-right-radius: 0; 
     border-bottom-right-radius: 0; 
-    border-right: 0; /* Remove right border */
+    border-right: 0; 
 }
 
-/* Button 2 (Right side/Arrow) */
 #btnHistory, #btnSaveMenu { 
     border-top-left-radius: 0; 
     border-bottom-left-radius: 0; 
-    border-left: 1px solid var(--border-color); /* Add left border to complete the look */
+    border-left: 1px solid var(--border-color); 
     padding-left: 5px; 
     padding-right: 5px; 
 }
@@ -148,7 +158,7 @@ button.active { background: var(--accent); color: var(--bg-color); border-color:
     display: none; 
     position: absolute; 
     top: 100%; 
-    left: 0; /* Anchors to the wrapper, not screen */
+    left: 0; 
     background: var(--dropdown-bg); 
     border: 1px solid var(--border-color); 
     border-radius: 4px; 
@@ -218,67 +228,3 @@ kbd { background-color: var(--kbd-bg); border: 1px solid var(--kbd-border); bord
     .paste-wrapper, .save-wrapper, #btnPaste, #btnSave { flex-grow: 1; }
     #btnHistory, #btnTools, #btnSaveMenu { width: auto; flex-grow: 0; }
 }
-```eof
-
-### 2. `sw.js`
-Bumped to `v10` to apply these layout fixes immediately.
-
-```javascript:sw.js
-const CACHE_NAME = 'notepad-minusminus-v10';
-const ASSETS = [
-  './',
-  'index.html',
-  'style.css',
-  'app.js',
-  'manifest.json',
-  'logo.png',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/match-highlighter.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldcode.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldgutter.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/brace-fold.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/xml-fold.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closetag.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/selection/active-line.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/javascript-hint.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/css-hint.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/html-hint.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/anyword-hint.min.js'
-];
-
-self.addEventListener('install', (e) => {
-  self.skipWaiting(); 
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-  );
-});
-
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((response) => response || fetch(e.request))
-  );
-});
-
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keyList) => {
-      return Promise.all(keyList.map((key) => {
-        if (key !== CACHE_NAME) {
-          return caches.delete(key);
-        }
-      }));
-    }).then(() => self.clients.claim())
-  );
-});
-```eof
