@@ -29,6 +29,9 @@ const saveDropdown = document.getElementById('saveDropdown');
 const btnSaveAs = document.getElementById('btnSaveAs');
 
 const btnNewTab = document.getElementById('btnNewTab');
+const btnZoomIn = document.getElementById('btnZoomIn');
+const btnZoomOut = document.getElementById('btnZoomOut');
+const btnToggleWrap = document.getElementById('btnToggleWrap');
 const btnTheme = document.getElementById('btnTheme');
 const btnPreview = document.getElementById('btnPreview'); 
 
@@ -204,8 +207,13 @@ function switchToTab(id) {
         if (newFile.cursor) cm.setCursor(newFile.cursor);
         if (newFile.scrollInfo) cm.scrollTo(newFile.scrollInfo.left, newFile.scrollInfo.top);
         
-        languageSelect.value = newFile.mode;
-        fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`;
+        // VISUAL UPDATE: Show "Syntax theme" placeholder if plain text
+        languageSelect.value = newFile.mode === 'text/plain' ? "" : newFile.mode;
+        
+        // Find correct label for Status Bar
+        const modeOption = Array.from(languageSelect.options).find(o => o.value === newFile.mode);
+        const displayText = modeOption ? modeOption.text : "Plain Text";
+        fileModeDisplay.textContent = `(${displayText})`;
 
         const isMd = newFile.mode === 'text/x-markdown';
         if (btnPreview) {
@@ -307,7 +315,6 @@ document.addEventListener('click', (e) => {
     if (historyMenu && !historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show');
 });
 
-// TOOLS ACTIONS
 btnTools.addEventListener('click', (e) => { e.stopPropagation(); toolsMenu.classList.toggle('show'); });
 toolSort.addEventListener('click', () => { sortLines(); toolsMenu.classList.remove('show'); });
 toolTrim.addEventListener('click', () => { trimWhitespace(); toolsMenu.classList.remove('show'); });
@@ -315,7 +322,13 @@ toolDup.addEventListener('click', () => { duplicateLine(); toolsMenu.classList.r
 toolUpper.addEventListener('click', () => { changeCase('upper'); toolsMenu.classList.remove('show'); });
 toolLower.addEventListener('click', () => { changeCase('lower'); toolsMenu.classList.remove('show'); });
 
-// VIEW ACTIONS (Zoom & Wrap)
+if (toolWrap) {
+    toolWrap.addEventListener('click', () => {
+        const c = cm.getOption('lineWrapping');
+        cm.setOption('lineWrapping', !c);
+        toolsMenu.classList.remove('show');
+    });
+}
 const updateFontSize = () => { document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`; cm.refresh(); };
 if (toolZoomIn) {
     toolZoomIn.addEventListener('click', () => { 
@@ -327,15 +340,7 @@ if (toolZoomOut) {
         currentFontSize = Math.max(8, currentFontSize - 2); updateFontSize(); 
     });
 }
-if (toolWrap) {
-    toolWrap.addEventListener('click', () => {
-        const c = cm.getOption('lineWrapping');
-        cm.setOption('lineWrapping', !c);
-        toolsMenu.classList.remove('show');
-    });
-}
 
-// PREVIEW BUTTON LOGIC
 if (btnPreview) {
     btnPreview.addEventListener('click', () => {
         if (previewPane.classList.contains('active')) {
@@ -396,7 +401,6 @@ if (btnFind) {
 if (btnReplaceAll) {
     btnReplaceAll.addEventListener('click', () => {
         const f = findInput.value; const r = replaceInput.value;
-        // Allows replacement with empty string (r is "" is valid)
         if (!f) return;
 
         const c = cm.getValue(); 
@@ -405,7 +409,6 @@ if (btnReplaceAll) {
         
         if (c !== n) { 
             cm.setValue(n); 
-            // Optional: alert removed for speed
         } else { 
             alert("Text not found!"); 
         }
@@ -439,26 +442,6 @@ document.addEventListener('keydown', e => {
     if (e.altKey && e.key === 'w') { e.preventDefault(); if (activeFileId) closeTab(activeFileId); }
 });
 
-// PWA Launch Queue
-if ('launchQueue' in window && 'files' in LaunchParams.prototype) {
-    launchQueue.setConsumer(async (launchParams) => {
-        if (!launchParams.files.length) return;
-        for (const handle of launchParams.files) {
-            if (handle.kind === 'file') {
-                if (openFiles.length === 1 && openFiles[0].name === "Untitled" && !openFiles[0].isDirty && openFiles[0].content === "") {
-                     closeTab(openFiles[0].id);
-                }
-                try {
-                    const file = await handle.getFile();
-                    const content = await file.text();
-                    createNewTab(file.name, content, handle);
-                } catch (e) { console.error("Error handling launched file:", e); }
-            }
-        }
-    });
-}
-
-// FIXED STARTUP LOGIC
 if (!restoreSession()) { 
     if (openFiles.length === 0) createNewTab(); 
 } else { 
