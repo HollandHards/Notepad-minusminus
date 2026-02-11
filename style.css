@@ -66,7 +66,7 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 /* --- CODEMIRROR --- */
 .CodeMirror { 
     flex-grow: 1; 
-    height: 100%; /* Force full height */
+    height: 100% !important; /* Critical Fix: Force override of library default 300px */
     font-family: 'Courier New', monospace; 
     font-size: 14px; 
     line-height: 1.6; 
@@ -86,6 +86,7 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .preview-pane {
     display: none;
     flex-grow: 1;
+    height: 100%; /* Ensure full height */
     background-color: var(--bg-color);
     color: var(--text-color);
     padding: 20px;
@@ -148,14 +149,48 @@ button.active { background: var(--accent); color: var(--bg-color); border-color:
 .group-search input { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 5px 8px; border-radius: 4px; width: 90px; font-size: 0.85rem; }
 .separator { color: var(--text-muted); font-size: 1.2rem; margin: 0 2px; }
 
-/* --- SPLIT BUTTON WRAPPERS --- */
-.paste-wrapper, .save-wrapper { position: relative; display: flex; align-items: center; gap: 0 !important; }
-.paste-wrapper button, .save-wrapper button { margin: 0 !important; }
-#btnPaste, #btnSave { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: 0; }
-#btnHistory, #btnSaveMenu { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 1px solid var(--border-color); padding-left: 5px; padding-right: 5px; }
+/* --- SPLIT BUTTON WRAPPERS (NO GAPS) --- */
+.paste-wrapper, .save-wrapper { 
+    position: relative; 
+    display: flex; 
+    align-items: center; 
+    gap: 0 !important; 
+}
+
+.paste-wrapper button, .save-wrapper button {
+    margin: 0 !important;
+}
+
+#btnPaste, #btnSave { 
+    border-top-right-radius: 0; 
+    border-bottom-right-radius: 0; 
+    border-right: 0; 
+}
+
+#btnHistory, #btnSaveMenu { 
+    border-top-left-radius: 0; 
+    border-bottom-left-radius: 0; 
+    border-left: 1px solid var(--border-color); 
+    padding-left: 5px; 
+    padding-right: 5px; 
+}
 
 /* --- MENUS --- */
-.history-menu { display: none; position: absolute; top: 100%; left: 0; background: var(--dropdown-bg); border: 1px solid var(--border-color); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); min-width: 180px; max-width: 300px; z-index: 2000; flex-direction: column; margin-top: 4px; }
+.history-menu { 
+    display: none; 
+    position: absolute; 
+    top: 100%; 
+    left: 0; 
+    background: var(--dropdown-bg); 
+    border: 1px solid var(--border-color); 
+    border-radius: 4px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+    min-width: 180px; 
+    max-width: 300px; 
+    z-index: 2000; 
+    flex-direction: column; 
+    margin-top: 4px; 
+}
 .history-menu.show { display: flex; }
 .history-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-color); }
 .history-item:hover { background: var(--dropdown-hover); }
