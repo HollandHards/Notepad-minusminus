@@ -55,7 +55,6 @@ const findInput = document.getElementById('findInput');
 const replaceInput = document.getElementById('replaceInput');
 
 // EDITOR & PREVIEW PANES
-const editorContainer = document.getElementById('editor').nextSibling; // CM Wrapper
 const previewPane = document.getElementById('previewPane');
 
 // --- 3. INITIALIZE CODEMIRROR ---
@@ -145,7 +144,7 @@ function detectMode(name) {
     if (ext === 'php') return 'application/x-httpd-php';
     if (ext === 'json') return 'application/json';
     if (['xml', 'svg'].includes(ext)) return 'application/xml';
-    if (ext === 'md') return 'text/x-markdown';
+    if (ext === 'md') return 'text/x-markdown'; // DETECT MARKDOWN
     return 'text/plain';
 }
 function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -197,6 +196,17 @@ function switchToTab(id) {
         languageSelect.value = newFile.mode;
         fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`;
         cm.focus();
+
+        // TOGGLE PREVIEW BUTTON AND CLOSE PANE IF NOT MARKDOWN
+        const isMd = newFile.mode === 'text/x-markdown';
+        if (btnPreview) {
+            btnPreview.style.display = isMd ? 'inline-block' : 'none'; // Use inline-block for buttons
+            if (!isMd && previewPane.classList.contains('active')) {
+                previewPane.classList.remove('active');
+                document.querySelector('.CodeMirror').style.display = 'block';
+                btnPreview.classList.remove('active');
+            }
+        }
     }
     renderTabs();
     saveSession();
@@ -284,26 +294,26 @@ toolDup.addEventListener('click', () => { duplicateLine(); toolsMenu.classList.r
 toolUpper.addEventListener('click', () => { changeCase('upper'); toolsMenu.classList.remove('show'); });
 toolLower.addEventListener('click', () => { changeCase('lower'); toolsMenu.classList.remove('show'); });
 
-// --- PREVIEW LOGIC (NEW) ---
-btnPreview.addEventListener('click', () => {
-    if (previewPane.classList.contains('active')) {
-        // Hide Preview
-        previewPane.classList.remove('active');
-        document.querySelector('.CodeMirror').style.display = 'block';
-        btnPreview.classList.remove('active');
-    } else {
-        // Show Preview
-        const markdown = cm.getValue();
-        if (typeof marked !== 'undefined') {
-            previewPane.innerHTML = marked.parse(markdown);
+// PREVIEW BUTTON LOGIC
+if (btnPreview) {
+    btnPreview.addEventListener('click', () => {
+        if (previewPane.classList.contains('active')) {
+            previewPane.classList.remove('active');
+            document.querySelector('.CodeMirror').style.display = 'block';
+            btnPreview.classList.remove('active');
         } else {
-            previewPane.textContent = "Error: Markdown library not loaded.";
+            const markdown = cm.getValue();
+            if (typeof marked !== 'undefined') {
+                previewPane.innerHTML = marked.parse(markdown);
+            } else {
+                previewPane.textContent = "Error: Markdown library not loaded.";
+            }
+            previewPane.classList.add('active');
+            document.querySelector('.CodeMirror').style.display = 'none';
+            btnPreview.classList.add('active');
         }
-        previewPane.classList.add('active');
-        document.querySelector('.CodeMirror').style.display = 'none';
-        btnPreview.classList.add('active');
-    }
-});
+    });
+}
 
 const updateStats = (cmInstance, changeObj) => {
     const text = cm.getValue(); const lines = cm.lineCount(); const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
@@ -363,6 +373,7 @@ dropZone.addEventListener('drop', async (e) => { e.preventDefault(); dropZone.cl
 const btnHelp = document.getElementById('btnHelp');
 const helpModal = document.getElementById('helpModal');
 const closeModal = document.getElementById('closeModal');
+
 if (btnHelp) { btnHelp.addEventListener('click', (e) => { e.preventDefault(); helpModal.classList.add('show'); }); }
 if (closeModal) { closeModal.addEventListener('click', () => helpModal.classList.remove('show')); }
 if (helpModal) { helpModal.addEventListener('click', (e) => { if(e.target === helpModal) helpModal.classList.remove('show'); }); }
