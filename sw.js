@@ -1,4 +1,5 @@
-const CACHE_NAME = 'notepad-minusminus-v12';
+const CACHE_NAME = 'notepad-minusminus-v13';
+// ... rest of sw.js is the same as previous version ...
 const ASSETS = [
   './',
   'index.html',
