@@ -20,7 +20,7 @@ const historyMenu = document.getElementById('historyMenu');
 const appName = document.getElementById('appName');
 const fileInput = document.getElementById('fileInput');
 
-// NEW BUTTONS & MENUS
+// BUTTONS
 const btnNewFile = document.getElementById('btnNewFile');
 const btnOpen = document.getElementById('btnOpen');
 const btnSave = document.getElementById('btnSave');
@@ -33,11 +33,7 @@ const btnZoomIn = document.getElementById('btnZoomIn');
 const btnZoomOut = document.getElementById('btnZoomOut');
 const btnToggleWrap = document.getElementById('btnToggleWrap');
 const btnTheme = document.getElementById('btnTheme');
-
-// SEARCH BUTTONS (UPDATED)
-const btnFind = document.getElementById('btnFind'); // NEW
-const btnReplaceAll = document.getElementById('btnReplaceAll'); // NEW ID (was btnAction)
-
+const btnAction = document.getElementById('btnAction');
 const btnCopy = document.getElementById('btnCopy');
 const btnPaste = document.getElementById('btnPaste');
 const btnHistory = document.getElementById('btnHistory');
@@ -130,7 +126,7 @@ function changeCase(type) {
     if (selection) { const newText = type === 'upper' ? selection.toUpperCase() : selection.toLowerCase(); cm.replaceSelection(newText); }
 }
 
-// --- 5. HELPERS & TABS ---
+// --- 5. HELPERS ---
 function detectMode(name) {
     if (!name) return 'text/plain';
     const ext = name.split('.').pop().toLowerCase();
@@ -151,6 +147,66 @@ function saveFileFallback(filename, content) {
     document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
+// --- 6. SESSION PERSISTENCE (NEW) ---
+function saveSession() {
+    // 1. Sync active editor state to memory first
+    if (activeFileId) {
+        const currentFile = openFiles.find(f => f.id === activeFileId);
+        if (currentFile) {
+            currentFile.content = cm.getValue();
+            currentFile.cursor = cm.getCursor();
+            currentFile.scrollInfo = cm.getScrollInfo();
+        }
+    }
+
+    // 2. Prepare data for localStorage (Exclude handles, they aren't serializable)
+    const sessionData = openFiles.map(f => ({
+        id: f.id,
+        name: f.name,
+        content: f.content,
+        mode: f.mode,
+        cursor: f.cursor,
+        scrollInfo: f.scrollInfo,
+        // Restored files are always dirty because we lose the file handle on reload
+        isDirty: true 
+    }));
+
+    localStorage.setItem('notepad_session_v2', JSON.stringify({
+        files: sessionData,
+        activeId: activeFileId
+    }));
+}
+
+function restoreSession() {
+    try {
+        const raw = localStorage.getItem('notepad_session_v2');
+        if (!raw) return false;
+        
+        const data = JSON.parse(raw);
+        if (!data.files || data.files.length === 0) return false;
+
+        // Reconstruct Open Files
+        openFiles = data.files.map(f => ({
+            ...f,
+            handle: null, // Handles cannot be restored
+            history: { done: [], undone: [] } // History cannot be restored easily
+        }));
+
+        activeFileId = data.activeId;
+        
+        // Ensure active ID exists
+        if (!openFiles.find(f => f.id === activeFileId)) {
+            activeFileId = openFiles[0].id;
+        }
+
+        return true;
+    } catch (e) {
+        console.error("Failed to restore session:", e);
+        return false;
+    }
+}
+
+// --- 7. TAB LOGIC ---
 function createNewFileObj(name, content, handle = null) {
     return {
         id: Date.now().toString() + Math.random().toString().substr(2),
@@ -159,6 +215,7 @@ function createNewFileObj(name, content, handle = null) {
         cursor: { line: 0, ch: 0 }, scrollInfo: { left: 0, top: 0 }, isDirty: false
     };
 }
+
 function renderTabs() {
     tabBar.innerHTML = '';
     openFiles.forEach(file => {
@@ -177,37 +234,56 @@ function renderTabs() {
         if (file.id === activeFileId) tab.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 }
+
 function switchToTab(id) {
+    // Save current tab state before switching
     if (activeFileId) {
         const oldFile = openFiles.find(f => f.id === activeFileId);
-        if (oldFile) { oldFile.content = cm.getValue(); oldFile.history = cm.getHistory(); oldFile.cursor = cm.getCursor(); oldFile.scrollInfo = cm.getScrollInfo(); }
+        if (oldFile) { 
+            oldFile.content = cm.getValue(); 
+            oldFile.history = cm.getHistory(); 
+            oldFile.cursor = cm.getCursor(); 
+            oldFile.scrollInfo = cm.getScrollInfo(); 
+        }
     }
-    activeFileId = id; const newFile = openFiles.find(f => f.id === id);
+
+    activeFileId = id; 
+    const newFile = openFiles.find(f => f.id === id);
+
     if (newFile) {
-        cm.setValue(newFile.content); cm.setOption('mode', newFile.mode);
+        // Load new tab
+        cm.setValue(newFile.content); 
+        cm.setOption('mode', newFile.mode);
         cm.setHistory(newFile.history || { done: [], undone: [] });
         if (newFile.cursor) cm.setCursor(newFile.cursor);
         if (newFile.scrollInfo) cm.scrollTo(newFile.scrollInfo.left, newFile.scrollInfo.top);
+        
         languageSelect.value = newFile.mode;
         fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`;
         cm.focus();
     }
     renderTabs();
+    saveSession(); // Persist state change
 }
+
 function createNewTab(name = "Untitled", content = "", handle = null) {
     const newFile = createNewFileObj(name, content, handle);
-    openFiles.push(newFile); switchToTab(newFile.id);
+    openFiles.push(newFile); 
+    switchToTab(newFile.id); // Implicitly saves session
 }
+
 function closeTab(id) {
     if (id === activeFileId) {
         const idx = openFiles.findIndex(f => f.id === id);
         const nextFile = openFiles[idx - 1] || openFiles[idx + 1];
         if (nextFile) switchToTab(nextFile.id); else { openFiles = []; activeFileId = null; createNewTab(); return; }
     }
-    openFiles = openFiles.filter(f => f.id !== id); renderTabs();
+    openFiles = openFiles.filter(f => f.id !== id); 
+    renderTabs();
+    saveSession(); // Persist state change
 }
 
-// --- 6. EVENT LISTENERS ---
+// --- 8. EVENT LISTENERS ---
 brandButton.addEventListener('click', () => { if (window.innerWidth <= 768) mainToolbar.classList.toggle('mobile-open'); else createNewTab(); });
 btnNewTab.addEventListener('click', () => createNewTab());
 if(btnNewFile) btnNewFile.addEventListener('click', () => createNewTab()); 
@@ -217,7 +293,7 @@ btnOpen.addEventListener('click', async () => {
 });
 fileInput.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (e) => createNewTab(f.name, e.target.result, null); r.readAsText(f); fileInput.value = ''; });
 
-// SAVE & SAVE AS LOGIC
+// SAVE
 function triggerSaveAs() {
     const file = openFiles.find(f => f.id === activeFileId); if (!file) return;
     trimWhitespace();
@@ -238,16 +314,10 @@ btnSave.addEventListener('click', async () => {
 });
 
 if (btnSaveMenu && saveDropdown) {
-    btnSaveMenu.addEventListener('click', (e) => { 
-        e.stopPropagation(); 
-        saveDropdown.classList.toggle('show'); 
-    });
+    btnSaveMenu.addEventListener('click', (e) => { e.stopPropagation(); saveDropdown.classList.toggle('show'); });
 }
 if (btnSaveAs) {
-    btnSaveAs.addEventListener('click', () => { 
-        triggerSaveAs(); 
-        if(saveDropdown) saveDropdown.classList.remove('show'); 
-    });
+    btnSaveAs.addEventListener('click', () => { triggerSaveAs(); if(saveDropdown) saveDropdown.classList.remove('show'); });
 }
 
 document.addEventListener('click', (e) => { 
@@ -263,13 +333,16 @@ toolDup.addEventListener('click', () => { duplicateLine(); toolsMenu.classList.r
 toolUpper.addEventListener('click', () => { changeCase('upper'); toolsMenu.classList.remove('show'); });
 toolLower.addEventListener('click', () => { changeCase('lower'); toolsMenu.classList.remove('show'); });
 
+// EDITOR UPDATE & AUTO-SAVE
 const updateStats = (cmInstance, changeObj) => {
     const text = cm.getValue(); const lines = cm.lineCount(); const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
     statsDisplay.textContent = `Lines: ${lines} | Words: ${words}`;
     const file = openFiles.find(f => f.id === activeFileId);
     if (file) {
+        // If content changed programmatically (setValue), don't mark dirty
         if (changeObj && changeObj.origin !== 'setValue') { if (!file.isDirty) { file.isDirty = true; renderTabs(); } }
-        file.content = text; localStorage.setItem('autosave_content', text);
+        file.content = text; 
+        saveSession(); // Save to local storage on every change
     }
 };
 cm.on('change', (i, c) => updateStats(i, c));
@@ -285,70 +358,22 @@ btnCopy.addEventListener('click', () => { const sel = cm.getSelection(); if (sel
 btnPaste.addEventListener('click', async () => { try { const text = await navigator.clipboard.readText(); cm.replaceSelection(text); addToHistory(text); cm.focus(); } catch (e) {} });
 btnHistory.addEventListener('click', (e) => { e.stopPropagation(); renderHistoryMenu(); historyMenu.classList.toggle('show'); });
 
-// --- SEARCH & REPLACE LOGIC (UPDATED) ---
-let lastSearchQuery = ''; 
-let searchCursor = null;
-
-// FIND BUTTON (Highlight Next)
-if (btnFind) {
-    btnFind.addEventListener('click', () => {
-        const findText = findInput.value;
-        if (!findText) return;
-
-        if (findText !== lastSearchQuery || !searchCursor) {
-            lastSearchQuery = findText;
-            searchCursor = cm.getSearchCursor(findText, cm.getCursor(), {caseFold: true});
-        }
-
-        if (searchCursor.findNext()) {
-            cm.setSelection(searchCursor.from(), searchCursor.to());
-            cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100);
-            cm.focus();
-        } else {
-            // Loop back to start
-            searchCursor = cm.getSearchCursor(findText, {line: 0, ch: 0}, {caseFold: true});
-            if (searchCursor.findNext()) {
-                cm.setSelection(searchCursor.from(), searchCursor.to());
-                cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100);
-                cm.focus();
-            } else {
-                alert("Text not found!");
-            }
-        }
-    });
-}
-
-// REPLACE ALL BUTTON
-if (btnReplaceAll) {
-    btnReplaceAll.addEventListener('click', () => {
-        const findText = findInput.value;
-        const replaceText = replaceInput.value; // Can be empty string to delete
-        
-        if (!findText) return;
-
-        const content = cm.getValue();
-        const regex = new RegExp(escapeRegExp(findText), "gi");
-        const newContent = content.replace(regex, replaceText);
-        
-        if (content !== newContent) {
-            cm.setValue(newContent);
-            // Optional: alert or notification
-        } else {
-            alert("Text not found!");
-        }
-    });
-}
-
-// ENTER KEYS
-findInput.addEventListener('keydown', (e) => { 
-    if (e.key === 'Enter') { e.preventDefault(); if(btnFind) btnFind.click(); } 
-});
-replaceInput.addEventListener('keydown', (e) => { 
-    if (e.key === 'Enter') { e.preventDefault(); if(btnReplaceAll) btnReplaceAll.click(); } 
+let lastSearchQuery = ''; let searchCursor = null;
+const triggerSearch = (e) => { if (e.key === 'Enter') { e.preventDefault(); btnAction.click(); } };
+findInput.addEventListener('keydown', triggerSearch); replaceInput.addEventListener('keydown', triggerSearch);
+btnAction.addEventListener('click', () => {
+    const f = findInput.value; const r = replaceInput.value; if (!f) return;
+    if (r === "") {
+        if (f !== lastSearchQuery || !searchCursor) { lastSearchQuery = f; searchCursor = cm.getSearchCursor(f, cm.getCursor(), {caseFold: true}); }
+        if (searchCursor.findNext()) { cm.setSelection(searchCursor.from(), searchCursor.to()); cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100); cm.focus(); }
+        else { searchCursor = cm.getSearchCursor(f, {line: 0, ch: 0}, {caseFold: true}); if (searchCursor.findNext()) { cm.setSelection(searchCursor.from(), searchCursor.to()); cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100); cm.focus(); } else alert("Text not found!"); }
+    } else {
+        const c = cm.getValue(); const reg = new RegExp(escapeRegExp(f), "gi"); const n = c.replace(reg, r);
+        if (c !== n) { cm.setValue(n); alert("Replaced all occurrences."); } else alert("Text not found!");
+    }
 });
 
-
-languageSelect.addEventListener('change', () => { const f = openFiles.find(x => x.id === activeFileId); if(f) { f.mode = languageSelect.value; cm.setOption('mode', f.mode); fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`; } });
+languageSelect.addEventListener('change', () => { const f = openFiles.find(x => x.id === activeFileId); if(f) { f.mode = languageSelect.value; cm.setOption('mode', f.mode); fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`; saveSession(); } });
 btnToggleWrap.addEventListener('click', () => { const c = cm.getOption('lineWrapping'); cm.setOption('lineWrapping', !c); btnToggleWrap.classList.toggle('active'); });
 btnTheme.addEventListener('click', () => { document.body.classList.toggle('light-mode'); const isLight = document.body.classList.contains('light-mode'); cm.setOption('theme', isLight ? 'default' : 'darcula'); btnTheme.textContent = isLight ? '🌙' : '☀'; localStorage.setItem('theme', isLight ? 'light' : 'dark'); });
 const updateFontSize = () => { document.querySelector('.CodeMirror').style.fontSize = `${currentFontSize}px`; cm.refresh(); };
@@ -376,6 +401,7 @@ document.addEventListener('keydown', e => {
     if (e.altKey && e.key === 'w') { e.preventDefault(); if (activeFileId) closeTab(activeFileId); }
 });
 
+// PWA Launch Queue
 if ('launchQueue' in window && 'files' in LaunchParams.prototype) {
     launchQueue.setConsumer(async (launchParams) => {
         if (!launchParams.files.length) return;
@@ -394,4 +420,12 @@ if ('launchQueue' in window && 'files' in LaunchParams.prototype) {
     });
 }
 
-if (openFiles.length === 0) { createNewTab(); }
+// --- 9. STARTUP ---
+// Attempt restore, else start new
+if (!restoreSession()) {
+    if (openFiles.length === 0) createNewTab();
+} else {
+    // If restore successful, render tabs and switch to active
+    renderTabs();
+    switchToTab(activeFileId);
+}
