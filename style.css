@@ -85,7 +85,7 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .brand-section:hover .app-name { color: var(--text-color); }
 .group-file, .group-clipboard, .group-zoom, .group-search { display: flex; gap: 5px; align-items: center; }
 
-/* Desktop Adjustment: Hide Branding to save space (Rely on OS Titlebar) */
+/* Desktop Adjustment: Hide Branding */
 @media (min-width: 769px) {
     .brand-section {
         display: none;
@@ -114,11 +114,51 @@ button.active { background: var(--accent); color: var(--bg-color); border-color:
 .group-search input { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 5px 8px; border-radius: 4px; width: 90px; font-size: 0.85rem; }
 .separator { color: var(--text-muted); font-size: 1.2rem; margin: 0 2px; }
 
+/* --- SPLIT BUTTON WRAPPERS (FIXED) --- */
+.paste-wrapper, .save-wrapper { 
+    position: relative; 
+    display: flex; 
+    align-items: center; /* Ensure vertical alignment */
+    gap: 0 !important; /* Force items to touch */
+}
+
+/* Force buttons inside wrappers to have no margin */
+.paste-wrapper button, .save-wrapper button {
+    margin: 0 !important;
+}
+
+/* Button 1 (Left side) */
+#btnPaste, #btnSave { 
+    border-top-right-radius: 0; 
+    border-bottom-right-radius: 0; 
+    border-right: 0; /* Remove right border */
+}
+
+/* Button 2 (Right side/Arrow) */
+#btnHistory, #btnSaveMenu { 
+    border-top-left-radius: 0; 
+    border-bottom-left-radius: 0; 
+    border-left: 1px solid var(--border-color); /* Add left border to complete the look */
+    padding-left: 5px; 
+    padding-right: 5px; 
+}
+
 /* --- MENUS --- */
-.paste-wrapper { position: relative; display: flex; }
-#btnPaste { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; }
-#btnHistory { border-top-left-radius: 0; border-bottom-left-radius: 0; padding-left: 5px; padding-right: 5px; }
-.history-menu { display: none; position: absolute; top: 100%; left: 0; background: var(--dropdown-bg); border: 1px solid var(--border-color); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); min-width: 200px; max-width: 300px; z-index: 2000; flex-direction: column; margin-top: 5px; }
+.history-menu { 
+    display: none; 
+    position: absolute; 
+    top: 100%; 
+    left: 0; /* Anchors to the wrapper, not screen */
+    background: var(--dropdown-bg); 
+    border: 1px solid var(--border-color); 
+    border-radius: 4px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+    min-width: 180px; 
+    max-width: 300px; 
+    z-index: 2000; 
+    flex-direction: column; 
+    margin-top: 4px; 
+}
 .history-menu.show { display: flex; }
 .history-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-color); }
 .history-item:hover { background: var(--dropdown-hover); }
@@ -148,19 +188,97 @@ kbd { background-color: var(--kbd-bg); border: 1px solid var(--kbd-border); bord
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 768px) {
     .toolbar { display: block; height: 50px; overflow: hidden; padding: 0; transition: height 0.3s ease; }
-    /* Mobile: Ensure brand section is visible for toggle */
     .brand-section { display: flex; height: 50px; width: 100%; padding: 0 15px; box-sizing: border-box; justify-content: space-between; background-color: var(--toolbar-bg); cursor: pointer; border-bottom: 1px solid transparent; }
     .brand-section::after { content: '☰'; color: var(--text-color); font-size: 1.5rem; }
     
-    .group-file, .group-clipboard, .lang-select, .group-zoom, .group-search, .paste-wrapper { display: none; width: 100%; padding: 10px 15px; box-sizing: border-box; border-top: 1px solid var(--border-color); background: var(--bg-color); justify-content: center; }
+    .group-file, .group-clipboard, .lang-select, .group-zoom, .group-search, .paste-wrapper, .save-wrapper { display: none; width: 100%; padding: 10px 15px; box-sizing: border-box; border-top: 1px solid var(--border-color); background: var(--bg-color); justify-content: center; }
     .toolbar.mobile-open { height: auto; overflow: visible; position: absolute; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     .toolbar.mobile-open .brand-section { border-bottom: 1px solid var(--border-color); }
     .toolbar.mobile-open .brand-section::after { content: '✕'; }
-    .toolbar.mobile-open .group-file, .toolbar.mobile-open .group-clipboard, .toolbar.mobile-open .lang-select, .toolbar.mobile-open .group-zoom, .toolbar.mobile-open .group-search, .toolbar.mobile-open .paste-wrapper { display: flex; }
+    
+    .toolbar.mobile-open .group-file, 
+    .toolbar.mobile-open .group-clipboard, 
+    .toolbar.mobile-open .lang-select, 
+    .toolbar.mobile-open .group-zoom, 
+    .toolbar.mobile-open .group-search, 
+    .toolbar.mobile-open .paste-wrapper,
+    .toolbar.mobile-open .save-wrapper { display: flex; }
+    
     .group-file, .group-clipboard { gap: 8px; flex-wrap: wrap; }
-    .group-file button, .group-clipboard button { flex-grow: 1; padding: 8px 10px; font-size: 0.85rem; }
+    
+    .group-file button, .group-clipboard button { 
+        flex-grow: 1; 
+        padding: 8px 10px; 
+        font-size: 0.85rem; 
+    }
+    
     .group-search input { flex-grow: 1; width: auto; padding: 8px; }
     .group-search button { padding: 8px 12px; }
-    .paste-wrapper, #btnPaste { flex-grow: 1; }
-    #btnHistory, #btnTools { width: auto; flex-grow: 0; }
+    
+    .paste-wrapper, .save-wrapper, #btnPaste, #btnSave { flex-grow: 1; }
+    #btnHistory, #btnTools, #btnSaveMenu { width: auto; flex-grow: 0; }
 }
+```eof
+
+### 2. `sw.js`
+Bumped to `v10` to apply these layout fixes immediately.
+
+```javascript:sw.js
+const CACHE_NAME = 'notepad-minusminus-v10';
+const ASSETS = [
+  './',
+  'index.html',
+  'style.css',
+  'app.js',
+  'manifest.json',
+  'logo.png',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/match-highlighter.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldcode.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldgutter.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/brace-fold.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/xml-fold.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closetag.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/selection/active-line.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/javascript-hint.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/css-hint.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/html-hint.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/anyword-hint.min.js'
+];
+
+self.addEventListener('install', (e) => {
+  self.skipWaiting(); 
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
+});
+
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    caches.match(e.request).then((response) => response || fetch(e.request))
+  );
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keyList) => {
+      return Promise.all(keyList.map((key) => {
+        if (key !== CACHE_NAME) {
+          return caches.delete(key);
+        }
+      }));
+    }).then(() => self.clients.claim())
+  );
+});
+```eof
