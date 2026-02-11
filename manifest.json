@@ -5,23 +5,33 @@
   "display": "standalone",
   "background_color": "#202124",
   "theme_color": "#292a2d",
+  "description": "A dark mode text editor for ChromeOS",
   "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "48x48",
-      "type": "image/x-icon"
-    },
     {
       "src": "logo.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "logo.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "./index.html",
+      "accept": {
+        "text/plain": [
+          ".txt", ".md", ".csv", ".log", ".ini", ".conf", ".cfg", ".json", ".xml", ".yaml", ".yml", 
+          ".js", ".mjs", ".ts", ".jsx", ".tsx", ".html", ".htm", ".css", ".scss", ".less", 
+          ".php", ".py", ".rb", ".java", ".c", ".cpp", ".h", ".hpp", ".cs", ".go", ".rs", ".swift", ".kt", 
+          ".bat", ".sh", ".ps1", ".sql", ".svg", ".gitignore", ".env", ".properties", 
+          ".gradle", ".groovy", ".lua", ".pl", ".r", ".vb", ".vbs", ".dart", ".dockerfile", ".toml"
+        ]
+      }
     }
   ]
 }
