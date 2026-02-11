@@ -76,6 +76,23 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .CodeMirror-hint { color: var(--text-color) !important; padding: 2px 6px !important; border-radius: 2px; }
 .CodeMirror-hint-active { background: var(--accent) !important; color: var(--bg-color) !important; }
 
+/* --- PREVIEW PANE (NEW) --- */
+.preview-pane {
+    display: none;
+    flex-grow: 1;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 20px;
+    overflow-y: auto;
+    font-family: 'Segoe UI', sans-serif;
+    border-left: 1px solid var(--border-color);
+}
+.preview-pane h1, .preview-pane h2, .preview-pane h3 { border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+.preview-pane code { background-color: var(--tab-active); padding: 2px 4px; border-radius: 3px; font-family: 'Courier New', monospace; }
+.preview-pane pre { background-color: var(--tab-active); padding: 10px; border-radius: 5px; overflow-x: auto; }
+.preview-pane blockquote { border-left: 4px solid var(--accent); padding-left: 10px; color: var(--text-muted); }
+.preview-pane.active { display: block; }
+
 /* --- TOOLBAR --- */
 .toolbar { 
     background-color: var(--toolbar-bg); 
@@ -87,7 +104,6 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
     border-bottom: 1px solid var(--border-color); 
     white-space: nowrap; 
     position: relative; 
-    /* Allows menus to pop up over the tabs */
     overflow: visible; 
     z-index: 1000; 
 }
@@ -122,53 +138,18 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 button { background: var(--btn-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; flex-shrink: 0; transition: background 0.2s; }
 button:hover { background: var(--btn-hover); }
 button.active { background: var(--accent); color: var(--bg-color); border-color: var(--accent); font-weight: bold; }
-/* Removed explicit styling for search buttons so they inherit default button styles */
 .lang-select { background: var(--btn-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 5px 8px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; }
 .group-search input { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 5px 8px; border-radius: 4px; width: 90px; font-size: 0.85rem; }
 .separator { color: var(--text-muted); font-size: 1.2rem; margin: 0 2px; }
 
-/* --- SPLIT BUTTON WRAPPERS (NO GAPS) --- */
-.paste-wrapper, .save-wrapper { 
-    position: relative; 
-    display: flex; 
-    align-items: center; 
-    gap: 0 !important; 
-}
-
-.paste-wrapper button, .save-wrapper button {
-    margin: 0 !important;
-}
-
-#btnPaste, #btnSave { 
-    border-top-right-radius: 0; 
-    border-bottom-right-radius: 0; 
-    border-right: 0; 
-}
-
-#btnHistory, #btnSaveMenu { 
-    border-top-left-radius: 0; 
-    border-bottom-left-radius: 0; 
-    border-left: 1px solid var(--border-color); 
-    padding-left: 5px; 
-    padding-right: 5px; 
-}
+/* --- SPLIT BUTTON WRAPPERS --- */
+.paste-wrapper, .save-wrapper { position: relative; display: flex; align-items: center; gap: 0 !important; }
+.paste-wrapper button, .save-wrapper button { margin: 0 !important; }
+#btnPaste, #btnSave { border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: 0; }
+#btnHistory, #btnSaveMenu { border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 1px solid var(--border-color); padding-left: 5px; padding-right: 5px; }
 
 /* --- MENUS --- */
-.history-menu { 
-    display: none; 
-    position: absolute; 
-    top: 100%; 
-    left: 0; 
-    background: var(--dropdown-bg); 
-    border: 1px solid var(--border-color); 
-    border-radius: 4px; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
-    min-width: 180px; 
-    max-width: 300px; 
-    z-index: 2000; 
-    flex-direction: column; 
-    margin-top: 4px; 
-}
+.history-menu { display: none; position: absolute; top: 100%; left: 0; background: var(--dropdown-bg); border: 1px solid var(--border-color); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); min-width: 180px; max-width: 300px; z-index: 2000; flex-direction: column; margin-top: 4px; }
 .history-menu.show { display: flex; }
 .history-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-color); }
 .history-item:hover { background: var(--dropdown-hover); }
