@@ -1,4 +1,4 @@
-const CACHE_NAME = 'notepad-minusminus-v1.6'; // Bumped to v1.6 to force logo/icon refresh
+const CACHE_NAME = 'notepad-minusminus-v1.8'; // Bumped for favicon
 const ASSETS = [
   './',
   'index.html',
@@ -6,6 +6,7 @@ const ASSETS = [
   'app.js',
   'manifest.json',
   'logo.png',
+  'favicon.ico', // Added
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js',
@@ -15,9 +16,6 @@ const ASSETS = [
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sql/sql.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/markdown/markdown.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/match-highlighter.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/fold/foldcode.min.js',
