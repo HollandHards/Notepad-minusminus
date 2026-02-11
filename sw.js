@@ -1,4 +1,4 @@
-const CACHE_NAME = 'notepad-minusminus-v1.8'; // Bumped for favicon
+const CACHE_NAME = 'notepad-minusminus-v1.7'; // Bumped to v1.7
 const ASSETS = [
   './',
   'index.html',
@@ -6,7 +6,6 @@ const ASSETS = [
   'app.js',
   'manifest.json',
   'logo.png',
-  'favicon.ico', // Added
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/darcula.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js',
