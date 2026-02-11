@@ -32,11 +32,19 @@
             <div class="app-name" id="appName">Notepad--</div>
         </div>
         
-        <!-- File -->
+        <!-- File Group (UPDATED) -->
         <div class="group-file">
+            <button id="btnNewFile" title="New File (Alt+N)">📄 New</button>
             <button id="btnOpen" title="Ctrl+O">📂 Open</button>
-            <button id="btnSave" title="Ctrl+S">💾 Save</button>
-            <button id="btnSaveAs">💾 Save As</button>
+            
+            <!-- Save Split Button -->
+            <div class="save-wrapper">
+                <button id="btnSave" title="Ctrl+S">💾 Save</button>
+                <button id="btnSaveMenu" title="More Options">▼</button>
+                <div id="saveDropdown" class="history-menu">
+                    <div class="history-item" id="btnSaveAs">Save As...</div>
+                </div>
+            </div>
         </div>
 
         <!-- Clipboard -->
