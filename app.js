@@ -20,7 +20,6 @@ const historyMenu = document.getElementById('historyMenu');
 const appName = document.getElementById('appName');
 const fileInput = document.getElementById('fileInput');
 
-// BUTTONS
 const btnNewFile = document.getElementById('btnNewFile');
 const btnOpen = document.getElementById('btnOpen');
 const btnSave = document.getElementById('btnSave');
@@ -213,7 +212,7 @@ btnOpen.addEventListener('click', async () => {
 });
 fileInput.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (e) => createNewTab(f.name, e.target.result, null); r.readAsText(f); fileInput.value = ''; });
 
-// SAVE & SAVE AS LOGIC
+// SAVE & SAVE AS
 function triggerSaveAs() {
     const file = openFiles.find(f => f.id === activeFileId); if (!file) return;
     trimWhitespace();
@@ -281,18 +280,31 @@ btnCopy.addEventListener('click', () => { const sel = cm.getSelection(); if (sel
 btnPaste.addEventListener('click', async () => { try { const text = await navigator.clipboard.readText(); cm.replaceSelection(text); addToHistory(text); cm.focus(); } catch (e) {} });
 btnHistory.addEventListener('click', (e) => { e.stopPropagation(); renderHistoryMenu(); historyMenu.classList.toggle('show'); });
 
-let lastSearchQuery = ''; let searchCursor = null;
+// --- REPLACED SEARCH LOGIC: ALWAYS REPLACE ALL ---
 const triggerSearch = (e) => { if (e.key === 'Enter') { e.preventDefault(); btnAction.click(); } };
 findInput.addEventListener('keydown', triggerSearch); replaceInput.addEventListener('keydown', triggerSearch);
+
 btnAction.addEventListener('click', () => {
-    const f = findInput.value; const r = replaceInput.value; if (!f) return;
-    if (r === "") {
-        if (f !== lastSearchQuery || !searchCursor) { lastSearchQuery = f; searchCursor = cm.getSearchCursor(f, cm.getCursor(), {caseFold: true}); }
-        if (searchCursor.findNext()) { cm.setSelection(searchCursor.from(), searchCursor.to()); cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100); cm.focus(); }
-        else { searchCursor = cm.getSearchCursor(f, {line: 0, ch: 0}, {caseFold: true}); if (searchCursor.findNext()) { cm.setSelection(searchCursor.from(), searchCursor.to()); cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100); cm.focus(); } else alert("Text not found!"); }
+    const findText = findInput.value;
+    const replaceText = replaceInput.value;
+    
+    // Require at least a search term
+    if (!findText) return;
+
+    const content = cm.getValue();
+    // Escape the search term so symbols don't break regex
+    const regex = new RegExp(escapeRegExp(findText), "gi");
+    
+    // Replace all occurrences (even if replaceText is empty string)
+    const newContent = content.replace(regex, replaceText);
+    
+    if (content !== newContent) {
+        const scrollInfo = cm.getScrollInfo();
+        cm.setValue(newContent);
+        cm.scrollTo(scrollInfo.left, scrollInfo.top);
+        // Removed alert to make it faster/smoother
     } else {
-        const c = cm.getValue(); const reg = new RegExp(escapeRegExp(f), "gi"); const n = c.replace(reg, r);
-        if (c !== n) { cm.setValue(n); alert("Replaced all occurrences."); } else alert("Text not found!");
+        alert("Text not found!");
     }
 });
 
@@ -307,11 +319,9 @@ dropZone.addEventListener('dragleave', (e) => { e.preventDefault(); if (e.client
 dropZone.addEventListener('dragover', (e) => { e.preventDefault(); });
 dropZone.addEventListener('drop', async (e) => { e.preventDefault(); dropZone.classList.remove('active'); dropZone.style.display = 'none'; const items = e.dataTransfer.items; if (items && items[0].kind === 'file') { const h = await items[0].getAsFileSystemHandle(); if (h.kind === 'file') { const f = await h.getFile(); const c = await f.text(); createNewTab(f.name, c, h); } } });
 
-// HELP MODAL LOGIC
 const btnHelp = document.getElementById('btnHelp');
 const helpModal = document.getElementById('helpModal');
 const closeModal = document.getElementById('closeModal');
-
 if (btnHelp) { btnHelp.addEventListener('click', (e) => { e.preventDefault(); helpModal.classList.add('show'); }); }
 if (closeModal) { closeModal.addEventListener('click', () => helpModal.classList.remove('show')); }
 if (helpModal) { helpModal.addEventListener('click', (e) => { if(e.target === helpModal) helpModal.classList.remove('show'); }); }
@@ -325,26 +335,20 @@ document.addEventListener('keydown', e => {
     if (e.altKey && e.key === 'w') { e.preventDefault(); if (activeFileId) closeTab(activeFileId); }
 });
 
-// --- 9. PWA FILE HANDLING (Launch Queue) ---
+// PWA Launch Queue
 if ('launchQueue' in window && 'files' in LaunchParams.prototype) {
     launchQueue.setConsumer(async (launchParams) => {
-        if (!launchParams.files.length) {
-            return;
-        }
+        if (!launchParams.files.length) return;
         for (const handle of launchParams.files) {
             if (handle.kind === 'file') {
-                // If it's the very first empty tab, verify if we should replace it
                 if (openFiles.length === 1 && openFiles[0].name === "Untitled" && !openFiles[0].isDirty && openFiles[0].content === "") {
-                     closeTab(openFiles[0].id); // Remove default empty tab
+                     closeTab(openFiles[0].id);
                 }
-                
                 try {
                     const file = await handle.getFile();
                     const content = await file.text();
                     createNewTab(file.name, content, handle);
-                } catch (e) {
-                    console.error("Error handling launched file:", e);
-                }
+                } catch (e) { console.error("Error handling launched file:", e); }
             }
         }
     });
