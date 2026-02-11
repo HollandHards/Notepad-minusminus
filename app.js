@@ -33,7 +33,12 @@ const btnZoomIn = document.getElementById('btnZoomIn');
 const btnZoomOut = document.getElementById('btnZoomOut');
 const btnToggleWrap = document.getElementById('btnToggleWrap');
 const btnTheme = document.getElementById('btnTheme');
+const btnPreview = document.getElementById('btnPreview'); // NEW
+
 const btnAction = document.getElementById('btnAction');
+const btnFind = document.getElementById('btnFind'); 
+const btnReplaceAll = document.getElementById('btnReplaceAll'); 
+
 const btnCopy = document.getElementById('btnCopy');
 const btnPaste = document.getElementById('btnPaste');
 const btnHistory = document.getElementById('btnHistory');
@@ -48,6 +53,10 @@ const toolLower = document.getElementById('toolLower');
 
 const findInput = document.getElementById('findInput');
 const replaceInput = document.getElementById('replaceInput');
+
+// EDITOR & PREVIEW PANES
+const editorContainer = document.getElementById('editor').nextSibling; // CM Wrapper
+const previewPane = document.getElementById('previewPane');
 
 // --- 3. INITIALIZE CODEMIRROR ---
 const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
@@ -126,7 +135,7 @@ function changeCase(type) {
     if (selection) { const newText = type === 'upper' ? selection.toUpperCase() : selection.toLowerCase(); cm.replaceSelection(newText); }
 }
 
-// --- 5. HELPERS ---
+// --- 5. HELPERS & TABS ---
 function detectMode(name) {
     if (!name) return 'text/plain';
     const ext = name.split('.').pop().toLowerCase();
@@ -136,6 +145,7 @@ function detectMode(name) {
     if (ext === 'php') return 'application/x-httpd-php';
     if (ext === 'json') return 'application/json';
     if (['xml', 'svg'].includes(ext)) return 'application/xml';
+    if (ext === 'md') return 'text/x-markdown';
     return 'text/plain';
 }
 function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -147,66 +157,6 @@ function saveFileFallback(filename, content) {
     document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
-// --- 6. SESSION PERSISTENCE (NEW) ---
-function saveSession() {
-    // 1. Sync active editor state to memory first
-    if (activeFileId) {
-        const currentFile = openFiles.find(f => f.id === activeFileId);
-        if (currentFile) {
-            currentFile.content = cm.getValue();
-            currentFile.cursor = cm.getCursor();
-            currentFile.scrollInfo = cm.getScrollInfo();
-        }
-    }
-
-    // 2. Prepare data for localStorage (Exclude handles, they aren't serializable)
-    const sessionData = openFiles.map(f => ({
-        id: f.id,
-        name: f.name,
-        content: f.content,
-        mode: f.mode,
-        cursor: f.cursor,
-        scrollInfo: f.scrollInfo,
-        // Restored files are always dirty because we lose the file handle on reload
-        isDirty: true 
-    }));
-
-    localStorage.setItem('notepad_session_v2', JSON.stringify({
-        files: sessionData,
-        activeId: activeFileId
-    }));
-}
-
-function restoreSession() {
-    try {
-        const raw = localStorage.getItem('notepad_session_v2');
-        if (!raw) return false;
-        
-        const data = JSON.parse(raw);
-        if (!data.files || data.files.length === 0) return false;
-
-        // Reconstruct Open Files
-        openFiles = data.files.map(f => ({
-            ...f,
-            handle: null, // Handles cannot be restored
-            history: { done: [], undone: [] } // History cannot be restored easily
-        }));
-
-        activeFileId = data.activeId;
-        
-        // Ensure active ID exists
-        if (!openFiles.find(f => f.id === activeFileId)) {
-            activeFileId = openFiles[0].id;
-        }
-
-        return true;
-    } catch (e) {
-        console.error("Failed to restore session:", e);
-        return false;
-    }
-}
-
-// --- 7. TAB LOGIC ---
 function createNewFileObj(name, content, handle = null) {
     return {
         id: Date.now().toString() + Math.random().toString().substr(2),
@@ -215,7 +165,6 @@ function createNewFileObj(name, content, handle = null) {
         cursor: { line: 0, ch: 0 }, scrollInfo: { left: 0, top: 0 }, isDirty: false
     };
 }
-
 function renderTabs() {
     tabBar.innerHTML = '';
     openFiles.forEach(file => {
@@ -234,44 +183,28 @@ function renderTabs() {
         if (file.id === activeFileId) tab.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 }
-
 function switchToTab(id) {
-    // Save current tab state before switching
     if (activeFileId) {
         const oldFile = openFiles.find(f => f.id === activeFileId);
-        if (oldFile) { 
-            oldFile.content = cm.getValue(); 
-            oldFile.history = cm.getHistory(); 
-            oldFile.cursor = cm.getCursor(); 
-            oldFile.scrollInfo = cm.getScrollInfo(); 
-        }
+        if (oldFile) { oldFile.content = cm.getValue(); oldFile.history = cm.getHistory(); oldFile.cursor = cm.getCursor(); oldFile.scrollInfo = cm.getScrollInfo(); }
     }
-
-    activeFileId = id; 
-    const newFile = openFiles.find(f => f.id === id);
-
+    activeFileId = id; const newFile = openFiles.find(f => f.id === id);
     if (newFile) {
-        // Load new tab
-        cm.setValue(newFile.content); 
-        cm.setOption('mode', newFile.mode);
+        cm.setValue(newFile.content); cm.setOption('mode', newFile.mode);
         cm.setHistory(newFile.history || { done: [], undone: [] });
         if (newFile.cursor) cm.setCursor(newFile.cursor);
         if (newFile.scrollInfo) cm.scrollTo(newFile.scrollInfo.left, newFile.scrollInfo.top);
-        
         languageSelect.value = newFile.mode;
         fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`;
         cm.focus();
     }
     renderTabs();
-    saveSession(); // Persist state change
+    saveSession();
 }
-
 function createNewTab(name = "Untitled", content = "", handle = null) {
     const newFile = createNewFileObj(name, content, handle);
-    openFiles.push(newFile); 
-    switchToTab(newFile.id); // Implicitly saves session
+    openFiles.push(newFile); switchToTab(newFile.id);
 }
-
 function closeTab(id) {
     if (id === activeFileId) {
         const idx = openFiles.findIndex(f => f.id === id);
@@ -280,10 +213,34 @@ function closeTab(id) {
     }
     openFiles = openFiles.filter(f => f.id !== id); 
     renderTabs();
-    saveSession(); // Persist state change
+    saveSession();
 }
 
-// --- 8. EVENT LISTENERS ---
+// --- 6. SESSION ---
+function saveSession() {
+    if (activeFileId) {
+        const cf = openFiles.find(f => f.id === activeFileId);
+        if (cf) { cf.content = cm.getValue(); cf.cursor = cm.getCursor(); cf.scrollInfo = cm.getScrollInfo(); }
+    }
+    const sessionData = openFiles.map(f => ({
+        id: f.id, name: f.name, content: f.content, mode: f.mode, cursor: f.cursor, scrollInfo: f.scrollInfo, isDirty: true 
+    }));
+    localStorage.setItem('notepad_session_v2', JSON.stringify({ files: sessionData, activeId: activeFileId }));
+}
+function restoreSession() {
+    try {
+        const raw = localStorage.getItem('notepad_session_v2');
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (!data.files || data.files.length === 0) return false;
+        openFiles = data.files.map(f => ({ ...f, handle: null, history: { done: [], undone: [] } }));
+        activeFileId = data.activeId;
+        if (!openFiles.find(f => f.id === activeFileId)) activeFileId = openFiles[0].id;
+        return true;
+    } catch (e) { return false; }
+}
+
+// --- 7. EVENT LISTENERS ---
 brandButton.addEventListener('click', () => { if (window.innerWidth <= 768) mainToolbar.classList.toggle('mobile-open'); else createNewTab(); });
 btnNewTab.addEventListener('click', () => createNewTab());
 if(btnNewFile) btnNewFile.addEventListener('click', () => createNewTab()); 
@@ -293,7 +250,7 @@ btnOpen.addEventListener('click', async () => {
 });
 fileInput.addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = (e) => createNewTab(f.name, e.target.result, null); r.readAsText(f); fileInput.value = ''; });
 
-// SAVE
+// SAVE & SAVE AS
 function triggerSaveAs() {
     const file = openFiles.find(f => f.id === activeFileId); if (!file) return;
     trimWhitespace();
@@ -303,7 +260,6 @@ function triggerSaveAs() {
         }).catch(e => {});
     } else { saveFileFallback(file.name, cm.getValue()); file.isDirty = false; renderTabs(); }
 }
-
 btnSave.addEventListener('click', async () => {
     const file = openFiles.find(f => f.id === activeFileId); if (!file) return; if (!file.handle) { triggerSaveAs(); return; }
     trimWhitespace();
@@ -312,13 +268,8 @@ btnSave.addEventListener('click', async () => {
         file.isDirty = false; renderTabs(); const org = btnSave.textContent; btnSave.textContent = "✅ Saved"; setTimeout(() => btnSave.textContent = "💾 Save", 1500);
     } catch (e) { alert("Could not save file."); }
 });
-
-if (btnSaveMenu && saveDropdown) {
-    btnSaveMenu.addEventListener('click', (e) => { e.stopPropagation(); saveDropdown.classList.toggle('show'); });
-}
-if (btnSaveAs) {
-    btnSaveAs.addEventListener('click', () => { triggerSaveAs(); if(saveDropdown) saveDropdown.classList.remove('show'); });
-}
+if (btnSaveMenu && saveDropdown) btnSaveMenu.addEventListener('click', (e) => { e.stopPropagation(); saveDropdown.classList.toggle('show'); });
+if (btnSaveAs) btnSaveAs.addEventListener('click', () => { triggerSaveAs(); if(saveDropdown) saveDropdown.classList.remove('show'); });
 
 document.addEventListener('click', (e) => { 
     if (toolsMenu && !toolsMenu.contains(e.target) && e.target !== btnTools) toolsMenu.classList.remove('show');
@@ -333,16 +284,34 @@ toolDup.addEventListener('click', () => { duplicateLine(); toolsMenu.classList.r
 toolUpper.addEventListener('click', () => { changeCase('upper'); toolsMenu.classList.remove('show'); });
 toolLower.addEventListener('click', () => { changeCase('lower'); toolsMenu.classList.remove('show'); });
 
-// EDITOR UPDATE & AUTO-SAVE
+// --- PREVIEW LOGIC (NEW) ---
+btnPreview.addEventListener('click', () => {
+    if (previewPane.classList.contains('active')) {
+        // Hide Preview
+        previewPane.classList.remove('active');
+        document.querySelector('.CodeMirror').style.display = 'block';
+        btnPreview.classList.remove('active');
+    } else {
+        // Show Preview
+        const markdown = cm.getValue();
+        if (typeof marked !== 'undefined') {
+            previewPane.innerHTML = marked.parse(markdown);
+        } else {
+            previewPane.textContent = "Error: Markdown library not loaded.";
+        }
+        previewPane.classList.add('active');
+        document.querySelector('.CodeMirror').style.display = 'none';
+        btnPreview.classList.add('active');
+    }
+});
+
 const updateStats = (cmInstance, changeObj) => {
     const text = cm.getValue(); const lines = cm.lineCount(); const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
     statsDisplay.textContent = `Lines: ${lines} | Words: ${words}`;
     const file = openFiles.find(f => f.id === activeFileId);
     if (file) {
-        // If content changed programmatically (setValue), don't mark dirty
         if (changeObj && changeObj.origin !== 'setValue') { if (!file.isDirty) { file.isDirty = true; renderTabs(); } }
-        file.content = text; 
-        saveSession(); // Save to local storage on every change
+        file.content = text; saveSession();
     }
 };
 cm.on('change', (i, c) => updateStats(i, c));
@@ -359,19 +328,26 @@ btnPaste.addEventListener('click', async () => { try { const text = await naviga
 btnHistory.addEventListener('click', (e) => { e.stopPropagation(); renderHistoryMenu(); historyMenu.classList.toggle('show'); });
 
 let lastSearchQuery = ''; let searchCursor = null;
-const triggerSearch = (e) => { if (e.key === 'Enter') { e.preventDefault(); btnAction.click(); } };
-findInput.addEventListener('keydown', triggerSearch); replaceInput.addEventListener('keydown', triggerSearch);
-btnAction.addEventListener('click', () => {
-    const f = findInput.value; const r = replaceInput.value; if (!f) return;
-    if (r === "") {
+const triggerSearch = (e) => { if (e.key === 'Enter') { e.preventDefault(); if(btnFind) btnFind.click(); } };
+const triggerReplace = (e) => { if (e.key === 'Enter') { e.preventDefault(); if(btnReplaceAll) btnReplaceAll.click(); } };
+findInput.addEventListener('keydown', triggerSearch); replaceInput.addEventListener('keydown', triggerReplace);
+
+if (btnFind) {
+    btnFind.addEventListener('click', () => {
+        const f = findInput.value; if (!f) return;
         if (f !== lastSearchQuery || !searchCursor) { lastSearchQuery = f; searchCursor = cm.getSearchCursor(f, cm.getCursor(), {caseFold: true}); }
         if (searchCursor.findNext()) { cm.setSelection(searchCursor.from(), searchCursor.to()); cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100); cm.focus(); }
         else { searchCursor = cm.getSearchCursor(f, {line: 0, ch: 0}, {caseFold: true}); if (searchCursor.findNext()) { cm.setSelection(searchCursor.from(), searchCursor.to()); cm.scrollIntoView({from: searchCursor.from(), to: searchCursor.to()}, 100); cm.focus(); } else alert("Text not found!"); }
-    } else {
+    });
+}
+
+if (btnReplaceAll) {
+    btnReplaceAll.addEventListener('click', () => {
+        const f = findInput.value; const r = replaceInput.value; if (!f) return;
         const c = cm.getValue(); const reg = new RegExp(escapeRegExp(f), "gi"); const n = c.replace(reg, r);
-        if (c !== n) { cm.setValue(n); alert("Replaced all occurrences."); } else alert("Text not found!");
-    }
-});
+        if (c !== n) { cm.setValue(n); } else alert("Text not found!");
+    });
+}
 
 languageSelect.addEventListener('change', () => { const f = openFiles.find(x => x.id === activeFileId); if(f) { f.mode = languageSelect.value; cm.setOption('mode', f.mode); fileModeDisplay.textContent = `(${languageSelect.options[languageSelect.selectedIndex].text})`; saveSession(); } });
 btnToggleWrap.addEventListener('click', () => { const c = cm.getOption('lineWrapping'); cm.setOption('lineWrapping', !c); btnToggleWrap.classList.toggle('active'); });
@@ -387,7 +363,6 @@ dropZone.addEventListener('drop', async (e) => { e.preventDefault(); dropZone.cl
 const btnHelp = document.getElementById('btnHelp');
 const helpModal = document.getElementById('helpModal');
 const closeModal = document.getElementById('closeModal');
-
 if (btnHelp) { btnHelp.addEventListener('click', (e) => { e.preventDefault(); helpModal.classList.add('show'); }); }
 if (closeModal) { closeModal.addEventListener('click', () => helpModal.classList.remove('show')); }
 if (helpModal) { helpModal.addEventListener('click', (e) => { if(e.target === helpModal) helpModal.classList.remove('show'); }); }
@@ -401,31 +376,4 @@ document.addEventListener('keydown', e => {
     if (e.altKey && e.key === 'w') { e.preventDefault(); if (activeFileId) closeTab(activeFileId); }
 });
 
-// PWA Launch Queue
-if ('launchQueue' in window && 'files' in LaunchParams.prototype) {
-    launchQueue.setConsumer(async (launchParams) => {
-        if (!launchParams.files.length) return;
-        for (const handle of launchParams.files) {
-            if (handle.kind === 'file') {
-                if (openFiles.length === 1 && openFiles[0].name === "Untitled" && !openFiles[0].isDirty && openFiles[0].content === "") {
-                     closeTab(openFiles[0].id);
-                }
-                try {
-                    const file = await handle.getFile();
-                    const content = await file.text();
-                    createNewTab(file.name, content, handle);
-                } catch (e) { console.error("Error handling launched file:", e); }
-            }
-        }
-    });
-}
-
-// --- 9. STARTUP ---
-// Attempt restore, else start new
-if (!restoreSession()) {
-    if (openFiles.length === 0) createNewTab();
-} else {
-    // If restore successful, render tabs and switch to active
-    renderTabs();
-    switchToTab(activeFileId);
-}
+if (!restoreSession()) { if (openFiles.length === 0) createNewTab(); } else { renderTabs(); switchToTab(activeFileId); }
