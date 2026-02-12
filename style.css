@@ -121,7 +121,13 @@ body { margin: 0; display: flex; flex-direction: column; height: 100vh; font-fam
 .brand-section img { width: 24px; height: 24px; margin-right: 8px; }
 .app-name { font-weight: bold; color: var(--accent); font-size: 1.1rem; transition: color 0.2s; }
 .brand-section:hover .app-name { color: var(--text-color); }
-.group-file, .group-clipboard, .group-zoom, .group-search { display: flex; gap: 6px; align-items: center; }
+
+/* Compact spacing for groups */
+.group-file, .group-clipboard, .group-zoom, .group-search { 
+    display: flex; 
+    gap: 6px; 
+    align-items: center; 
+}
 
 /* Desktop Adjustment: Show Logo, Hide Text */
 @media (min-width: 769px) {
