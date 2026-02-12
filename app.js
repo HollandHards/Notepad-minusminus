@@ -29,10 +29,13 @@ const saveDropdown = document.getElementById('saveDropdown');
 const btnSaveAs = document.getElementById('btnSaveAs');
 
 const btnNewTab = document.getElementById('btnNewTab');
+const btnZoomIn = document.getElementById('btnZoomIn');
+const btnZoomOut = document.getElementById('btnZoomOut');
+const btnToggleWrap = document.getElementById('btnToggleWrap');
 const btnTheme = document.getElementById('btnTheme');
 const btnPreview = document.getElementById('btnPreview'); 
 
-// SEARCH BUTTONS
+const btnAction = document.getElementById('btnAction');
 const btnFind = document.getElementById('btnFind'); 
 const btnReplaceAll = document.getElementById('btnReplaceAll'); 
 
@@ -43,7 +46,7 @@ const btnHistory = document.getElementById('btnHistory');
 const btnTools = document.getElementById('btnTools');
 const toolsMenu = document.getElementById('toolsMenu');
 
-// TOOLS MENU ITEMS
+// Tools Menu Items
 const toolSort = document.getElementById('toolSort');
 const toolTrim = document.getElementById('toolTrim');
 const toolDup = document.getElementById('toolDup');
@@ -205,10 +208,8 @@ function switchToTab(id) {
         if (newFile.cursor) cm.setCursor(newFile.cursor);
         if (newFile.scrollInfo) cm.scrollTo(newFile.scrollInfo.left, newFile.scrollInfo.top);
         
-        // VISUAL UPDATE: Show "Syntax theme" placeholder if plain text
         languageSelect.value = newFile.mode === 'text/plain' ? "" : newFile.mode;
         
-        // Find correct label for Status Bar
         const modeOption = Array.from(languageSelect.options).find(o => o.value === newFile.mode);
         const displayText = modeOption ? modeOption.text : "Plain Text";
         fileModeDisplay.textContent = `(${displayText})`;
@@ -313,7 +314,6 @@ document.addEventListener('click', (e) => {
     if (historyMenu && !historyMenu.contains(e.target) && e.target !== btnHistory) historyMenu.classList.remove('show');
 });
 
-// TOOLS ACTIONS
 btnTools.addEventListener('click', (e) => { e.stopPropagation(); toolsMenu.classList.toggle('show'); });
 toolSort.addEventListener('click', () => { sortLines(); toolsMenu.classList.remove('show'); });
 toolTrim.addEventListener('click', () => { trimWhitespace(); toolsMenu.classList.remove('show'); });
@@ -321,7 +321,6 @@ toolDup.addEventListener('click', () => { duplicateLine(); toolsMenu.classList.r
 toolUpper.addEventListener('click', () => { changeCase('upper'); toolsMenu.classList.remove('show'); });
 toolLower.addEventListener('click', () => { changeCase('lower'); toolsMenu.classList.remove('show'); });
 
-// NEW: Handlers for Zoom/Wrap in menu
 if (toolWrap) {
     toolWrap.addEventListener('click', () => {
         const c = cm.getOption('lineWrapping');
@@ -333,7 +332,6 @@ const updateFontSize = () => { document.querySelector('.CodeMirror').style.fontS
 if (toolZoomIn) {
     toolZoomIn.addEventListener('click', () => { 
         currentFontSize += 2; updateFontSize(); 
-        // toolsMenu.classList.remove('show'); // optional keep open
     });
 }
 if (toolZoomOut) {
@@ -342,7 +340,6 @@ if (toolZoomOut) {
     });
 }
 
-// PREVIEW BUTTON LOGIC
 if (btnPreview) {
     btnPreview.addEventListener('click', () => {
         if (previewPane.classList.contains('active')) {
@@ -403,7 +400,6 @@ if (btnFind) {
 if (btnReplaceAll) {
     btnReplaceAll.addEventListener('click', () => {
         const f = findInput.value; const r = replaceInput.value;
-        // Allows replacement with empty string (r is "" is valid)
         if (!f) return;
 
         const c = cm.getValue(); 
@@ -412,7 +408,6 @@ if (btnReplaceAll) {
         
         if (c !== n) { 
             cm.setValue(n); 
-            // Optional: alert removed for speed
         } else { 
             alert("Text not found!"); 
         }
