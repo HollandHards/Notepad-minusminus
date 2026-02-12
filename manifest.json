@@ -24,14 +24,13 @@
     {
       "action": "./index.html",
       "accept": {
-        "text/plain": [
-          ".txt", ".md", ".csv", ".log", ".ini", ".conf", ".cfg", ".json", ".xml", ".yaml", ".yml", 
-          ".js", ".mjs", ".ts", ".jsx", ".tsx", ".html", ".htm", ".css", ".scss", ".less", 
-          ".php", ".py", ".rb", ".java", ".c", ".cpp", ".h", ".hpp", ".cs", ".go", ".rs", ".swift", ".kt", 
-          ".bat", ".sh", ".ps1", ".sql", ".svg", ".gitignore", ".env", ".properties", 
-          ".gradle", ".groovy", ".lua", ".pl", ".r", ".vb", ".vbs", ".dart", ".dockerfile", ".toml"
-        ]
+        "text/plain": [".txt", ".md", ".csv", ".log", ".ini", ".conf", ".cfg", ".json", ".xml", ".yaml", ".yml"],
+        "text/html": [".html", ".htm"],
+        "text/css": [".css", ".scss", ".less"],
+        "text/javascript": [".js", ".mjs", ".ts", ".jsx"],
+        "application/x-httpd-php": [".php"],
+        "text/x-sql": [".sql"]
       }
     }
   ]
-} 
+}
