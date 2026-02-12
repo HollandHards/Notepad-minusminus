@@ -1,6 +1,6 @@
 # Notepad-minusminus (Notepad--) 📝
 
-A lightweight, distraction-free, and privacy-centric code editor optimized for ChromeOS or Firefox, yet universally compatible across platforms.
+A lightweight, distraction-free, and privacy-centric code editor optimized for ChromeOS, yet universally compatible across platforms.
 
 **Notepad--** operates as a Progressive Web App (PWA), utilizing the advanced File System Access API to facilitate direct manipulation of local files through the browser interface, mirroring the functionality of native desktop applications. The application incorporates a sophisticated multi-tab interface and intelligent coding capabilities, while maintaining full offline functionality.
 
@@ -13,11 +13,9 @@ A lightweight, distraction-free, and privacy-centric code editor optimized for C
 The application features a responsive design capable of adapting to user preference through distinct visual themes.
 
 **Dark Mode (Default)**
-![Notepad-- Dark Mode Interface](notepad--_dark.jpg)
 *Figure 1: The default Dark Mode interface displaying syntax highlighting, the multi-tab system, and the Service Worker integration.*
 
 **Light Mode**
-![Notepad-- Light Mode Interface](notepad--_light.jpg)
 *Figure 2: The Light Mode interface offering high-contrast visibility for alternative lighting environments.*
 
 ## ✨ Functional Overview
@@ -99,13 +97,67 @@ As a Progressive Web App (PWA), Notepad-- may be installed as a standalone appli
 | `Ctrl + S` | Save File | 
 | `Ctrl + O` | Open File | 
 | `Alt + N` | **New Tab** | 
-| `Alt + W` | **Close Tab** |
+| `Alt + W` | **Close Tab** | 
 | `Ctrl + D` | **Duplicate Line** | 
 | `Ctrl + Space` | **Auto-Complete** | 
 | `Ctrl + G` | Go to Line Number | 
 | `Ctrl + Shift + ↑/↓` | Move Line Up/Down | 
 | `Tab` | Indent (4 spaces) | 
 | `Enter` | Find Next (when within Search interface) | 
+
+## 📝 Release Notes
+
+### Version 1.6 (Current)
+
+* **PWA Icon Persistence:**
+
+  * bump service worker cache to **v1.6** to force a deep refresh of application assets.
+
+  * Resolved an issue where the application icon would revert to a generic letter ("N") or fail to load on the ChromeOS shelf and Windows taskbar.
+
+  * Refined `manifest.json` icon definitions to explicitly separate "any" and "maskable" purposes for better OS compatibility.
+
+### Version 1.5
+
+* **Asset Integrity:** Internal updates to ensure `logo.png` is correctly cached and served by the Service Worker immediately upon installation.
+
+### Version 1.4
+
+* **Enhanced Search Bar:**
+
+  * Dedicated "Find" (🔎) and "Replace All" (🔁) buttons for clearer action.
+
+  * "Replace All" now supports empty strings to delete text.
+
+* **Streamlined UI:**
+
+  * **New File Button:** Added a dedicated "📄 New" button for quick access.
+
+  * **Split Save Button:** Combined "Save" and "Save As" into a dropdown menu.
+
+  * **Compact Tools:** Moved "Word Wrap" and "Zoom" controls into the Tools menu to save toolbar space.
+
+  * **Compact Layout:** Reduced button padding and gaps for a cleaner look.
+
+* **Bug Fixes:**
+
+  * **Editor Height:** Fixed an issue where the editor would shrink to a few lines; it now always fills 100% of the available vertical space.
+
+  * **Session Restore:** Fixed a bug where reloading the page would sometimes clear the active tab's content.
+
+  * **Markdown Preview:** Fixed synchronization issues when switching between Markdown preview and other tabs.
+
+  * **Missing Buttons:** Fixed console errors related to moving buttons into menus.
+
+### Version 1.3
+
+* **Multi-Tab Interface:** Added support for multiple open files.
+
+* **Auto-Completion:** Intelligent code suggestions.
+
+* **PWA File Handlers:** Integration with OS "Open With" menu.
+
+* **Logo Fixes:** Resolved PWA icon display issues on ChromeOS.
 
 ## 🏗️ Technical Architecture
 
@@ -133,4 +185,4 @@ Contributions are welcomed. Please fork the repository and submit pull requests 
 
 ## 📄 Licensing
 
-This project is open-source software distributed under the [MIT License](LICENSE).
+This project is open-source software distributed under the [MIT License](https://www.google.com/search?q=LICENSE).
